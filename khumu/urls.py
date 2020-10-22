@@ -28,7 +28,8 @@ from board import views as boardView
 
 
 router = routers.DefaultRouter()
-router.register(r'users', userView.UserViewSet)
+# Basename is used for hyperlink
+router.register(r'users', userView.KhumuUserViewSet, basename='khumuuser')
 router.register(r'groups', userView.GroupViewSet)
 router.register(r'articles', articleView.ArticleViewSet, basename='article')
 router.register(r'comments', commentView.CommentViewSet)

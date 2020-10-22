@@ -1,13 +1,18 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
+from khuauth import auth
+from user.models import KhumuUser
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class KhumuUserSerializer(serializers.HyperlinkedModelSerializer):
+
     class Meta:
-        model = User
-        fields = ['url', 'username', 'email', 'groups', 'password', 'memo']
+        model = KhumuUser
+        fields = ['url', 'username', 'nickname',
+                  'student_number', 'email', 'groups', 'password', 'memo']
 
     def create(self, validated_data):
+        print(auth.authenticate(validated_data['username'], validated_data['password']))
         user = super().create(validated_data)
         user.set_password(validated_data['password'])
         user.save()

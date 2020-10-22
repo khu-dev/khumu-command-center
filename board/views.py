@@ -5,24 +5,25 @@ from board.serializers import BoardSerializer
 from rest_framework import  mixins, response
 from article.serializers import ArticleSerializer
 from rest_framework.serializers import SerializerMethodField
+from khumu.permissions import OpenPermission, IsAuthorOrAdmin
+MAX_ARTICLE_PREVIEW = 5
 
 class BoardViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
+    permission_classes = [OpenPermission]
     def get_queryset(self):
         boards = Board.objects.all()
         return boards
 
     serializer_class = BoardSerializer
-    permission_classes = [permissions.IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
-        MAX_ARTICLE_PREVIEW = 5
         queryset = self.filter_queryset(self.get_queryset())
         # skip pagination
         serializer = self.get_serializer(queryset, many=True)
-        serializedBoards = serializer.data
+        serialized_boards = serializer.data
 
-        return response.Response(serializedBoards)
+        return response.Response(serialized_boards)
 
