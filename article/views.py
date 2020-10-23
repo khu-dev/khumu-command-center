@@ -5,8 +5,10 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import response
 from article.serializers import ArticleSerializer
-from khumu.permissions import IsAuthorOrAdmin
+from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse
+
+
 class ArticleViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -30,7 +32,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         article = self.get_object()
         article_serialized = self.get_serializer(article).data
-        if not IsAuthorOrAdmin(request.user.get_username(), article.author.username):
+        if not is_author_or_admin(request.user.get_username(), article.author.username):
             return UnAuthorizedResponse("You're not an admin neither an author.")
 
         article_serialized['comments'] = CommentSerializer(

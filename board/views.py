@@ -5,7 +5,7 @@ from board.serializers import BoardSerializer
 from rest_framework import  mixins, response
 from article.serializers import ArticleSerializer
 from rest_framework.serializers import SerializerMethodField
-from khumu.permissions import OpenPermission, IsAuthorOrAdmin
+from khumu.permissions import OpenPermission, is_author_or_admin
 MAX_ARTICLE_PREVIEW = 5
 
 class BoardViewSet(viewsets.ModelViewSet):

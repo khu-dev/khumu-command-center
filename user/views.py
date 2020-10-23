@@ -8,7 +8,7 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    queryset = KhumuUser.objects.all().order_by('-date_joined')
+    queryset = KhumuUser.objects.all().order_by('-created_at')
     serializer_class = KhumuUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
