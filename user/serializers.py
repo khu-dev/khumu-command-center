@@ -4,7 +4,7 @@ from khuauth import auth
 from user.models import KhumuUser
 
 
-class KhumuUserSerializer(serializers.HyperlinkedModelSerializer):
+class KhumuUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = KhumuUser
@@ -18,6 +18,10 @@ class KhumuUserSerializer(serializers.HyperlinkedModelSerializer):
         user.save()
         return user
 
+class KhumuUserSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KhumuUser
+        fields = ['username']
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
