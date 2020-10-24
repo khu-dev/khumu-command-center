@@ -8,7 +8,7 @@ class KhumuUserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = KhumuUser
-        fields = ['url', 'is_superuser', 'username', 'nickname',
+        fields = ['pk', 'url', 'is_superuser', 'username', 'nickname',
                   'student_number', 'email', 'groups', 'password', 'memo']
 
     def create(self, validated_data):

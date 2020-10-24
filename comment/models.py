@@ -8,4 +8,5 @@ class Comment(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)
     content = models.TextField()
-    create_at = models.DateTimeField(auto_now_add=True)
+    parent = models.ForeignKey("self", on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)

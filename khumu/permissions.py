@@ -12,5 +12,9 @@ class OpenPermission(permissions.BasePermission):
 
 
 def is_author_or_admin(username:str, author:str):
-    return Group.objects.get(name="Admin").khumuuser_set.filter(username=username) or \
+    admin_group = Group.objects.filter(name="Admin").first()
+    if admin_group:
+        return admin_group.khumuuser_set.filter(username=username) or \
         username == author
+    else:
+        return username == author

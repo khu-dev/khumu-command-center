@@ -6,7 +6,7 @@ from comment.serializers import CommentSerializer
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Article
-        fields = ['url', 'board', 'title', 'author', 'content', 'images', 'create_at', 'comment_count']
+        fields = ['pk', 'url', 'board', 'title', 'author', 'content', 'images', 'create_at', 'comment_count']
         # fields = ['board', 'title', 'author', 'content', 'create_at', 'comment_count']
 
     comment_count = serializers.SerializerMethodField()

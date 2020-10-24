@@ -8,6 +8,7 @@ class KhumuUser(AbstractUser, PermissionsMixin):
 
     EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'username'
+    USER_ID_FIELD = 'username'
     REQUIRED_FIELDS = ['email']
 
     username = models.CharField(max_length=10, unique=True, primary_key=True)
