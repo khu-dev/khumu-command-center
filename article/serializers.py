@@ -12,7 +12,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         # fields = ['board', 'title', 'author', 'content', 'create_at', 'comment_count']
 
     comment_count = serializers.SerializerMethodField()
-    author = KhumuUserSimpleSerializer()
+    # author = KhumuUserSimpleSerializer()
     # article의 경우 웬만해선 comment count가 필요하다.
     def get_comment_count(self, obj):
         # print(self.context['request'])
