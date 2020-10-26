@@ -11,7 +11,7 @@ from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse
 from user.serializers import KhumuUserSimpleSerializer
 from user.models import KhumuUser
-from article.logics import get_comments
+from article.logics import get_article_comments, get_article_author_simply, get_article_list
 
 class ArticleViewSet(viewsets.ModelViewSet):
     """
@@ -35,22 +35,12 @@ class ArticleViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
-        articles = self.get_queryset()
-        articles_serialized = ArticleSerializer(context=self.get_serializer_context(), data=articles, many=True)
-        articles_serialized.is_valid()
-        articles_serialized = articles_serialized.data
-
-        for article_serialized in articles_serialized:
-            author_username = article_serialized["author"]
-            author = KhumuUser.objects.filter(username__exact=author_username)
-            author_serialized = KhumuUserSimpleSerializer(data=author, many=True)
-            author_serialized.is_valid()
-            author_serialized = author_serialized.data
-            if author_serialized:
-                article_serialized["author"] = author_serialized
-            else:
-                article_serialized["author"] = {"username":None} # This will be converted into null
-        return response.Response(articles_serialized)
+        query_options = {}
+        print(request.query_params)
+        for k, v in request.query_params.items():
+            query_options[k] = v
+        result = get_article_list(self.get_serializer_context(), *args, **query_options)
+        return response.Response(result)
 
     def retrieve(self, request, *args, **kwargs):
         article = self.get_object()
@@ -58,6 +48,6 @@ class ArticleViewSet(viewsets.ModelViewSet):
         if not is_author_or_admin(request.user.get_username(), article.author.username):
             return UnAuthorizedResponse("You're not an admin neither an author.")
 
-        article_serialized['comments'] = get_comments(article, self.get_serializer_context())
+        article_serialized['comments'] = get_article_comments(article, self.get_serializer_context())
 
         return response.Response(article_serialized)
