@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from khuauth import auth
 from user.models import KhumuUser
 
 
@@ -12,7 +11,6 @@ class KhumuUserSerializer(serializers.ModelSerializer):
                   'student_number', 'email', 'groups', 'password', 'memo']
 
     def create(self, validated_data):
-        print(auth.authenticate(validated_data['username'], validated_data['password']))
         user = super().create(validated_data)
         user.set_password(validated_data['password'])
         user.save()
