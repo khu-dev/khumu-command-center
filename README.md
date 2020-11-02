@@ -25,3 +25,5 @@ $ docker run -t --rm --name tmp -v $PWD:/khumu -p 8000:8000 tmp
 ```bash
 docker build -f Dockerfile-dev . -t ${{ IMAGE_NAME }}
 ``` 
+
+## 개발 팁

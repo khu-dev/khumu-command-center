@@ -11,4 +11,8 @@ class Article(models.Model):
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)
     content = models.TextField(null=True, blank=True)
     images = JSONField(null=True)
-    create_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class LikeArticle(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)

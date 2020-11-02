@@ -9,9 +9,10 @@ from comment.models import Comment
 from board.models import Board
 from django.contrib.auth.hashers import make_password
 
+
 # Create your tests here.
 class InitializeTest(TestCase):
-    usernames = ["admin", "david","jinsu", "Park", "kim", "haley", "mike","justin"]
+    usernames = ["admin", "jinsu", "someone", "david", "Park", "kim", "haley", "mike","justin"]
     sentences = [
          "Lorem Ipsum has been the industry's standard",
          "galley of type and scrambled it to make a type specimen",
@@ -55,7 +56,7 @@ class InitializeTest(TestCase):
             user = KhumuUser(username=username, password=make_password("123123"), nickname="nick"+username)
             user.save()
             users.append(user)
-            print("User created. ", user)
+            print("Create random users. ", user)
 
         board = Board(short_name="봉숭아", long_name="봉숭아학당", name="bongs", description="봉숭아학당의 커뮤니티사이트")
         board.save()
@@ -64,9 +65,39 @@ class InitializeTest(TestCase):
             article = Article(board_id=board.id, title=title, author_id=random.choice(users).pk, content=title[::-1])
             article.save()
             articles.append(article)
-            print("Article created. ", article)
+            print("Create random articles. ", article)
 
-        for i in range(30):
+        comment = Comment(
+            article_id=1,
+            kind="anonymous",
+            author_id="jinsu",
+            content=random.choice(self.sentences),
+            parent_id=None
+        )
+        comment.save()
+        print("Create a comment for golang test. ", comment)
+
+        comment = Comment(
+            article_id=1,
+            kind="named",
+            author_id="jinsu",
+            content=random.choice(self.sentences),
+            parent_id=None
+        )
+        comment.save()
+        print("Create a comment for golang test. ", comment)
+
+        comment = Comment(
+            article_id=1,
+            kind="anonymous",
+            author_id="someone",
+            content=random.choice(self.sentences),
+            parent_id=None
+        )
+        comment.save()
+        print("Create a comment for golang test. ", comment)
+
+        for i in range(5):
             comment = Comment(
                 article=random.choice(articles),
                 author=random.choice(users),
@@ -75,5 +106,4 @@ class InitializeTest(TestCase):
             )
             comment.save()
             comments.append(comment)
-            print("Comment created. ", comment)
-        print(KhumuUser.objects.all())
+            print("Create random comments. ", comment)
