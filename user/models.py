@@ -15,7 +15,7 @@ class KhumuUser(AbstractUser, PermissionsMixin):
     email = models.EmailField(blank=True)
     is_active = models.BooleanField(default=True, help_text="우리학교 학생임이 인증되면 True. 현재는 기본적으로 True")
     type = models.CharField(max_length=16, default="khumu")
-    nickname = models.CharField(max_length=10, default="흡혈형사")
+    nickname = models.CharField(max_length=16, default="흡혈형사")
     student_number = models.CharField(max_length=10, default="2000123123")
     memo = models.TextField(max_length=150, default="안녕, 잘 부탁해")
     created_at = models.DateTimeField(default=timezone.now)

@@ -1,0 +1,13 @@
+# 윗 부분은 .gitignore와 동일
+
+venv
+*.sqlite3
+
+__pycache__
+.idea
+.pyc
+*/migrations/*
+config/*
+!config/local.yaml
+
+# docker image에서만 제외할 부분

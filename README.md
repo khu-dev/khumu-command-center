@@ -27,3 +27,20 @@ docker build -f Dockerfile-dev . -t ${{ IMAGE_NAME }}
 ``` 
 
 ## 개발 팁
+
+* pip dependency
+  ```bash
+  $ pip freeze > requirements.txt
+  # requirements.txt 작성 후 pkg-resources==0.0.0 line을 지워준다. 
+  ```
+
+* mysqlclient dependency - MySQL을 이용하기 위해서 필요한 ubuntu의 패키지들이다.
+  * `sudo apt-get install python3-dev`
+  * `sudo apt-get install libmysqlclient-dev`
+    * 일반 ubuntu에서는 `libmysqlclient-dev`, python ubuntu container에서는 `default-libmysqlclient-dev`(?). 아마 후자로만 해도 될 것 같음.
+  * `pip install mysqlclient`
+  * `pip install wheel`
+
+* 다양한 환경에 따른 config
+  * `KHUMU_ENVIRONMENT` 값을 통해 설정 가능 (`local` | `dev`, default는 `local`)
+  * `KHUMU_ENVIRONMENT` 의 값에 따라`config/local.yaml` 혹은 `config/dev.yaml` 를 이용해 `settings.py` 에서 각종 설정을 동적으로 취한다.

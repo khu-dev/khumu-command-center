@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os,datetime
 from khumu.csrf import CsrfExemptSessionAuthentication
+from khumu import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -82,17 +83,8 @@ WSGI_APPLICATION = 'khumu.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        # 'NAME': os.path.join(BASE_DIR, 'test.sqlite3'),
-        # why this dosen't work.
-        # 'TEST': {
-        #     'NAME': os.path.join(BASE_DIR, 'test.sqlite3'),
-        # }
-    }
-}
+DATABASES = config.load_database_config()
+print(DATABASES["default"]["PASSWORD"])
 
 
 # Password validation
@@ -126,14 +118,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),
 }
-
-# JWT_AUTH = {
-#     'JWT_SECRET_KEY': SECRET_KEY,
-#     'JWT_ALGORITHM': 'HS256',
-#     'JWT_ALLOW_REFRESH': True,
-#     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=30),
-#     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=28),
-# }
 
 SIMPLE_JWT = {
     'USER_ID_FIELD': 'username',

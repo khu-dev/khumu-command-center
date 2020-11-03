@@ -1,0 +1,8 @@
+# config file
+database:
+  engine: django.db.backends.sqlite3
+  name: ../db.sqlite3
+  user:
+  password:
+  host:
+  port:
