@@ -1,4 +1,4 @@
-# config file
+# sqlite3를 사용하고 싶을 때
 database:
   engine: django.db.backends.sqlite3
   name: ../db.sqlite3
