@@ -23,6 +23,7 @@ router.register(r'boards', boardView.BoardViewSet, basename='board')
 
 urlpatterns = [
     path(r'', lambda req:HttpResponseRedirect("/api")),
+    path(r'healthz', include('health_check.urls')),
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
