@@ -19,7 +19,11 @@ class KhumuUserSerializer(serializers.ModelSerializer):
 class KhumuUserSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = KhumuUser
-        fields = ['username']
+        fields = ['kind', 'username']
+    kind = serializers.SerializerMethodField()
+
+    def get_kind(self, user): return 'active'
+
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

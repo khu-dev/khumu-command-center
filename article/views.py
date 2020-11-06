@@ -11,7 +11,6 @@ from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse
 from user.serializers import KhumuUserSimpleSerializer
 from user.models import KhumuUser
-from article.logics import get_article_author_simply, get_article_list
 
 class ArticleViewSet(viewsets.ModelViewSet):
     """
@@ -19,28 +18,23 @@ class ArticleViewSet(viewsets.ModelViewSet):
     """
     def get_queryset(self):
         print("ArticleViewSet get_queryset")
-        queryset = Article.objects.all()
-
-        board_pk = self.request.query_params.get('board')
-        if board_pk:
-            queryset = queryset.filter(board__pk=board_pk)
-
-        author_name = self.request.query_params.get('author')
-        if author_name:
-            queryset = queryset.filter(author__username=author_name)
-
-        return queryset
+        return Article.objects.all()
 
     serializer_class = ArticleSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
-        query_options = {}
-        print(request.query_params)
-        for k, v in request.query_params.items():
-            query_options[k] = v
-        result = get_article_list(self.get_serializer_context(), *args, **query_options)
-        return response.Response(result)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        articles = serializer.data
+
+        for article in articles:
+            author_username = article["author"]
+            author = KhumuUser.objects.filter(username=author_username)[0]
+            author_serialized = KhumuUserSimpleSerializer(author)
+            article["author"] = author_serialized.data
+        # result = get_article_list(self.get_serializer_context(), *args, **query_options)
+        return response.Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         article = self.get_object()
