@@ -11,7 +11,7 @@ from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse
 from user.serializers import KhumuUserSimpleSerializer
 from user.models import KhumuUser
-from article.logics import get_article_comments, get_article_author_simply, get_article_list
+from article.logics import get_article_author_simply, get_article_list
 
 class ArticleViewSet(viewsets.ModelViewSet):
     """
@@ -47,7 +47,5 @@ class ArticleViewSet(viewsets.ModelViewSet):
         article_serialized = self.get_serializer(article).data
         if not is_author_or_admin(request.user.get_username(), article.author.username):
             return UnAuthorizedResponse("You're not an admin neither an author.")
-
-        article_serialized['comments'] = get_article_comments(article, self.get_serializer_context())
 
         return response.Response(article_serialized)
