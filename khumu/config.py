@@ -10,7 +10,7 @@ if khumu_environment == "DEV":
     config_file_name = "config/dev.yaml"
 with open(config_file_name, "r") as f:
     CONFIG = yaml.load(f, yaml.SafeLoader)
-pprint(CONFIG)
+
 def load_database_config():
     database_config = CONFIG.get("database")
     c = dict()

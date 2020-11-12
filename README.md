@@ -42,5 +42,5 @@ docker build -f Dockerfile-dev . -t ${{ IMAGE_NAME }}
   * `pip install wheel`
 
 * 다양한 환경에 따른 config
-  * `KHUMU_ENVIRONMENT` 값을 통해 설정 가능 (`local` | `dev`, default는 `local`)
+  * `KHUMU_ENVIRONMENT` 값을 통해 설정 가능 (`LOCAL` | `DEV`, default는 `LOCAL`)
   * `KHUMU_ENVIRONMENT` 의 값에 따라`config/local.yaml` 혹은 `config/dev.yaml` 를 이용해 `settings.py` 에서 각종 설정을 동적으로 취한다.

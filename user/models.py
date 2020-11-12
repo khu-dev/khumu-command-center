@@ -19,6 +19,7 @@ class KhumuUser(AbstractUser, PermissionsMixin):
     student_number = models.CharField(max_length=10, default="2000123123")
     memo = models.TextField(max_length=150, default="안녕, 잘 부탁해")
     created_at = models.DateTimeField(default=timezone.now)
+    kind = models.CharField(max_length=16, default="active")
 
     groups = models.ManyToManyField(
         Group,
