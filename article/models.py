@@ -11,6 +11,7 @@ class Article(models.Model):
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)
     content = models.TextField(null=True, blank=True)
     images = JSONField(null=True)
+    kind = models.CharField(max_length=16, default="anonymous")
     created_at = models.DateTimeField(auto_now_add=True)
 
 class LikeArticle(models.Model):

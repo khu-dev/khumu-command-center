@@ -26,6 +26,8 @@ class BoardViewSet(viewsets.ModelViewSet):
         # skip pagination
         serializer = self.get_serializer(queryset, many=True)
         serialized_boards = serializer.data
-
         return DefaultResponse(200, serialized_boards)
+
+    def _hide_author(self, board_article, request_username):
+        if board_article.author == request_username: board_article.author = "익명"
 

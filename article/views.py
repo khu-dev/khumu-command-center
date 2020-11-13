@@ -28,11 +28,11 @@ class ArticleViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         articles = serializer.data
 
-        for article in articles:
-            author_username = article["author"]
-            author = KhumuUser.objects.filter(username=author_username)[0]
-            author_serialized = KhumuUserSimpleSerializer(author)
-            article["author"] = author_serialized.data
+        # for article in articles:
+        #     author_username = article["author"]
+        #     author = KhumuUser.objects.filter(username=author_username)[0]
+        #     author_serialized = KhumuUserSimpleSerializer(author)
+        #     article["author"] = author_serialized.data
         # result = get_article_list(self.get_serializer_context(), *args, **query_options)
         return DefaultResponse(200, serializer.data)
 
