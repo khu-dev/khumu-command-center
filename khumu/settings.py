@@ -85,7 +85,6 @@ WSGI_APPLICATION = 'khumu.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = config.load_database_config()
-print(DATABASES["default"]["PASSWORD"])
 
 
 # Password validation

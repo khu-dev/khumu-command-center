@@ -6,6 +6,8 @@ from rest_framework import  mixins, response
 from article.serializers import ArticleSerializer
 from rest_framework.serializers import SerializerMethodField
 from khumu.permissions import OpenPermission, is_author_or_admin
+from khumu.response import DefaultResponse
+
 MAX_ARTICLE_PREVIEW = 5
 
 class BoardViewSet(viewsets.ModelViewSet):
@@ -25,5 +27,5 @@ class BoardViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         serialized_boards = serializer.data
 
-        return response.Response(serialized_boards)
+        return DefaultResponse(200, serialized_boards)
 

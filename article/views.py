@@ -8,7 +8,7 @@ from rest_framework import permissions
 from rest_framework import response
 from article.serializers import ArticleSerializer
 from khumu.permissions import is_author_or_admin
-from khumu.response import UnAuthorizedResponse, BadRequestResponse
+from khumu.response import UnAuthorizedResponse, BadRequestResponse, DefaultResponse
 from user.serializers import KhumuUserSimpleSerializer
 from user.models import KhumuUser
 
@@ -34,7 +34,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
             author_serialized = KhumuUserSimpleSerializer(author)
             article["author"] = author_serialized.data
         # result = get_article_list(self.get_serializer_context(), *args, **query_options)
-        return response.Response(serializer.data)
+        return DefaultResponse(200, serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         article = self.get_object()
@@ -42,4 +42,4 @@ class ArticleViewSet(viewsets.ModelViewSet):
         if not is_author_or_admin(request.user.get_username(), article.author.username):
             return UnAuthorizedResponse("You're not an admin neither an author.")
 
-        return response.Response(article_serialized)
+        return DefaultResponse(200, article_serialized)
