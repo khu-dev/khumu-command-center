@@ -7,8 +7,7 @@ class KhumuUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = KhumuUser
-        fields = ['pk', 'url', 'is_superuser', 'username', 'nickname',
-                  'student_number', 'email', 'groups', 'password', 'memo']
+        exclude = ['password', 'user_permissions']
 
     def create(self, validated_data):
         user = super().create(validated_data)

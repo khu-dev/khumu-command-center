@@ -6,20 +6,23 @@ from django.utils import timezone
 
 class KhumuUser(AbstractUser, PermissionsMixin):
 
-    EMAIL_FIELD = 'email'
+    # EMAIL_FIELD = 'email'
     USERNAME_FIELD = 'username'
     USER_ID_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    # REQUIRED_FIELDS = ['email']
 
     username = models.CharField(max_length=10, unique=True, primary_key=True)
-    email = models.EmailField(blank=True)
+    # password inherited
+    # email = models.EmailField(blank=True) #
+
     is_active = models.BooleanField(default=True, help_text="우리학교 학생임이 인증되면 True. 현재는 기본적으로 True")
-    type = models.CharField(max_length=16, default="khumu")
+    kind = models.CharField(max_length=16, default="normal") # (normal|orgainzation)
     nickname = models.CharField(max_length=16, default="흡혈형사")
     student_number = models.CharField(max_length=10, default="2000123123")
-    memo = models.TextField(max_length=150, default="안녕, 잘 부탁해")
+    department = models.CharField(max_length=16, default="학과 미설정")
     created_at = models.DateTimeField(default=timezone.now)
-    kind = models.CharField(max_length=16, default="active")
+    state = models.CharField(max_length=16, default="active")
+    is_superuser = models.BooleanField(default=False)
 
     groups = models.ManyToManyField(
         Group,
@@ -40,7 +43,9 @@ class KhumuUser(AbstractUser, PermissionsMixin):
         related_query_name="khumuuser",
     )
 
-    is_superuser = models.BooleanField(default=False)
-
+    email = None
+    first_name = None
+    last_name = None
+    is_staff = None
     # def get_user_permissions(self, obj=None):
     #     return _user_get_permissions(self, obj, 'khumuuser')
