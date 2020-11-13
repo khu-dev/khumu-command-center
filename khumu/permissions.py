@@ -1,6 +1,8 @@
 from rest_framework import permissions
 from django.contrib.auth.models import Group
 
+from user.models import KhumuUser
+
 
 class OpenPermission(permissions.BasePermission):
     """
@@ -12,9 +14,8 @@ class OpenPermission(permissions.BasePermission):
 
 
 def is_author_or_admin(username:str, author:str):
-    admin_group = Group.objects.filter(name="Admin").first()
-    if admin_group:
-        return admin_group.khumuuser_set.filter(username=username) or \
-        username == author
+    print(KhumuUser.objects.get(username=username).groups.all())
+    if KhumuUser.objects.get(username=username).groups.filter(name='admin'):
+        return True
     else:
         return username == author

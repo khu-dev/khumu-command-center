@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework.request import Request
 from comment.serializers import CommentSerializer
 
-class ArticleSerializer(serializers.ModelSerializer):
+class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Article
         fields = ['id', 'url', 'board', 'title', 'author', 'kind', 'content', 'images', 'created_at', 'comment_count']
@@ -14,6 +14,7 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     comment_count = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
+    board = serializers.SerializerMethodField()
     # author = KhumuUserSimpleSerializer()
     # article의 경우 웬만해선 comment count가 필요하다.
     def get_comment_count(self, obj):
@@ -35,3 +36,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             author_data['username'] = '익명'
 
         return author_data
+
+    def get_board(self, obj):
+        # print(self.context['request'])
+        return obj.board.name

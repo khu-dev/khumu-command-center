@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 from user.models import KhumuUser
 
@@ -20,7 +20,7 @@ class KhumuUserSimpleSerializer(serializers.ModelSerializer):
         model = KhumuUser
         fields = ['state', 'username']
 
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
+class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ['url', 'name']

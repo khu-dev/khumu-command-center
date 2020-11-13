@@ -6,7 +6,7 @@ from jsonfield import JSONField
 from user.models import KhumuUser
 
 class Article(models.Model):
-    board = models.ForeignKey(Board, on_delete=models.SET_NULL, null=True)
+    board = models.ForeignKey(Board, on_delete=models.SET_DEFAULT, default='default', null=False)
     title = models.CharField(max_length=255)
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)
     content = models.TextField(null=True, blank=True)

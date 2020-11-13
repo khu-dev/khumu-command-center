@@ -8,7 +8,7 @@ from user.models import KhumuUser
 from comment.models import Comment
 from board.models import Board
 from django.contrib.auth.hashers import make_password
-
+from django.contrib.auth.models import Group
 
 # Create your tests here.
 class InitializeTest(TestCase):
@@ -47,25 +47,44 @@ class InitializeTest(TestCase):
     ]
 
     def test_initialize(self):
+        print("Create groups. If the name of group exists, pass.")
+        for name in ["admin", 'normal']:
+            try:
+                Group(name=name).save()
+            except Exception as e:
+                print(e)
+
         random.shuffle(self.usernames)
         random.shuffle(self.sentences)
         users = []
         articles = []
         comments = []
+
+        print("Create random users", self.usernames)
         for username in self.usernames:
             user = KhumuUser(username=username, password=make_password("123123"), nickname="nick"+username)
-            user.save()
-            users.append(user)
-            print("Create random users. ", user)
+            if username == 'admin':
+                user.is_superuser = True
+                user.save()
+                user.groups.add(1)
+            else:
+                user.save()
+                user.groups.add(2)
 
-        board = Board(short_name="봉숭아", long_name="봉숭아학당", name="bongs", description="봉숭아학당의 커뮤니티사이트")
-        board.save()
-        print("Board created. ", board)
-        for title in self.sentences:
-            article = Article(board_id=board.id, title=title, author_id=random.choice(users).pk, content=title[::-1])
+            users.append(user)
+
+        print("Create boards")
+        Board(name="default", short_name="기본", long_name="기본게시판", description="사용자에게 공개되지 않는 기본 게시판입니다.").save()
+        Board(name="global", short_name="국제캠", long_name="국제캠게시판", description="국제캠퍼스에 관한 자유로운 내용을 담은 게시판입니다.").save()
+        Board(name="seoul", short_name="서울캠", long_name="서울캠게시판", description="서울캠퍼스에 관한 자유로운 내용을 담은 게시판입니다.").save()
+
+        print("Created articles")
+        for i, title in enumerate(self.sentences):
+            board_id = "default" if i < 3 else "global"
+            article = Article(board_id=board_id, title=title, author_id=random.choice(users).pk, content=title[::-1])
             article.save()
             articles.append(article)
-            print("Create random articles. ", article)
+            print("Article: ", article)
 
         comment = Comment(
             article_id=1,
