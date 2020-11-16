@@ -16,6 +16,12 @@ class Comment(models.Model):
         ("withdrawal", "withdrawal"),
         ("deleted", "deleted")],
         default="anonymous")
+    state = models.CharField(max_length=12, choices=[
+        ('exists', 'exists'),
+        ("withdrawal", "withdrawal"),
+        ("deleted", "deleted")],
+        default="anonymous")
+
 
 class LikeComment(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)

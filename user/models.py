@@ -15,7 +15,6 @@ class KhumuUser(AbstractUser, PermissionsMixin):
     # password inherited
     # email = models.EmailField(blank=True) #
 
-    is_active = models.BooleanField(default=True, help_text="우리학교 학생임이 인증되면 True. 현재는 기본적으로 True")
     kind = models.CharField(max_length=16, default="normal") # (normal|orgainzation)
     nickname = models.CharField(max_length=16, default="흡혈형사")
     student_number = models.CharField(max_length=10, default="2000123123")
