@@ -2,6 +2,10 @@
 
 Django REST Framework을 바탕으로한 REST API 서버
 
+## API Docs
+
+* /
+
 ## How to run the server
 
 ```bash
