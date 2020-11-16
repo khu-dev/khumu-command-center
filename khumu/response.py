@@ -11,9 +11,8 @@ def UnAuthorizedResponse(message:str=""):
         "message": ("Unauthorized request. " + message).strip(),
     })
 
-def DefaultResponse(status_code, data, message=""):
+def DefaultResponse(data, message=""):
     return Response({
-        "status_code": status_code,
         "data": data,
         "message": message,
     })

@@ -17,7 +17,6 @@ from rest_framework.pagination import PageNumberPagination
 class ArticlePagination(pagination.PageNumberPagination):
     def get_paginated_response(self, data):
         return response.Response({
-            'status_code': 200,
             'links': {
                 'next': self.get_next_link(),
                 'previous': self.get_previous_link()
@@ -58,7 +57,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
         #     author_serialized = KhumuUserSimpleSerializer(author)
         #     article["author"] = author_serialized.data
         # result = get_article_list(self.get_serializer_context(), *args, **query_options)
-        return DefaultResponse(200, serializer.data)
+        return DefaultResponse(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         article = self.get_object()
@@ -66,5 +65,5 @@ class ArticleViewSet(viewsets.ModelViewSet):
         if not is_author_or_admin(request.user.get_username(), article.author.username):
             return UnAuthorizedResponse("You're not an admin neither an author.")
 
-        return DefaultResponse(200, article_serialized)
+        return DefaultResponse(article_serialized)
 

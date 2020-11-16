@@ -28,12 +28,12 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        return DefaultResponse(200, serializer.data)
+        return DefaultResponse(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        return DefaultResponse(200, serializer.data)
+        return DefaultResponse(serializer.data)
 
 class GroupViewSet(viewsets.ModelViewSet):
     """
@@ -46,7 +46,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        return DefaultResponse(200, serializer.data)
+        return DefaultResponse(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
-        return DefaultResponse(200, self.get_object())
+        return DefaultResponse(self.get_object())
