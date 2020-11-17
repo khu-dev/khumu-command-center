@@ -1,4 +1,4 @@
-from article.models import Article
+from article.models import Article, LikeArticle
 from user.models import KhumuUser
 from user.serializers import KhumuUserSimpleSerializer
 from rest_framework import serializers
@@ -8,15 +8,18 @@ from comment.serializers import CommentSerializer
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Article
-        fields = ['id', 'url', 'board', 'title', 'author', 'kind', 'content', 'images', 'created_at', 'comment_count']
+        fields = ['id', 'url', 'board', 'title', 'author', 'kind', 'content', 'images', 'liked', 'comment_count', 'created_at', ]
         # depth = 3
         # fields = ['board', 'title', 'author', 'content', 'create_at', 'comment_count']
 
     comment_count = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
     board = serializers.SerializerMethodField()
+    liked = serializers.SerializerMethodField()
     # author = KhumuUserSimpleSerializer()
     # article의 경우 웬만해선 comment count가 필요하다.
+
+    # obj는 Article instance이다.
     def get_comment_count(self, obj):
         # print(self.context['request'])
         return len(obj.comment_set.filter(article__pk=obj.pk))
@@ -40,3 +43,11 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     def get_board(self, obj):
         # print(self.context['request'])
         return obj.board.name
+
+    def get_liked(self, obj):
+        return len(obj.likearticle_set.all()) != 0
+
+class LikeArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LikeArticle
+        fields = ['article', 'user']

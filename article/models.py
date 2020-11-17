@@ -16,4 +16,4 @@ class Article(models.Model):
 
 class LikeArticle(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
-    author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=False)
