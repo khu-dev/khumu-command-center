@@ -19,27 +19,28 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     # author = KhumuUserSimpleSerializer()
     # article의 경우 웬만해선 comment count가 필요하다.
 
+    def create(self, validated_data):
+        author_data = self.initial_data['author']
+        if not author_data or not author_data.get('username'):
+            return False
+        return Article.objects.create(**validated_data, author_id=author_data['username'])
     # obj는 Article instance이다.
     def get_comment_count(self, obj):
         # print(self.context['request'])
         return len(obj.comment_set.filter(article__pk=obj.pk))
 
     def get_author(self, obj):
-        request_username = self.context['request'].user.username
-        author = KhumuUser.objects.get(username=obj.author)
-        # author_simple_serialized = KhumuUserSimpleSerializer(data={
-        #     "username": author.username,
-        #     "state": author.state,
-        # }, many=False, context=self.context)
+        request_user = self.context['request'].user
         author_data = {
-            "username": author.username,
-            "state": author.state,
+            "username": obj.author.username,
+            "state": obj.author.state
         }
-        if obj.kind == "anonymous" and author.username != request_username:
+        print(request_user)
+        print(author_data)
+        if obj.kind == "anonymous" and obj.author.username != request_user.username:
             author_data['username'] = '익명'
 
         return author_data
-
     def get_board(self, obj):
         # print(self.context['request'])
         return obj.board.name
