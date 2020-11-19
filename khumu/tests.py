@@ -116,7 +116,7 @@ class InitializeTest(TestCase):
         comment.save()
         print("Create a comment for golang test. ", comment)
 
-        for i in range(5):
+        for i in range(120):
             comment = Comment(
                 article=random.choice(articles),
                 author=random.choice(users),
@@ -128,7 +128,7 @@ class InitializeTest(TestCase):
             print("Create random comments. ", comment)
 
         print("Create like articles")
-        for i in range(10):
+        for _ in range(120):
             user = random.choice(KhumuUser.objects.all())
             article = random.choice(Article.objects.all())
             if article.author_id != user.username:
@@ -137,7 +137,7 @@ class InitializeTest(TestCase):
             print(user.username, "likes", article.id, "th article")
 
         print("Create like comments")
-        for i in range(10):
+        for _ in range(120):
             user = random.choice(KhumuUser.objects.all())
             comment = random.choice(Comment.objects.all())
             if comment.author_id != user.username:

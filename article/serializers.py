@@ -42,7 +42,7 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         return obj.board.name
 
     def get_liked(self, obj):
-        return len(obj.likearticle_set.all()) != 0
+        return len(obj.likearticle_set.filter(user_id=self.context['request'].user.username)) != 0
 
     # obj는 Article instance이다.
     def get_comment_count(self, obj):

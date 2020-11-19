@@ -76,9 +76,11 @@ class LikeArticleToggleView(views.APIView):
         :param format:
         :return:
         """
+
         articleID = request.data['article']
         username = request.user.username
         likes = LikeArticle.objects.filter(user_id=username, article_id=articleID)
+
         if len(likes) == 0:
             s = LikeArticleSerializer(data={"article": articleID, "user": username})
             is_valid = s.is_valid()
