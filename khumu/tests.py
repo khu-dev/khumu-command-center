@@ -3,9 +3,9 @@ import time
 
 # from django.test import TestCase
 from unittest import TestCase
-from article.models import Article
+from article.models import Article, LikeArticle
 from user.models import KhumuUser
-from comment.models import Comment
+from comment.models import Comment, LikeComment
 from board.models import Board
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
@@ -126,3 +126,21 @@ class InitializeTest(TestCase):
             comment.save()
             comments.append(comment)
             print("Create random comments. ", comment)
+
+        print("Create like articles")
+        for i in range(10):
+            user = random.choice(KhumuUser.objects.all())
+            article = random.choice(Article.objects.all())
+            if article.author_id != user.username:
+                likeArticle = LikeArticle(article_id=article.id, user_id=user.username)
+                likeArticle.save()
+            print(user.username, "likes", article.id, "th article")
+
+        print("Create like comments")
+        for i in range(10):
+            user = random.choice(KhumuUser.objects.all())
+            comment = random.choice(Comment.objects.all())
+            if comment.author_id != user.username:
+                likeComment = LikeComment(comment_id=comment.id, user_id=user.username)
+                likeComment.save()
+            print(user.username, "likes", comment.id, "th comment")
