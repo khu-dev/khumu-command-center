@@ -30,9 +30,11 @@ class ArticleViewSet(viewsets.ModelViewSet):
     API endpoint that allows users to be viewed or edited.
     """
     def get_queryset(self):
+        options = {
+        }
         if self.request.query_params.get('board'):
-            return Article.objects.filter(board_id=self.request.query_params['board'])
-        return Article.objects.all()
+            return Article.objects.filter(board_id=self.request.query_params['board']).order_by("-created_at")
+        return Article.objects.all().order_by("-created_at")
 
     serializer_class = ArticleSerializer
     permission_classes = [permissions.IsAuthenticated]
