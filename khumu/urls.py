@@ -15,10 +15,9 @@ from board import views as boardView
 
 router = routers.DefaultRouter(trailing_slash=False)
 # Basename is used for hyperlink
-router.register(r'/users', userView.KhumuUserViewSet, basename='khumuuser', )
-router.register(r'/groups', userView.GroupViewSet)
+router.register(r'/users', userView.KhumuUserViewSet, basename='khumuuser')
+router.register(r'/groups', userView.GroupViewSet, basename='groups')
 router.register(r'/articles', articleView.ArticleViewSet, basename='article')
-
 router.register(r'/comments', commentView.CommentViewSet)
 router.register(r'/boards', boardView.BoardViewSet, basename='board')
 

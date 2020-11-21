@@ -8,8 +8,9 @@ class BoardSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Board
-        fields = '__all__'
-    recent_articles = serializers.SerializerMethodField('get_recent_articles')
+        fields = ['name', 'short_name', 'long_name', 'description', 'recent_articles']
+
+    recent_articles = serializers.SerializerMethodField()
 
     def get_recent_articles(self, obj):
         articles = ArticleSerializer(obj.article_set.order_by('id')[:2], many=True, context=self.context).data

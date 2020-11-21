@@ -80,41 +80,12 @@ class InitializeTest(TestCase):
 
         print("Created articles")
         for i, title in enumerate(self.sentences):
+            # 0,1,2번째 게시물만 default, 나머진 global
             board_id = "default" if i < 3 else "global"
             article = Article(board_id=board_id, title=title, author_id=random.choice(users).pk, content=title[::-1])
             article.save()
             articles.append(article)
             print("Article: ", article)
-
-        comment = Comment(
-            article_id=1,
-            kind="anonymous",
-            author_id="jinsu",
-            content=random.choice(self.sentences),
-            parent_id=None
-        )
-        comment.save()
-        print("Create a comment for golang test. ", comment)
-
-        comment = Comment(
-            article_id=1,
-            kind="named",
-            author_id="jinsu",
-            content=random.choice(self.sentences),
-            parent_id=None
-        )
-        comment.save()
-        print("Create a comment for golang test. ", comment)
-
-        comment = Comment(
-            article_id=1,
-            kind="anonymous",
-            author_id="someone",
-            content=random.choice(self.sentences),
-            parent_id=None
-        )
-        comment.save()
-        print("Create a comment for golang test. ", comment)
 
         for i in range(120):
             comment = Comment(
