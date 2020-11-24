@@ -14,7 +14,9 @@ class BoardViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    permission_classes = [OpenPermission]
+
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Board는 특이하게 UnAuthenticated도 읽을 수 있다.
+
     def get_queryset(self):
         boards = Board.objects.all()
         return boards

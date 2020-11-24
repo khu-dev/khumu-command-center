@@ -14,6 +14,9 @@ from rest_framework.pagination import PageNumberPagination
 
 
 class ArticlePagination(pagination.PageNumberPagination):
+
+    page_size = 400  # 임의로 설정하느라 우선 크게 잡았음.
+
     def get_paginated_response(self, data):
         return response.Response({
             'links': {
@@ -30,8 +33,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
     API endpoint that allows users to be viewed or edited.
     """
     def get_queryset(self):
-        options = {
-        }
+        options = {}
         if self.request.query_params.get('board'):
             return Article.objects.filter(board_id=self.request.query_params['board']).order_by("-created_at")
         return Article.objects.all().order_by("-created_at")
