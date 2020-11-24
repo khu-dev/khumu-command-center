@@ -11,17 +11,17 @@ class KhumuUser(AbstractUser, PermissionsMixin):
     USER_ID_FIELD = 'username'
     # REQUIRED_FIELDS = ['email']
 
-    username = models.CharField(max_length=10, unique=True, primary_key=True)
+    username = models.CharField(max_length=10, primary_key=True, unique=True, null=False)
     # password inherited
     # email = models.EmailField(blank=True) #
 
-    kind = models.CharField(max_length=16, default="normal") # (normal|orgainzation)
-    nickname = models.CharField(max_length=16, default="흡혈형사")
-    student_number = models.CharField(max_length=10, default="2000123123")
-    department = models.CharField(max_length=16, default="학과 미설정")
-    created_at = models.DateTimeField(default=timezone.now)
-    state = models.CharField(max_length=16, default="active")
-    is_superuser = models.BooleanField(default=False)
+    kind = models.CharField(max_length=16, default="normal", null=False) # (normal|orgainzation)
+    nickname = models.CharField(max_length=16, default="흡혈형사", unique=True, null=False)
+    student_number = models.CharField(max_length=10, default="2000123123", unique=True, null=True, blank=True)
+    department = models.CharField(max_length=16, default="학과 미설정", null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now, null=False)
+    state = models.CharField(max_length=16, default="active", null=False)
+    is_superuser = models.BooleanField(default=False, null=False)
 
     groups = models.ManyToManyField(
         Group,

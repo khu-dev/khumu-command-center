@@ -61,22 +61,23 @@ class InitializeTest(TestCase):
         comments = []
 
         print("Create random users", self.usernames)
-        for username in self.usernames:
-            user = KhumuUser(username=username, password=make_password("123123"), nickname="nick"+username)
-            if username == 'admin':
-                user.is_superuser = True
-                user.save()
-                user.groups.add(1)
-            else:
-                user.save()
-                user.groups.add(2)
+        for i, username in enumerate(self.usernames):
+            user = KhumuUser(username=username, password=make_password("123123"), student_number=str(2000101000+i), nickname="nick"+username)
+            if not KhumuUser.objects.filter(username=username).exists():
+                if username == 'admin':
+                    user.is_superuser = True
+                    user.save()
+                    user.groups.add(1)
+                else:
+                    user.save()
+                    user.groups.add(2)
 
             users.append(user)
 
         print("Create boards")
-        Board(name="default", short_name="기본", long_name="기본게시판", description="사용자에게 공개되지 않는 기본 게시판입니다.").save()
-        Board(name="global", short_name="국제캠", long_name="국제캠게시판", description="국제캠퍼스에 관한 자유로운 내용을 담은 게시판입니다.").save()
-        Board(name="seoul", short_name="서울캠", long_name="서울캠게시판", description="서울캠퍼스에 관한 자유로운 내용을 담은 게시판입니다.").save()
+        Board(name="default", display_name="임시게시판", description="사용자에게 공개되지 않는 기본 게시판입니다.").save()
+        Board(name="global", display_name="국제캠퍼스", description="국제캠퍼스에 관한 자유로운 내용을 담은 게시판입니다.").save()
+        Board(name="seoul", display_name="서울캠퍼스", description="서울캠퍼스에 관한 자유로운 내용을 담은 게시판입니다.").save()
 
         print("Created articles")
         for i, title in enumerate(self.sentences):

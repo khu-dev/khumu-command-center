@@ -8,7 +8,7 @@ class BoardSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Board
-        fields = ['name', 'short_name', 'long_name', 'description', 'recent_articles']
+        fields = ['name', 'display_name', 'description', 'recent_articles']
 
     recent_articles = serializers.SerializerMethodField()
 

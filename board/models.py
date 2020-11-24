@@ -5,8 +5,7 @@ from khumu import settings
 
 
 class Board(models.Model):
-    short_name = models.CharField(max_length=8)
-    long_name = models.CharField(max_length=16)
-    name = models.CharField(max_length=15, primary_key=True) # this is in english
-    description = models.CharField(max_length=150)
-    admin = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)
+    name = models.CharField(max_length=15, null=False, primary_key=True) # this is in english
+    display_name = models.CharField(max_length=16, null=False)
+    description = models.CharField(max_length=150, null=True, blank=True)
+    admin = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
