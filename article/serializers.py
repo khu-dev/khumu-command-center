@@ -22,10 +22,8 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     # article의 경우 웬만해선 comment count가 필요하다.
 
     def create(self, validated_data):
-        author_data = self.initial_data['author']
-        if not author_data or not author_data.get('username'):
-            return False
-        return Article.objects.create(**validated_data, author_id=author_data['username'])
+        request_user = self.context['request'].user
+        return Article.objects.create(**validated_data, author_id=request_user.username)
 
     def get_author(self, obj):
         request_user = self.context['request'].user

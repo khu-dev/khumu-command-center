@@ -85,6 +85,8 @@ class LikeArticleToggleView(views.APIView):
         username = request.user.username
         likes = LikeArticle.objects.filter(user_id=username, article_id=articleID)
 
+        if Article.objects.filter(id=articleID, author_id=username).exists():
+            return DefaultResponse(False, message="It is not allowed to like comments of yourself", status=400)
         if len(likes) == 0:
             s = LikeArticleSerializer(data={"article": articleID, "user": username})
             is_valid = s.is_valid()
@@ -95,4 +97,4 @@ class LikeArticleToggleView(views.APIView):
                 return DefaultResponse(False, message=str(s.errors), status=400)
         else:
             likes.delete()
-            return DefaultResponse(False, status=204)
+            return response.Response(status=204)
