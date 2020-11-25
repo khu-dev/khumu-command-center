@@ -12,15 +12,11 @@ from django.contrib.auth.models import Group
 
 # Create your tests here.
 class InitializeTest(TestCase):
-    usernames = ["admin", "jinsu", "someone", "david", "Park", "kim", "haley", "mike","justin"]
+    users = [
+        ("admin", "관리자"), ("jinsu", "찡수"), ("somebody", "썸바디"), ("david", "다비드 or 데이빗"),
+        ("Park", "박씨"),  ("kim", "김씨"), ("haley", 'haley'), ("mike", "mike"),  ("justin", 'justin')
+    ]
     sentences = [
-         "Lorem Ipsum has been the industry's standard",
-         "galley of type and scrambled it to make a type specimen",
-         "book. It has survived ",
-         "not only five centuries, but also ",
-         "the leap into electronic typesetting, ",
-         "remaining essentially unchanged. ",
-         "It was ""popularised in the ",
          "1960s with the release of ",
          "Letraset sheets containing ",
          "Lorem Ipsum passages, and ",
@@ -44,6 +40,15 @@ class InitializeTest(TestCase):
         ", 소담스러운 피어나는 하는 그리하였는가? 피가 설산에서 천자만홍이",
         "뛰노는 트고, 그들은 속잎나고,",
         "굳세게 때문이다. 찾아 귀는 창공에",
+        """Go의 초기 디자인은 2007년 9월 21일에 로버트 그리즈머, 롭 파이크, 켄 톰프슨이 인페르노 분산 운영체제와 관련된 작업을 하다가 시작되었다. 
+화이트 보드에 새로운 언어에 대한 스케치를 하면서 초기 20% 파트타임 프로젝트로 시작하였다가 2008년 1월 켄 톰프슨이 C 코드를 만들어내는 컴파일러를 만들기 시작했고, 2008년 중반 풀타임 프로젝트로 승격되었다. 2008년 5월 이안 테일러가 Go 스펙의 초안을 이용해서 GCC 프론트엔드를 만들기 시작했고, 2008년 말 러스 콕스가 참여하면서 프로토타입에서 실질적인 언어와 라이브러리들을 만들기 시작했다. 2009년 11월 10일에 리눅스와 MacOS 플랫폼을 대상으로 공식 발표되었다. Go가 처음 런칭되었을 때는 실무적인 소프트웨어를 만들기에는 준비가 좀 덜 된 상태였지만, 2010년 5월 롭 파이크는 구글에서 실제로 사용되고 있는 부분이 있다고 공개적으로 알리게 되었다. 2009년 11월에 Go가 발표되었다. 
+구글의 생산 시스템 중 일부 및 기타 기업들에 사용되고 있다.[15]""",
+        "Go는 다른 언어의 긍정적인 특징들을 유지하면서 공통이 되는 문제들을 해결할 새로운 프로그래밍 언어를 설계하기 위해 구글의 엔지니어 Robert Griesemer, 롭 파이크, 켄 톰프슨에 의해 실험적으로 시작되었다. 이 새로운 언어는 다음의 기능을 포함할 작정이었다:[16]",
+        """정적 타이핑 및 대형 시스템으로의 스케일 가능할 것 (마치 자바와 C++처럼)
+너무 많은 필수적인 키워드와 반복 없이도 생산적이고 가독성이 좋을 것[17] (동적 프로그래밍 언어와 같이 가벼움)
+통합 개발 환경이 필요하지 않지만 지원도 가능할 것
+네트워킹 및 다중 처리를 지원할 것""",
+        "나중의 인터뷰에서, 언어 설계자 3명 모두 자신들이 C++의 복잡성을 싫어하며 이로 인해 새로운 언어를 설계하는 계기가 되었다고 언급하였다.[18][19][20]",
     ]
 
     def test_initialize(self):
@@ -54,17 +59,17 @@ class InitializeTest(TestCase):
             except Exception as e:
                 print(e)
 
-        random.shuffle(self.usernames)
+        random.shuffle(self.users)
         random.shuffle(self.sentences)
         users = []
         articles = []
         comments = []
 
-        print("Create random users", self.usernames)
-        for i, username in enumerate(self.usernames):
-            user = KhumuUser(username=username, password=make_password("123123"), student_number=str(2000101000+i), nickname="nick"+username)
-            if not KhumuUser.objects.filter(username=username).exists():
-                if username == 'admin':
+        print("Create random users", self.users)
+        for i, randomUser in enumerate(self.users):
+            user = KhumuUser(username=randomUser[0], password=make_password("123123"), student_number=str(2000101000+i), nickname=randomUser[1])
+            if not KhumuUser.objects.filter(username=randomUser[0]).exists():
+                if randomUser[0] == 'admin':
                     user.is_superuser = True
                     user.save()
                     user.groups.add(1)
@@ -83,7 +88,7 @@ class InitializeTest(TestCase):
         for i, title in enumerate(self.sentences):
             # 0,1,2번째 게시물만 default, 나머진 global
             board_id = "default" if i < 3 else "global"
-            article = Article(board_id=board_id, title=title, author_id=random.choice(users).pk, content=title[::-1])
+            article = Article(board_id=board_id, title=title[:300], author_id=random.choice(users).pk, content=random.choice(self.sentences))
             article.save()
             articles.append(article)
             print("Article: ", article)

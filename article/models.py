@@ -8,7 +8,7 @@ from user.models import KhumuUser
 
 class Article(models.Model):
     board = models.ForeignKey(Board, on_delete=models.SET_DEFAULT, default='default', null=False)
-    title = models.CharField(max_length=100, null=False, blank=False)
+    title = models.CharField(max_length=300, null=False, blank=False)
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
     content = models.TextField(null=True, blank=True)
     images = JSONField(null=True, blank=True)

@@ -17,7 +17,7 @@ class KhumuUser(AbstractUser, PermissionsMixin):
 
     kind = models.CharField(max_length=16, default="normal", null=False) # (normal|orgainzation)
     nickname = models.CharField(max_length=16, default="흡혈형사", unique=True, null=False)
-    student_number = models.CharField(max_length=10, default="2000123123", unique=True, null=True, blank=True)
+    student_number = models.CharField(max_length=10, default="2000123123", unique=False, null=True, blank=True)
     department = models.CharField(max_length=16, default="학과 미설정", null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now, null=False)
     state = models.CharField(max_length=16, default="active", null=False)
