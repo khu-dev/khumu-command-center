@@ -31,10 +31,12 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         request_user = self.context['request'].user
         author_data = {
             "username": obj.author.username,
+            "nickname": obj.author.nickname,
             "state": obj.author.state
         }
         if obj.kind == "anonymous" and obj.author.username != request_user.username:
             author_data['username'] = '익명'
+            author_data['nickname'] = '익명'
 
         return author_data
     def get_board(self, obj):

@@ -88,7 +88,8 @@ class InitializeTest(TestCase):
         for i, title in enumerate(self.sentences):
             # 0,1,2번째 게시물만 default, 나머진 global
             board_id = "default" if i < 3 else "global"
-            article = Article(board_id=board_id, title=title[:300], author_id=random.choice(users).pk, content=random.choice(self.sentences))
+            article = Article(board_id=board_id, title=title[:300], author_id=random.choice(users).pk,
+                              content=random.choice(self.sentences), kind="anonymous" if i % 2 == 0 else "named")
             article.save()
             articles.append(article)
             print("Article: ", article)

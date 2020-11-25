@@ -11,7 +11,7 @@ from user import views as userView
 from article import views as articleView
 from comment import views as commentView
 from board import views as boardView
-
+from .jwt import KhumuJWTObtainPairView
 
 router = routers.DefaultRouter(trailing_slash=False)
 # Basename is used for hyperlink
@@ -29,7 +29,7 @@ urlpatterns = [
     path(r'api/like-articles', articleView.LikeArticleToggleView.as_view(), name='like-article'),
 
     path(r'admin', admin.site.urls),
-    path(r'api/token', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path(r'api/token', KhumuJWTObtainPairView.as_view(), name='token_obtain_pair'),
     path(r'api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path(r'auth', include('rest_framework.urls', namespace='rest_framework'))
     # path('api/blog/', include('blog.urls'))
