@@ -1,3 +1,5 @@
+import json
+
 from article.models import Article, LikeArticle
 from user.models import KhumuUser
 from user.serializers import KhumuUserSimpleSerializer
@@ -23,7 +25,10 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         request_user = self.context['request'].user
-        return Article.objects.create(**validated_data, author_id=request_user.username)
+        body = json.loads(self.context['request'].body)
+        board_name = body.get("board")
+        print(validated_data)
+        return Article.objects.create(**validated_data, author_id=request_user.username, board_id=board_name)
 
     def get_author(self, obj):
         request_user = self.context['request'].user
