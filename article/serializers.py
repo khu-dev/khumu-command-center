@@ -76,12 +76,13 @@ def get_converted_time_string(t:datetime.datetime):
     now = datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE))
     delta = now - t
     delta_minutes = delta.seconds // 60
-
-    if delta_minutes < 60:
+    if delta_minutes < 5:
+        return "지금"
+    elif delta_minutes < 60:
         return str(delta_minutes) + "분 전"
-    if delta.days == 0:
+    elif t.day == now.day:
         return str(t.hour) + ":" + str(t.minute)
-    if t.year == now.year:
+    elif t.year == now.year:
         return str(t.month) + "." + str(t.day)
 
     return str(t.date())
