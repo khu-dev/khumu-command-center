@@ -2,7 +2,7 @@ import json
 
 import pytz
 
-from article.models import Article, LikeArticle
+from article.models import Article, LikeArticle, BookmarkArticle
 from user.models import KhumuUser
 from user.serializers import KhumuUserSimpleSerializer
 from rest_framework import serializers
@@ -15,7 +15,9 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Article
         fields = ['id', 'url', 'board', 'title', 'author', 'kind',
-                  'content', 'images', 'liked', 'comment_count', 'like_article_count', 'created_at', ]
+                  'content', 'images', 'comment_count', 'created_at',
+                  'liked', 'like_article_count',
+                  'bookmarked', 'bookmark_article_count']
         # depth = 3
         # fields = ['board', 'title', 'author', 'content', 'create_at', 'comment_count']
 
@@ -25,6 +27,9 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     comment_count = serializers.SerializerMethodField()
     like_article_count = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
+    bookmarked = serializers.SerializerMethodField()
+    bookmark_article_count = serializers.SerializerMethodField()
+
     # author = KhumuUserSimpleSerializer()
     # article의 경우 웬만해선 comment count가 필요하다.
 
@@ -53,6 +58,9 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     def get_liked(self, obj):
         return len(obj.likearticle_set.filter(user_id=self.context['request'].user.username)) != 0
 
+    def get_bookmarked(self, obj):
+        return len(obj.bookmarkarticle_set.filter(user_id=self.context['request'].user.username)) != 0
+
     # obj는 Article instance이다.
     def get_comment_count(self, obj):
         # print(self.context['request'])
@@ -61,12 +69,20 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     def get_like_article_count(self, obj):
         return obj.likearticle_set.count()
 
+    def get_bookmark_article_count(self, obj):
+        return obj.bookmarkarticle_set.count()
+
     def get_created_at(self, obj):
         return get_converted_time_string(obj.created_at)
 
 class LikeArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = LikeArticle
+        fields = ['article', 'user']
+
+class BookmarkArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookmarkArticle
         fields = ['article', 'user']
 
 # returns string

@@ -1,12 +1,12 @@
 import json
 import time
 
-from article.models import Article, LikeArticle
+from article.models import Article, LikeArticle, BookmarkArticle
 from comment.serializers import CommentSerializer
 from rest_framework import viewsets, pagination, permissions, views
 from rest_framework import response
 from rest_framework.parsers import JSONParser, MultiPartParser
-from article.serializers import ArticleSerializer, LikeArticleSerializer
+from article.serializers import ArticleSerializer, LikeArticleSerializer, BookmarkArticleSerializer
 from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse, DefaultResponse
 from user.serializers import KhumuUserSimpleSerializer
@@ -74,14 +74,14 @@ class LikeArticleToggleView(views.APIView):
         :return:
         """
 
-        articleID = request.data['article']
+        article_id = request.data['article']
         username = request.user.username
-        likes = LikeArticle.objects.filter(user_id=username, article_id=articleID)
+        likes = LikeArticle.objects.filter(user_id=username, article_id=article_id)
 
-        if Article.objects.filter(id=articleID, author_id=username).exists():
-            return DefaultResponse(False, message="It is not allowed to like comments of yourself", status=400)
+        if Article.objects.filter(id=article_id, author_id=username).exists():
+            return DefaultResponse(False, message="자신의 게시물은 좋아요할 수 없습니다.", status=400)
         if len(likes) == 0:
-            s = LikeArticleSerializer(data={"article": articleID, "user": username})
+            s = LikeArticleSerializer(data={"article": article_id, "user": username})
             is_valid = s.is_valid()
             if is_valid:
                 s.save()
@@ -90,4 +90,34 @@ class LikeArticleToggleView(views.APIView):
                 return DefaultResponse(False, message=str(s.errors), status=400)
         else:
             likes.delete()
+            return response.Response(status=204)
+
+
+class BookmarkArticleToggleView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, format=None):
+        """
+        좋아요를 토글한다.
+        :param request:
+        :param format:
+        :return:
+        """
+
+        article_id = request.data['article']
+        username = request.user.username
+        bookmarks = BookmarkArticle.objects.filter(user_id=username, article_id=article_id)
+
+        if Article.objects.filter(id=article_id, author_id=username).exists():
+            return DefaultResponse(False, message="자신의 게시물은 북마크할 수 없습니다.", status=400)
+        if len(bookmarks) == 0:
+            s = BookmarkArticleSerializer(data={"article": article_id, "user": username})
+            is_valid = s.is_valid()
+            if is_valid:
+                s.save()
+                return DefaultResponse(True, status=201)
+            else:
+                return DefaultResponse(False, message=str(s.errors), status=400)
+        else:
+            bookmarks.delete()
             return response.Response(status=204)
