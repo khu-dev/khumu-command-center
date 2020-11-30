@@ -1,11 +1,15 @@
 import json
 
+import pytz
+
 from article.models import Article, LikeArticle
 from user.models import KhumuUser
 from user.serializers import KhumuUserSimpleSerializer
 from rest_framework import serializers
 from rest_framework.request import Request
 from comment.serializers import CommentSerializer
+from khumu import settings
+import datetime, time
 
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -20,6 +24,7 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     liked = serializers.SerializerMethodField()
     comment_count = serializers.SerializerMethodField()
     like_article_count = serializers.SerializerMethodField()
+    created_at = serializers.SerializerMethodField()
     # author = KhumuUserSimpleSerializer()
     # article의 경우 웬만해선 comment count가 필요하다.
 
@@ -27,7 +32,6 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         request_user = self.context['request'].user
         body = json.loads(self.context['request'].body)
         board_name = body.get("board")
-        print(validated_data)
         return Article.objects.create(**validated_data, author_id=request_user.username, board_id=board_name)
 
     def get_author(self, obj):
@@ -56,7 +60,28 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_like_article_count(self, obj):
         return obj.likearticle_set.count()
+
+    def get_created_at(self, obj):
+        return get_converted_time_string(obj.created_at)
+
 class LikeArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = LikeArticle
         fields = ['article', 'user']
+
+# returns string
+def get_converted_time_string(t:datetime.datetime):
+    t = t.replace(tzinfo=datetime.timezone.utc).astimezone(tz=None)
+
+    now = datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE))
+    delta = now - t
+    delta_minutes = delta.seconds // 60
+
+    if delta_minutes < 60:
+        return str(delta_minutes) + "분 전"
+    if delta.days == 0:
+        return str(t.hour) + ":" + str(t.minute)
+    if t.year == now.year:
+        return str(t.month) + "." + str(t.day)
+
+    return str(t.date())
