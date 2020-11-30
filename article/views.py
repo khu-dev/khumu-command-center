@@ -5,6 +5,7 @@ from article.models import Article, LikeArticle
 from comment.serializers import CommentSerializer
 from rest_framework import viewsets, pagination, permissions, views
 from rest_framework import response
+from rest_framework.parsers import JSONParser, MultiPartParser
 from article.serializers import ArticleSerializer, LikeArticleSerializer
 from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse, DefaultResponse
@@ -29,9 +30,9 @@ class ArticlePagination(pagination.PageNumberPagination):
 
 
 class ArticleViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
+
+    parser_classes = (JSONParser, MultiPartParser)
+
     def get_queryset(self):
         options = {}
         if self.request.query_params.get('board'):
