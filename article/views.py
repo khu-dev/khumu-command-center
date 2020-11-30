@@ -36,8 +36,8 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         options = {}
         if self.request.query_params.get('board'):
-            return Article.objects.filter(board_id=self.request.query_params['board']).order_by("-created_at")
-        return Article.objects.all().order_by("-created_at")
+            return Article.objects.filter(board_id=self.request.query_params['board'])
+        return Article.objects.all()
 
     serializer_class = ArticleSerializer
     permission_classes = [permissions.IsAuthenticated]

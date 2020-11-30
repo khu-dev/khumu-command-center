@@ -7,6 +7,8 @@ from user.models import KhumuUser
 
 
 class Article(models.Model):
+    class Meta:
+        ordering = ("-created_at",)
     board = models.ForeignKey(Board, on_delete=models.SET_DEFAULT, default='default', null=False)
     title = models.CharField(max_length=300, null=False, blank=False)
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
