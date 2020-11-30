@@ -97,8 +97,8 @@ def get_converted_time_string(t:datetime.datetime):
     elif delta_minutes < 60:
         return str(delta_minutes) + "분 전"
     elif t.day == now.day:
-        return str(t.hour) + ":" + str(t.minute)
+        return t.strftime("%H:%M")
     elif t.year == now.year:
-        return str(t.month) + "." + str(t.day)
+        return t.strftime("%m.%d")
 
-    return str(t.date())
+    return t.strftime("%y.%m.%d")
