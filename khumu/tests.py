@@ -80,14 +80,24 @@ class InitializeTest(TestCase):
             users.append(user)
 
         print("Create boards")
-        Board(name="default", display_name="임시게시판", description="사용자에게 공개되지 않는 기본 게시판입니다.").save()
-        Board(name="global", display_name="국제캠퍼스", description="국제캠퍼스에 관한 자유로운 내용을 담은 게시판입니다.").save()
-        Board(name="seoul", display_name="서울캠퍼스", description="서울캠퍼스에 관한 자유로운 내용을 담은 게시판입니다.").save()
+        Board(name="temporary", display_name="임시게시판", description="사용자에게 공개되지 않는 기본 게시판입니다.",
+              campus=None, category="free").save()
+        Board(name="free", display_name="자유게시판", description="자유로운 내용을 담은 게시판입니다.").save()
+        Board(name="my", category="logical", display_name="내가 작성한 게시물", description="").save()
+        Board(name="bookmarked", category="logical", display_name="북마크한 게시물", description="").save()
+        Board(name="commented", category="logical", display_name="댓글단 게시물", description="").save()
+        Board(name="liked", category="logical", display_name="좋아요한 게시물", description="").save()
+
+        Board(name="computer_engineering", category="department", display_name="컴퓨터공학과",
+              description="컴퓨터공학과와 관련된 내용 담은 게시판입니다.").save()
+        Board(name="chemical_engineering", category="department", display_name="화학공학과",
+              description="화학공학과와 관련된 내용을 담은 게시판입니다.").save()
+
 
         print("Created articles")
         for i, title in enumerate(self.sentences):
             # 0,1,2번째 게시물만 default, 나머진 global
-            board_id = "default" if i < 3 else "global"
+            board_id = "temporary" if i < 3 else "free"
             article = Article(board_id=board_id, title=title[:300], author_id=random.choice(users).pk,
                               content=random.choice(self.sentences), kind="anonymous" if i % 2 == 0 else "named")
             article.save()

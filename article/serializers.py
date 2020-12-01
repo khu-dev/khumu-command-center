@@ -99,6 +99,6 @@ def get_converted_time_string(t:datetime.datetime):
     elif t.day == now.day:
         return t.strftime("%H:%M")
     elif t.year == now.year:
-        return t.strftime("%m.%d")
+        return t.strftime("%m/%d %H:%M")
 
-    return t.strftime("%y.%m.%d")
+    return t.strftime("%y/%m/%d %H:%M")

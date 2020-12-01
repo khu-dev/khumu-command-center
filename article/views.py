@@ -2,6 +2,7 @@ import json
 import time
 
 from article.models import Article, LikeArticle, BookmarkArticle
+from board.models import Board
 from comment.serializers import CommentSerializer
 from rest_framework import viewsets, pagination, permissions, views
 from rest_framework import response
@@ -31,17 +32,55 @@ class ArticlePagination(pagination.PageNumberPagination):
 
 class ArticleViewSet(viewsets.ModelViewSet):
 
-    parser_classes = (JSONParser, MultiPartParser)
-
-    def get_queryset(self):
-        options = {}
-        if self.request.query_params.get('board'):
-            return Article.objects.filter(board_id=self.request.query_params['board'])
-        return Article.objects.all()
-
     serializer_class = ArticleSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = ArticlePagination
+
+    def get_queryset(self):
+        options = {}
+        board_name = self.request.query_params.get('board')
+        if board_name and Board.objects.filter(name=board_name).exists():
+            board = Board.objects.get(name=board_name)
+            # logical board면 business logic을 통해 queryset 생성
+            if board.category == 'logical':
+                if board.name == 'recent':
+                    return self._get_recent_articles()
+                elif board.name == 'my':
+                    return self._get_my_articles()
+                elif board.name == 'liked':
+                    return self._get_liked_articles()
+                elif board.name == 'bookmarked':
+                    return self._get_bookmarked_articles()
+                elif board.name == 'commented':
+                    return self._get_commented_articles()
+
+            return Article.objects.filter(board_id=self.request.query_params['board'])
+        return Article.objects.all()
+
+    def _get_recent_articles(self):
+        return Article.objects.all()
+
+    def _get_my_articles(self):
+        return self.request.user.article_set.all()
+
+    def _get_bookmarked_articles(self):
+        articles = []
+        for bookmarkArticle in self.request.user.bookmarkarticle_set.all():
+            articles.append(bookmarkArticle.article)
+        return articles
+
+    def _get_liked_articles(self):
+        articles = []
+        for likeArticle in self.request.user.likearticle_set.all():
+            articles.append(likeArticle.article)
+        return articles
+
+    def _get_commented_articles(self):
+        articles = []
+        for comment in self.request.user.comment_set.all().order_by('-created_at'):
+            if comment.article not in articles:
+                articles.append(comment.article)
+        return articles
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
