@@ -3,7 +3,7 @@ import time
 
 # from django.test import TestCase
 from unittest import TestCase
-from article.models import Article, LikeArticle
+from article.models import Article, LikeArticle, BookmarkArticle
 from user.models import KhumuUser
 from comment.models import Comment, LikeComment
 from board.models import Board
@@ -13,8 +13,34 @@ from django.contrib.auth.models import Group
 # Create your tests here.
 class InitializeTest(TestCase):
     users = [
-        ("admin", "관리자"), ("jinsu", "찡수"), ("somebody", "썸바디"), ("david", "다비드 or 데이빗"),
+        ("admin", "관리자"), ("jinsu", "찡수"), ("gusrl4025", "꿀주먹"), ("somebody", "썸바디"), ("david", "다비드 or 데이빗"),
         ("Park", "박씨"),  ("kim", "김씨"), ("haley", 'haley'), ("mike", "mike"),  ("justin", 'justin')
+    ]
+    article_titles = ["미팅 잡다가", "새로운 생명체 인공지능 13주차 과제", "물및실2 교수님", "인공지능 예술", "이번 학기 대면 시험", "학원 알바 해보신 분",
+                      "왜 이렇게 대면이냐 비대면이냐 정하질 못해", "이캠퍼스 강의 듣는 거", "현장실습 합격 통지 받으신 분", "코딩 도와줄 컴공 능력자분 모심",
+                      "꿀알바 추천 좀", "방학 때 본가 내려가냐 마냐 그것이 문제로다", "요즘 스타트업 보시는 분??", "넷플릭스 추천 좀", "심심행~!"]
+    article_bodies = [
+        '''khuwitch는 다국어 번역 지원하며, 이를 음성으로도 들을 수 있도록해주는 twitch bot 입니다.
+khuwitch를 이용하면 채널 관리자는 자신의 채널의 외국어 채팅을 한국어로 바로 번역해 볼 수 있고, 필요한 경우 이를 음성파일로 변환하여 재생한 뒤 시청자들에게 송출할 수도 있습니다.''',
+        '''로그인 화면 추후 추가.png 봇 입장 화면 추후 추가.png
+채널관리자는 twitch login을 통해 khuwitch bot을 자신의 Twitch 채널에 입장시킬 수 있습니다.
+번역 화면 추가.png''',
+        '''(서울=연합뉴스) 황재하 최재서 기자 = 한진그룹 조원태 회장과 대주주 연합인 이른바 `3자 연합'(주주연합) 사이 경영권 분쟁에서 법원이 또 다시 조 회장과 현 경영진의 손을 들어줬다.
+이번 결정은 법원이 조 회장과 경영권 분쟁을 벌여온 3자 연합의 이익 침해 주장보다는 합병을 통한 항공산업 재편의 필요성과 이를 달성하기 위한 경영상 판단을 존중한 결과로 해석된다.
+3자 연합은 지난 3월 한진칼 주주총회 의결권을 둘러싼 법정 공방에서 고배를 마신 데 이어 이번 한진칼 유상증자를 둘러싼 가처분에서도 완패했다.''',
+        '''유상증자가 진행되면 3자 연합의 지분율이 약해지고 경영권 분쟁에서 불리해진다는 주장에 대해서도 재판부는 "신주 발행이 한진칼 지배권 구도를 결정적으로 바꾼다고 볼 수 없다"며 받아들이지 않았다.
+
+재판부는 "산은이 한진칼 경영진 의사대로 의결권을 행사하겠다고 약정한 바 없고, 산은은 앞으로 항공산업의 사회경제적 중요성과 건전한 유지를 최우선으로 고려해 의결권을 행사할 것"이라고 판단했다.''',
+        '''이날 KCGI의 가처분을 기각한 재판부는 앞서 지난 3월 24일에도 3자 연합이 낸 의결권 관련 가처분을 기각한 바 있다. 당시 KCGI는 대한항공 자가보험과 사우회의 의결권을 제한해달라는 가처분을 신청했지만, 재판부는 이를 기각했다.''',
+        '''이날 보아는 20주년을 묻는 소감에 "나도 어색하다. 20주년이라는 말 자체가 거창한 말이라서 실감이 안 난다. 올해 굉장히 많은 분께 축하도 받았고 이벤트도 많았다. 나도 '20주년이에요'라고 말하면서 어색하다. 댄서 중에 띠동갑 차이가 나는 어린 친구들이 들어왔을 때 '내가 오래 하고 있구나'라는 생각은 들었다"라고 미소 지었다.
+''',
+        '''보아는 "나보다 내 주변 분들이 의미 부여를 한다. 내 입장에서도 고민이 많았다. '20주년 다운 앨범이 뭘까?' 생각했을 때, 20주년을 맞은 내가 하고 싶은 음악이 그런 앨범이지 않을까 했다. 가벼운 마음으로 임하고 있다. 나까지 무겁게 의미를 부여하면 앨범이 무거워서 세상에 안 나올 것 같다"라고 말했다.
+''',
+        '''"K팝의 발전을 위해 고민하는 것이 임무가 아닐까 한다."
+'아시아의 별' 가수 보아가 20주년 앨범으로 돌아온다. 정상의 자리에서도 책임감과 사명감을 강조한, 역시 '넘버원' 가수는 달랐다.
+1일 오전 보아의 20주년을 기념해 선보이는 정규 10집 앨범 '베터'(BETTER)의 온라인 기자간담회가 열렸다.''',
+        '''보아는 "타이틀곡이 유영진 이사님 노래다. 1집 '아이디: 피스 비'가 유영진 오빠가 작사, 작곡한 노래다. 그때 나랑 유영진 오빠, 이수만 선생님 셋이서 얘기를 많이나눴다. 불과 어제까지 이수만 선생님이랑 지지고 볶았다. 우리들은 자타공인 톰과 제리가 됐다. 이렇게 세 명이 모여서 으쌰으쌰 했던 것이 감사하고 나의 데뷔 시절이 떠올라 의미가 있다"라고 돌이켰다.''',
+        '''타이틀곡 '베터'는 곡을 이끄는 묵직한 베이스와 후렴구의 폭발적인 비트가 인상적인 R&B 댄스 장르의 곡이다. 망설이지 말고 당당하게 사랑을 쟁취하자는 가사를 보아의 파워풀하면서도 절제된 보컬로 표현, 압도적인 카리스마를 느낄 수 있다.''',
     ]
     sentences = [
          "1960s with the release of ",
@@ -80,9 +106,11 @@ class InitializeTest(TestCase):
             users.append(user)
 
         print("Create boards")
+        Board(name="recent", category="logical", display_name="최근게시판", description="").save()
         Board(name="temporary", display_name="임시게시판", description="사용자에게 공개되지 않는 기본 게시판입니다.",
               campus=None, category="free").save()
         Board(name="free", display_name="자유게시판", description="자유로운 내용을 담은 게시판입니다.").save()
+
         Board(name="my", category="logical", display_name="내가 작성한 게시물", description="").save()
         Board(name="bookmarked", category="logical", display_name="북마크한 게시물", description="").save()
         Board(name="commented", category="logical", display_name="댓글단 게시물", description="").save()
@@ -95,11 +123,11 @@ class InitializeTest(TestCase):
 
 
         print("Created articles")
-        for i, title in enumerate(self.sentences):
+        for i, title in enumerate(self.article_titles):
             # 0,1,2번째 게시물만 default, 나머진 global
             board_id = "temporary" if i < 3 else "free"
             article = Article(board_id=board_id, title=title[:300], author_id=random.choice(users).pk,
-                              content=random.choice(self.sentences), kind="anonymous" if i % 2 == 0 else "named")
+                              content=random.choice(self.article_bodies), kind="anonymous" if i % 2 == 0 else "named")
             article.save()
             articles.append(article)
             print("Article: ", article)
@@ -115,13 +143,23 @@ class InitializeTest(TestCase):
             comments.append(comment)
             print("Create random comments. ", comment)
 
+        print("Create bookmark articles")
+        for _ in range(120):
+            user = random.choice(KhumuUser.objects.all())
+            article = random.choice(Article.objects.all())
+            if article.author_id != user.username:
+                bookmark_article = BookmarkArticle(article_id=article.id, user_id=user.username)
+                bookmark_article.save()
+            print(user.username, "bookmarks", article.id, "th article")
+
+
         print("Create like articles")
         for _ in range(120):
             user = random.choice(KhumuUser.objects.all())
             article = random.choice(Article.objects.all())
             if article.author_id != user.username:
-                likeArticle = LikeArticle(article_id=article.id, user_id=user.username)
-                likeArticle.save()
+                like_article = LikeArticle(article_id=article.id, user_id=user.username)
+                like_article.save()
             print(user.username, "likes", article.id, "th article")
 
         print("Create like comments")

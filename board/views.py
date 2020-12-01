@@ -18,8 +18,10 @@ class BoardViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Board는 특이하게 UnAuthenticated도 읽을 수 있다.
 
     def get_queryset(self):
-        boards = Board.objects.all()
-        return boards
+        category = self.request.query_params.get('category', '')
+        if category:
+            return Board.objects.filter(category__in=category.split(","))
+        return Board.objects.all()
 
     serializer_class = BoardSerializer
 
