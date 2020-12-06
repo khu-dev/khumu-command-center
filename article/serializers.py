@@ -32,12 +32,22 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
 
     # author = KhumuUserSimpleSerializer()
     # article의 경우 웬만해선 comment count가 필요하다.
-
+    # db column을 serializer method로 override하면 create, update 시에 수동 기입 해줘야함.
+    # 근데 아직은 body를 parse하는 방법은 application/json밖에 구현안함.
     def create(self, validated_data):
         request_user = self.context['request'].user
         body = json.loads(self.context['request'].body)
         board_name = body.get("board")
         return Article.objects.create(**validated_data, author_id=request_user.username, board_id=board_name)
+
+    def update(self, instance, validated_data):
+        body = json.loads(self.context['request'].body)
+        board_name = body.get("board")
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        setattr(instance, 'board_id', board_name)
+        instance.save()
+        return instance
 
     def get_author(self, obj):
         request_user = self.context['request'].user
