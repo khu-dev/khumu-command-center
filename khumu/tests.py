@@ -314,6 +314,12 @@ class InitializeTest(TestCase):
               description="컴퓨터공학과와 관련된 내용 담은 게시판입니다.").save()
         Board(name="chemical_engineering", category="department", display_name="화학공학과",
               description="화학공학과와 관련된 내용을 담은 게시판입니다.").save()
+        Board(name="lecture_database", category="lecture", display_name="데이터베이스 수업",
+              description="데이터베이스 수업과 관련된 내용의 게시판입니다.").save()
+        Board(name="lecture_datacenter", category="lecture", display_name="데이터센터프로그래밍 수업",
+              description="데이터센터프로그래밍 수업과 관련된 내용의 게시판입니다.").save()
+        Board(name="lecture_calculus", category="lecture", display_name="미분적분 수업",
+              description="미분적분 수업과 관련된 내용의 게시판입니다.").save()
 
         print("Created articles")
         for i, article in enumerate(self.articles):
