@@ -105,7 +105,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
 class LikeArticleToggleView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def put(self, request, format=None):
+    def patch(self, request, format=None):
         """
         좋아요를 토글한다.
         :param request:
@@ -135,7 +135,7 @@ class LikeArticleToggleView(views.APIView):
 class BookmarkArticleToggleView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def put(self, request, format=None):
+    def patch(self, request, format=None):
         """
         좋아요를 토글한다.
         :param request:
