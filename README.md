@@ -2,9 +2,10 @@
 
 Django REST Framework을 바탕으로한 REST API 서버
 
-## API Docs
+## API Documentation
 
-* /
+> https://drf-yasg.readthedocs.io/en/stable/index.html 를 참고하여 문서화
+* https://api.khumu.jinsu.me/docs/command-center
 
 ## How to run the server
 

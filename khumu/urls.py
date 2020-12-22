@@ -33,8 +33,8 @@ schema_view = get_schema_view(
       description='''KHUMU의 대부분의 API를 제공하는 command-center 서버의 API에 대한 문서입니다.
 <h3>KHUMU API Documentations</h3>
 <ul>
-<li><a href='https://api.khumu.jinsu.me/doc/command-center'>command-center</a>: 인증, 유저, 게시판, 게시물, 게시물 좋아요, 게시물 북마크 등 전반적인 쿠뮤의 API</li>
-<li><a href='https://api.khumu.jinsu.me/doc/comment'>comment</a>: 댓글, 댓글 좋아요와 관련된 API</li>
+<li><a href='https://api.khumu.jinsu.me/docs/command-center'>command-center</a>: 인증, 유저, 게시판, 게시물, 게시물 좋아요, 게시물 북마크 등 전반적인 쿠뮤의 API</li>
+<li><a href='https://api.khumu.jinsu.me/docs/comment/index.html'>comment</a>: 댓글, 댓글 좋아요와 관련된 API</li>
 </ul>
 ''',
       terms_of_service="https://www.google.com/policies/terms/",
@@ -58,5 +58,5 @@ urlpatterns = [
     path(r'api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path(r'auth', include('rest_framework.urls', namespace='rest_framework')),
 
-    url(r'^doc/command-center', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    url(r'^docs/command-center', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
