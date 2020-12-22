@@ -234,13 +234,10 @@ class InitializeTest(TestCase):
         {
             "board": "chemical_engineering",
             "title": "화공과를 나온 것은 신의 한 수", "content": "leave.....",
-            "comments": [{
-                "content": "ㅇㅈ",
-            },{
-                "content": "나가서 어디감?",
-            },{
-                "content": "왜 좋기만 한데",
-            },],
+            "comments": [{"content": "ㅇㅈ"},{"content": "나가서 어디감?"},
+                 {"content": "댓글이"},{"content": "겁나"},{"content": "많으면"},{"content": "속도가"},{"content": "어떤지"},
+                 {"content": "궁금해서"}, {"content": "테스트 해봄"}, {"content": "장고보다 훨 빠르려나?"}]
+            + [{"content": "테.스.트."}] * 100
         },
         {
             "board": "chemical_engineering",
