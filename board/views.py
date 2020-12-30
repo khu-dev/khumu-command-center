@@ -21,6 +21,15 @@ class BoardViewSet(viewsets.ModelViewSet):
         category = self.request.query_params.get('category', '')
         if category:
             return Board.objects.filter(category__in=category.split(","))
+
+        if self.request.query_params.get('followed'):
+            followed = self.request.query_params.get('followed').lower()
+            if followed == 'true':
+                following_board_ids = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board_id')
+                return Board.objects.filter(name__in=following_board_ids).all()
+            else:
+                return DefaultResponse(None, "Supported value for query string named followed: true, but got" + self.request.query_params.get('followed'), 400)
+
         return Board.objects.all()
 
     def list(self, request, *args, **kwargs):
@@ -28,7 +37,10 @@ class BoardViewSet(viewsets.ModelViewSet):
         # skip pagination
         serializer = self.get_serializer(queryset, many=True)
         serialized_boards = serializer.data
-        return DefaultResponse(serialized_boards)
+        # result_board: list, serialized_boards: ReturnList
+        # 정렬 순서: follow 먼저 한 것부터
+        result_boards = sorted(serialized_boards, key=lambda b: (not b['followed'], b['followed_at']))
+        return DefaultResponse(result_boards)
 
     def _hide_author(self, board_article, request_username):
         if board_article.author == request_username: board_article.author = "익명"
