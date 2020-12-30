@@ -1,4 +1,4 @@
-from board.models import Board
+from board.models import Board, FollowBoard
 from rest_framework import serializers
 from article.serializers import ArticleSerializer
 
@@ -16,4 +16,9 @@ class BoardSerializer(serializers.HyperlinkedModelSerializer):
         articles = ArticleSerializer(obj.article_set.all()[:2], many=True, context=self.context).data
 
         return articles
+
+class FollowBoardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowBoard
+        fields = ['board', 'user']
 

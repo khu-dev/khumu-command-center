@@ -16,3 +16,14 @@ class Board(models.Model):
     # category가 logical인 경우엔 직접 article이 참조하는 것이 아니라, business logic에 따라 article을 조회한다.
     # 예를 들어 name=bookmarked, category=logical인 경우 board의 article 조회 시 내가 북마크한 게시물만 가져옴.
     category = models.CharField(max_length=16, null=False, blank=False, default="free")  # e.g. (department | lecture | free)
+
+class FollowBoard(models.Model):
+    '''
+    user의 board에 대한 follow 정보를 담당.
+    board는 follower를 구할 필요 없다.
+    board list를 조회 시 내가 follow 했는지를 알 수 있어야한다 => serializer에서 followed: (true | false)
+    board list를 조회 시 내가 follow 한 순서대로 우선 정렬이 되고 나머진 아직은 이름 순(나중엔 정렬 로직을 생각해보자) => followed_at field 존재
+    '''
+    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=False, blank=False)
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, null=False, blank=False)
+    followed_at = models.DateTimeField(auto_now_add=True)
