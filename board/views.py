@@ -42,13 +42,19 @@ class FollowBoardViewSet(mixins.CreateModelMixin,
         return FollowBoard.objects.filter(board_id=board_name)
 
     def create(self, request, *args, **kwargs):
-        print(kwargs)
         # foreignkey field의 경우 primary key를 인자로 갖거나 그 dict에서 primary key field를 lookup한다.
         # 'user'의 value로 request.user.username와 request.user 모두 가능.
-        serializer = self.get_serializer(data={'board': kwargs['board_name'], 'user': request.user.username})
+        board_name = kwargs['board_name']
+        username = request.user.username
+        # 이미 follow한 경우는 pass
+        if FollowBoard.objects.filter(board_id=board_name, user_id=username).exists():
+            return DefaultResponse(None, username + " already followed the board named" + board_name, status=200)
+
+        # follow 안 한 경우에만 follow 생성
+        serializer = self.get_serializer(data={'board': board_name, 'user': username})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        return DefaultResponse(None, request.user.username + " followed the board named " + kwargs['board_name'])
+        return DefaultResponse(None, username + " followed the board named " + board_name, status=201)
 
     # 여러 instance를 destroy 하는 경우는 delete 를 이용한다.
     def delete(self, request, *args, **kwargs):

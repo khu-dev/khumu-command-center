@@ -2,7 +2,7 @@ import json
 import time
 
 from article.models import Article, LikeArticle, BookmarkArticle
-from board.models import Board
+from board.models import Board, FollowBoard
 from comment.serializers import CommentSerializer
 from rest_framework import viewsets, pagination, permissions, views
 from rest_framework import response
@@ -55,9 +55,11 @@ class ArticleViewSet(viewsets.ModelViewSet):
         # board_name이 정의되지 않은 경우는 그냥 all
         return Article.objects.all()
 
-    # 추후 기능: 사용자별 feed를 제공해야함.
+    # 사용자별 feed를 위한 최신 게시물을 제공해야함.
     def _get_recent_articles(self):
-        return Article.objects.all()
+        board_ids = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board_id')
+
+        return Article.objects.filter(board__name__in=board_ids).all()
 
     def _get_my_articles(self):
         return self.request.user.article_set.all()

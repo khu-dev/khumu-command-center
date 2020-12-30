@@ -6,7 +6,7 @@ from unittest import TestCase
 from article.models import Article, LikeArticle, BookmarkArticle
 from user.models import KhumuUser
 from comment.models import Comment, LikeComment
-from board.models import Board
+from board.models import Board, FollowBoard
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group
 
@@ -312,6 +312,11 @@ class InitializeTest(TestCase):
               description="데이터센터프로그래밍 수업과 관련된 내용의 게시판입니다.").save()
         Board(name="lecture_calculus", category="lecture", display_name="미분적분 수업",
               description="미분적분 수업과 관련된 내용의 게시판입니다.").save()
+
+        print("Create follow-boards")
+        for randomUser in self.users:
+            FollowBoard(board_id="free", user_id=randomUser[0]).save()
+            print(randomUser[0], "follows the board named free")
 
         print("Created articles")
         for i, article in enumerate(self.articles):
