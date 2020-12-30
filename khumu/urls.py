@@ -50,8 +50,8 @@ urlpatterns = [
     path(r'healthz', include('health_check.urls')),
     path(r'api', include(router.urls)),
 
-    path(r'api/like-articles', articleView.LikeArticleToggleView.as_view(), name='like-article'),
-    path(r'api/bookmark-articles', articleView.BookmarkArticleToggleView.as_view(), name='bookmark-article'),
+    path(r'api/articles/<id>/likes', articleView.LikeArticleToggleView.as_view(), name='like-article'),
+    path(r'api/articles/<id>/bookmarks', articleView.BookmarkArticleToggleView.as_view(), name='bookmark-article'),
 
     path(r'admin', admin.site.urls),
     path(r'api/token', KhumuJWTObtainPairView.as_view(), name='token_obtain_pair'),

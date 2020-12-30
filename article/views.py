@@ -105,22 +105,20 @@ class ArticleViewSet(viewsets.ModelViewSet):
 class LikeArticleToggleView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def patch(self, request, format=None):
+    def patch(self, request, id: str, format=None):
         """
         좋아요를 토글한다.
         :param request:
         :param format:
         :return:
         """
-
-        article_id = request.data['article']
         username = request.user.username
-        likes = LikeArticle.objects.filter(user_id=username, article_id=article_id)
+        likes = LikeArticle.objects.filter(user_id=username, article_id=id)
 
-        if Article.objects.filter(id=article_id, author_id=username).exists():
+        if Article.objects.filter(id=id, author_id=username).exists():
             return DefaultResponse(False, message="자신의 게시물은 좋아요할 수 없습니다.", status=400)
         if len(likes) == 0:
-            s = LikeArticleSerializer(data={"article": article_id, "user": username})
+            s = LikeArticleSerializer(data={"article": id, "user": username})
             is_valid = s.is_valid()
             if is_valid:
                 s.save()
@@ -135,7 +133,7 @@ class LikeArticleToggleView(views.APIView):
 class BookmarkArticleToggleView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def patch(self, request, format=None):
+    def patch(self, request, id: str, format=None):
         """
         좋아요를 토글한다.
         :param request:
@@ -145,12 +143,12 @@ class BookmarkArticleToggleView(views.APIView):
 
         article_id = request.data['article']
         username = request.user.username
-        bookmarks = BookmarkArticle.objects.filter(user_id=username, article_id=article_id)
+        bookmarks = BookmarkArticle.objects.filter(user_id=username, article_id=id)
 
-        if Article.objects.filter(id=article_id, author_id=username).exists():
+        if Article.objects.filter(id=id, author_id=username).exists():
             return DefaultResponse(False, message="자신의 게시물은 북마크할 수 없습니다.", status=400)
         if len(bookmarks) == 0:
-            s = BookmarkArticleSerializer(data={"article": article_id, "user": username})
+            s = BookmarkArticleSerializer(data={"article": id, "user": username})
             is_valid = s.is_valid()
             if is_valid:
                 s.save()
