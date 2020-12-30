@@ -39,24 +39,23 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         options = {}
         board_name = self.request.query_params.get('board')
-        if board_name and Board.objects.filter(name=board_name).exists():
-            board = Board.objects.get(name=board_name)
-            # logical board면 business logic을 통해 queryset 생성
-            if board.category == 'logical':
-                if board.name == 'recent':
-                    return self._get_recent_articles()
-                elif board.name == 'my':
-                    return self._get_my_articles()
-                elif board.name == 'liked':
-                    return self._get_liked_articles()
-                elif board.name == 'bookmarked':
-                    return self._get_bookmarked_articles()
-                elif board.name == 'commented':
-                    return self._get_commented_articles()
-
+        if board_name == 'recent':
+            return self._get_recent_articles()
+        elif board_name == 'my':
+            return self._get_my_articles()
+        elif board_name == 'liked':
+            return self._get_liked_articles()
+        elif board_name == 'bookmarked':
+            return self._get_bookmarked_articles()
+        elif board_name == 'commented':
+            return self._get_commented_articles()
+        elif board_name:
             return Article.objects.filter(board_id=self.request.query_params['board'])
+
+        # board_name이 정의되지 않은 경우는 그냥 all
         return Article.objects.all()
 
+    # 추후 기능: 사용자별 feed를 제공해야함.
     def _get_recent_articles(self):
         return Article.objects.all()
 

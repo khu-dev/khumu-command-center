@@ -297,15 +297,10 @@ class InitializeTest(TestCase):
             users.append(user)
 
         print("Create boards")
-        Board(name="recent", category="logical", display_name="최근게시판", description="").save()
-        Board(name="temporary", display_name="임시게시판", description="사용자에게 공개되지 않는 기본 게시판입니다.",
-              campus=None, category="free").save()
+        Board(name="announcement", category="announcement", display_name="공지사항", description="경희대 관련 각종 공지사항입니다.").save()
+        Board(name="temporary", category="temporary", display_name="임시게시판", description="사용자에게 공개되지 않는 기본 게시판입니다.",
+              campus=None).save()
         Board(name="free", display_name="자유게시판", description="자유로운 내용을 담은 게시판입니다.").save()
-
-        Board(name="my", category="logical", display_name="내가 작성한 게시물", description="").save()
-        Board(name="bookmarked", category="logical", display_name="북마크한 게시물", description="").save()
-        Board(name="commented", category="logical", display_name="댓글단 게시물", description="").save()
-        Board(name="liked", category="logical", display_name="좋아요한 게시물", description="").save()
 
         Board(name="computer_engineering", category="department", display_name="컴퓨터공학과",
               description="컴퓨터공학과와 관련된 내용 담은 게시판입니다.").save()

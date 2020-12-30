@@ -28,8 +28,19 @@ $ docker run -t --rm --name tmp -v $PWD:/khumu -p 8000:8000 tmp
 ### How to build the image
 
 ```bash
-docker build -f Dockerfile-dev . -t ${{ IMAGE_NAME }}
+$ docker build -f Dockerfile-dev . -t ${{ IMAGE_NAME }}
 ``` 
+
+### How to initiate the data
+
+```bash
+$ ./initialize.sh
+```
+
+Database 연결을 위해서는 K8s의 MySQL container을 이용하는 경우 3306 port에 port forwarding을 해줘야한다.
+혹은 config/dev.yaml(dev 환경을 이용하는 경우)에 database 설정을 수정해줘야한다.
+
+DB 연결 후 `./initialize.sh`를 실행해주면 초기 데이터를 구축할 수 있다.
 
 ## 개발 팁
 
