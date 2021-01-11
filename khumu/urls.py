@@ -23,8 +23,9 @@ router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'/users', userView.KhumuUserViewSet, basename='khumuuser')
 router.register(r'/groups', userView.GroupViewSet, basename='groups')
 router.register(r'/boards', boardView.BoardViewSet, basename='board')
-router.register(r'/boards/(?P<board_name>[^/.]+)/follows', boardView.FollowBoardViewSet, basename='follow-boards')
+router.register(r'/boards/(?P<board_name>[^/.]+)/follows', boardView.FollowBoardViewSet, basename='follow-board')
 router.register(r'/articles', articleView.ArticleViewSet, basename='article')
+router.register(r'/article-tags', articleView.ArticleTagViewSet, basename='article-tag')
 # router.register(r'/comments', commentView.CommentViewSet)
 
 schema_view = get_schema_view(

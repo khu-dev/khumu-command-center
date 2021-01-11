@@ -2,7 +2,7 @@ import json
 
 import pytz
 
-from article.models import Article, LikeArticle, BookmarkArticle
+from article.models import Article, LikeArticle, BookmarkArticle, ArticleTag, FollowArticleTag
 from user.models import KhumuUser
 from user.serializers import KhumuUserSimpleSerializer
 from rest_framework import serializers
@@ -11,11 +11,24 @@ from comment.serializers import CommentSerializer
 from khumu import settings
 import datetime, time
 
+class ArticleTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArticleTag
+        fields = ['name', 'followed']
+
+    followed = serializers.SerializerMethodField()
+
+    def get_followed(self, tag_instance:ArticleTag):
+        return FollowArticleTag.objects.filter(
+            tag__name=tag_instance.name,
+            user__username=self.context['request'].user.username
+        ).exists()
+
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Article
         fields = ['id', 'url', 'board', 'title', 'author', 'kind',
-                  'content', 'images', 'comment_count', 'created_at',
+                  'content', 'tags', 'images', 'comment_count', 'created_at',
                   'liked', 'like_article_count',
                   'bookmarked', 'bookmark_article_count']
         # depth = 3
@@ -29,6 +42,7 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     created_at = serializers.SerializerMethodField()
     bookmarked = serializers.SerializerMethodField()
     bookmark_article_count = serializers.SerializerMethodField()
+    tags = ArticleTagSerializer(read_only=True, many=True)
 
     # author = KhumuUserSimpleSerializer()
     # article의 경우 웬만해선 comment count가 필요하다.
@@ -37,8 +51,22 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         request_user = self.context['request'].user
         body = json.loads(self.context['request'].body)
+        tag_names = body.pop("tags", [])
+
         board_name = body.get("board")
-        return Article.objects.create(**validated_data, author_id=request_user.username, board_id=board_name)
+        article = Article(**validated_data, author_id=request_user.username, board_id=board_name)
+        article.save()  # 우선은 저장을 해서 Article을 생성해야 many to many 관계를 생성 가능
+
+        for tag_name in tag_names:
+            ArticleTag.objects.get_or_create(name=tag_name)
+        tags = []
+        for tag_instance in ArticleTag.objects.filter(name__in=tag_names):
+            tags.append(tag_instance)
+        article.tags.set(tags)
+        # many to many 관계 생성 후 다시 save
+        article.save()
+
+        return article
 
     def update(self, instance, validated_data):
         body = json.loads(self.context['request'].body)
@@ -64,6 +92,9 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     def get_board(self, obj):
         # print(self.context['request'])
         return obj.board.name
+
+    def get_tags(self, obj):
+        return map(lambda tag: tag.name, obj.tags.all())
 
     def get_liked(self, obj):
         return len(obj.likearticle_set.filter(user_id=self.context['request'].user.username)) != 0
@@ -95,7 +126,12 @@ class BookmarkArticleSerializer(serializers.ModelSerializer):
         model = BookmarkArticle
         fields = ['article', 'user']
 
-# returns string
+class BookmarkArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowArticleTag
+        fields = '__all__'
+
+# datetime.datetime type의 시각을 받아서 쿠뮤에서 원하는 형태의 시각으로 변환한다.
 def get_converted_time_string(t:datetime.datetime):
     t = t.replace(tzinfo=datetime.timezone.utc).astimezone(tz=None)
 

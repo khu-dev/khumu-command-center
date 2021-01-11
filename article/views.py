@@ -1,18 +1,18 @@
 import json
 import time
-
-from article.models import Article, LikeArticle, BookmarkArticle
-from board.models import Board, FollowBoard
-from comment.serializers import CommentSerializer
 from rest_framework import viewsets, pagination, permissions, views
 from rest_framework import response
 from rest_framework.parsers import JSONParser, MultiPartParser
-from article.serializers import ArticleSerializer, LikeArticleSerializer, BookmarkArticleSerializer
 from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse, DefaultResponse
-from user.serializers import KhumuUserSimpleSerializer
-from user.models import KhumuUser
 from rest_framework.pagination import PageNumberPagination
+
+from django.db.models import Q
+from article.models import Article, ArticleTag, FollowArticleTag, LikeArticle, BookmarkArticle
+from board.models import Board, FollowBoard
+
+from article.serializers import ArticleSerializer, LikeArticleSerializer, BookmarkArticleSerializer, ArticleTagSerializer
+from user.serializers import KhumuUserSimpleSerializer
 
 
 class ArticlePagination(pagination.PageNumberPagination):
@@ -37,10 +37,9 @@ class ArticleViewSet(viewsets.ModelViewSet):
     pagination_class = ArticlePagination
 
     def get_queryset(self):
-        options = {}
         board_name = self.request.query_params.get('board')
-        if board_name == 'recent':
-            return self._get_recent_articles()
+        if board_name == 'following':
+            return self._get_articles_from_following()
         elif board_name == 'my':
             return self._get_my_articles()
         elif board_name == 'liked':
@@ -56,10 +55,13 @@ class ArticleViewSet(viewsets.ModelViewSet):
         return Article.objects.all()
 
     # 사용자별 feed를 위한 최신 게시물을 제공해야함.
-    def _get_recent_articles(self):
-        board_ids = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board_id')
-
-        return Article.objects.filter(board__name__in=board_ids).all()
+    def _get_articles_from_following(self):
+        following_board_names = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board__name')
+        following_article_tag_names = FollowArticleTag.objects.filter(user_id=self.request.user.username).all().values('tag__name')
+        return Article.objects.filter(
+            Q(board__name__in=following_board_names) |
+            Q(tags__name__in=following_article_tag_names)
+        ).all()
 
     def _get_my_articles(self):
         return self.request.user.article_set.all()
@@ -159,3 +161,63 @@ class BookmarkArticleToggleView(views.APIView):
         else:
             bookmarks.delete()
             return response.Response(status=204)
+
+class ArticleTagViewSet(viewsets.ModelViewSet):
+    serializer_class = ArticleTagSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        followed = self.request.query_params.get('followed', False) #  내가 follow 중인 tag
+        if followed:
+            following_tag_names = FollowArticleTag.objects.filter(user__username=self.request.user.username).values('tag__name')
+            print(following_tag_names)
+            return ArticleTag.objects.filter()
+
+        return ArticleTag.objects.all()
+
+    # 사용자별 feed를 위한 최신 게시물을 제공해야함.
+    def _get_recent_articles(self):
+        board_ids = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board_id')
+
+        return Article.objects.filter(board__name__in=board_ids).all()
+
+    def _get_my_articles(self):
+        return self.request.user.article_set.all()
+
+    def _get_bookmarked_articles(self):
+        articles = []
+        for bookmarkArticle in self.request.user.bookmarkarticle_set.all():
+            articles.append(bookmarkArticle.article)
+        return articles
+
+    def _get_liked_articles(self):
+        articles = []
+        for likeArticle in self.request.user.likearticle_set.all():
+            articles.append(likeArticle.article)
+        return articles
+
+    def _get_commented_articles(self):
+        articles = []
+        for comment in self.request.user.comment_set.all().order_by('-created_at'):
+            if comment.article not in articles:
+                articles.append(comment.article)
+        return articles
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        # serializer = self.get_serializer(queryset, many=True)
+        # articles = serializer.data
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return DefaultResponse(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        article = self.get_object()
+        article_serialized = self.get_serializer(article).data
+
+        return DefaultResponse(article_serialized)

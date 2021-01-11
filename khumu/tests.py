@@ -1,9 +1,10 @@
+import os
 import random
 import time
 
 # from django.test import TestCase
 from unittest import TestCase
-from article.models import Article, LikeArticle, BookmarkArticle
+from article.models import Article, LikeArticle, BookmarkArticle, FollowArticleTag, ArticleTag
 from user.models import KhumuUser
 from comment.models import Comment, LikeComment
 from board.models import Board, FollowBoard
@@ -15,10 +16,23 @@ class InitializeTest(TestCase):
     users = [
         ("admin", "관리자"), ("jinsu", "찡수"), ("gusrl4025", "꿀주먹"), ("somebody", "썸바디"), ("david", "다비드 or 데이빗"),
         ("Park", "박씨"),  ("kim", "김씨"), ("haley", 'haley'), ("mike", "아임 마이크"),  ("justin", 'justin'), ('chemical', "화공과 유령"), ('computer', '컴퓨터귀신'),
-        ("jo", '조교님'), ('pro', '전문가')
+        ("jo", '조교님'), ('pro', '전문가'), ("marhead", "치후닝"), ("ohayo", "오하요오하영")
     ]
 
     articles = [
+        {
+            "board": "computer_engineering",
+            "title": "아옹~ 현기랑 치후니가 찡찡거려서 쿠뮤 홍보 포스터 만들어줬다~", "content": "맘에 들게 나와서 뿌듯.. 현기야 고마운 줄 알아라 알았징~?\n - 오하요오하0410영 -",
+            "comments": [{
+                "content": "ㅋㅋㅋㅋ 고생했으~",
+            },{
+                "content": "땡큐 땡큐~",
+            },{
+                "content": "쿠뮤 새해 복 많이~ 번창하거라~!",
+            },{
+                "content": "뛰어나고 재밌는 iOS 개발자분 기다립니다..!",
+            }],
+        },
         {
             "board": "free",
             "title": "방에서 술이 답인가?", "content": "어케 생각",
@@ -269,6 +283,10 @@ class InitializeTest(TestCase):
 
     ]
 
+    # user는 앞의 절반의 tag를 follow, 게시판에는 임의로 태그 삽입
+    article_tags = ['흥해라쿠뮤', '임의의태그', '익명의태그', '코끼리', '침팬지', '맘모스', '기린',
+                    'docker', 'kubernetes', 'golang', '치후니', '현the기', '현기', '진수']
+
     def test_initialize(self):
         print("Create groups. If the name of group exists, pass.")
         for name in ["admin", 'normal']:
@@ -318,10 +336,23 @@ class InitializeTest(TestCase):
             FollowBoard(board_id="free", user_id=randomUser[0]).save()
             print(randomUser[0], "follows the board named free")
 
+        print("Create article-tags")
+        for tag_name in self.article_tags:
+            ArticleTag(name=tag_name).save()
+            print("Article-Tag name:", tag_name)
+
+        print("Create follow-article-tags")
+        for user in self.users:
+            for tag_name in self.article_tags[:len(self.article_tags)//2]:
+                FollowArticleTag(user_id=user[0], tag_id=tag_name).save()
+                print(f'{user[0]} follows article tag({tag_name})')
+
         print("Created articles")
         for i, article in enumerate(self.articles):
             article_instance = Article(board_id=article['board'], title=article['title'], author_id=random.choice(users).username,
                               content=article['content'], kind="anonymous" if i % 2 == 0 else "named")
+            article_instance.save()
+            article_instance.tags.set(ArticleTag.objects.filter(name=random.choice(self.article_tags)))
             article_instance.save()
             articles.append(article_instance)
             print("Article: ", article_instance)
