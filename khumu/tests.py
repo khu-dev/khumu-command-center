@@ -13,13 +13,13 @@ from django.contrib.auth.models import Group
 
 # Create your tests here.
 class InitializeTest(TestCase):
-    users = [
+    users_data = [
         ("admin", "관리자"), ("jinsu", "찡수"), ("gusrl4025", "꿀주먹"), ("somebody", "썸바디"), ("david", "다비드 or 데이빗"),
         ("Park", "박씨"),  ("kim", "김씨"), ("haley", 'haley'), ("mike", "아임 마이크"),  ("justin", 'justin'), ('chemical', "화공과 유령"), ('computer', '컴퓨터귀신'),
         ("jo", '조교님'), ('pro', '전문가'), ("marhead", "치후닝"), ("ohayo", "오하요오하영")
     ]
 
-    articles = [
+    articles_data = [
         {
             "board": "computer_engineering",
             "title": "아옹~ 현기랑 치후니가 찡찡거려서 쿠뮤 홍보 포스터 만들어줬다~", "content": "맘에 들게 나와서 뿌듯.. 현기야 고마운 줄 알아라 알았징~?\n - 오하요오하0410영 -",
@@ -284,10 +284,35 @@ class InitializeTest(TestCase):
     ]
 
     # user는 앞의 절반의 tag를 follow, 게시판에는 임의로 태그 삽입
-    article_tags = ['흥해라쿠뮤', '임의의태그', '익명의태그', '코끼리', '침팬지', '맘모스', '기린',
+    article_tag_names = ['흥해라쿠뮤', '임의의태그', '익명의태그', '코끼리', '침팬지', '맘모스', '기린',
                     'docker', 'kubernetes', 'golang', '치후니', '현the기', '현기', '진수']
 
+    # raw data가 아닌 instance를 담는 녀석들
+    users = []
+    articles = []
+    comments = []
+
     def test_initialize(self):
+        # article 순서를 초기화 때마다 랜덤하게 함.
+        random.shuffle(self.articles_data)
+
+        users = []
+        articles = []
+        comments = []
+
+        self.initialize_groups()
+        self.initialize_users()
+        self.initialize_boards()
+        self.initialize_follow_boards()
+        self.initialize_article_tags()
+        self.initialize_follow_article_tags()
+        self.initialize_articles()
+        self.initialize_comments()
+        self.initialize_bookmark_articles()
+        self.initialize_like_articles()
+        self.initialize_like_comments()
+
+    def initialize_groups(self):
         print("Create groups. If the name of group exists, pass.")
         for name in ["admin", 'normal']:
             try:
@@ -295,16 +320,12 @@ class InitializeTest(TestCase):
             except Exception as e:
                 print(e)
 
-        random.shuffle(self.articles)
-        users = []
-        articles = []
-        comments = []
-
-        print("Create random users", self.users)
-        for i, randomUser in enumerate(self.users):
-            user = KhumuUser(username=randomUser[0], password=make_password("123123"), student_number=str(2000101000+i), nickname=randomUser[1])
-            if not KhumuUser.objects.filter(username=randomUser[0]).exists():
-                if randomUser[0] == 'admin':
+    def initialize_users(self):
+        print("Create users", self.users_data)
+        for i, user_data in enumerate(self.users_data):
+            user = KhumuUser(username=user_data[0], password=make_password("123123"), student_number=str(2000101000+i), nickname=user_data[1])
+            if not KhumuUser.objects.filter(username=user_data[0]).exists():
+                if user_data[0] == 'admin':
                     user.is_superuser = True
                     user.save()
                     user.groups.add(1)
@@ -312,10 +333,12 @@ class InitializeTest(TestCase):
                     user.save()
                     user.groups.add(2)
 
-            users.append(user)
+            self.users.append(user)
 
+    def initialize_boards(self):
         print("Create boards")
-        Board(name="announcement", category="announcement", display_name="공지사항", description="경희대 관련 각종 공지사항입니다.").save()
+        Board(name="announcement", category="announcement", display_name="공지사항",
+              description="경희대 관련 각종 공지사항입니다.").save()
         Board(name="temporary", category="temporary", display_name="임시게시판", description="사용자에게 공개되지 않는 기본 게시판입니다.",
               campus=None).save()
         Board(name="free", display_name="자유게시판", description="자유로운 내용을 담은 게시판입니다.").save()
@@ -331,42 +354,52 @@ class InitializeTest(TestCase):
         Board(name="lecture_calculus", category="lecture", display_name="미분적분 수업",
               description="미분적분 수업과 관련된 내용의 게시판입니다.").save()
 
+    def initialize_follow_boards(self):
         print("Create follow-boards")
-        for randomUser in self.users:
-            FollowBoard(board_id="free", user_id=randomUser[0]).save()
-            print(randomUser[0], "follows the board named free")
+        for user_data in self.users_data:
+            FollowBoard(board_id="free", user_id=user_data[0]).save()
+            print(user_data[0], "follows the board named free")
 
+    def initialize_article_tags(self):
         print("Create article-tags")
-        for tag_name in self.article_tags:
+        for tag_name in self.article_tag_names:
             ArticleTag(name=tag_name).save()
             print("Article-Tag name:", tag_name)
 
+    def initialize_follow_article_tags(self):
         print("Create follow-article-tags")
-        for user in self.users:
-            for tag_name in self.article_tags[:len(self.article_tags)//2]:
+        for user in self.users_data:
+            for tag_name in self.article_tag_names[:len(self.article_tag_names) // 2]:
                 FollowArticleTag(user_id=user[0], tag_id=tag_name).save()
                 print(f'{user[0]} follows article tag({tag_name})')
 
+    def initialize_articles(self):
         print("Created articles")
-        for i, article in enumerate(self.articles):
-            article_instance = Article(board_id=article['board'], title=article['title'], author_id=random.choice(users).username,
-                              content=article['content'], kind="anonymous" if i % 2 == 0 else "named")
+        for i, article in enumerate(self.articles_data):
+            article_instance = Article(board_id=article['board'], title=article['title'],
+                                       author_id=random.choice(self.users).username,
+                                       content=article['content'], kind="anonymous" if i % 2 == 0 else "named")
             article_instance.save()
-            article_instance.tags.set(ArticleTag.objects.filter(name=random.choice(self.article_tags)))
+            article_instance.tags.set(ArticleTag.objects.filter(name=random.choice(self.article_tag_names)))
             article_instance.save()
-            articles.append(article_instance)
+            self.articles.append(article_instance)
             print("Article: ", article_instance)
-            for comment in article['comments']:
+
+    def initialize_comments(self):
+        # 만약 article_id가 articles_data에서의 index + 1 이 아니면 엉뚱한 댓글이 사용될 수 있음!
+        for article_id, article_data in enumerate(self.articles_data, 1):
+            for comment in article_data['comments']:
                 comment_instance = Comment(
-                    article_id=article_instance.id,
-                    author_id=random.choice(users).username,
+                    article_id=article_id,
+                    author_id=random.choice(self.users).username,
                     content=comment['content'],
-                    parent_id=random.choice(comments).id if i // 2 == 1 else None
+                    parent_id=random.choice(self.comments).id if article_id // 2 == 1 else None
                 )
                 comment_instance.save()
-                comments.append(comment_instance)
+                self.comments.append(comment_instance)
                 print("Create random comments. ", comment_instance)
 
+    def initialize_bookmark_articles(self):
         print("Create bookmark articles")
         for _ in range(120):
             user = random.choice(KhumuUser.objects.all())
@@ -376,7 +409,7 @@ class InitializeTest(TestCase):
                 bookmark_article.save()
             print(user.username, "bookmarks", article.id, "th article")
 
-
+    def initialize_like_articles(self):
         print("Create like articles")
         for _ in range(200):
             user = random.choice(KhumuUser.objects.all())
@@ -386,6 +419,7 @@ class InitializeTest(TestCase):
                 like_article.save()
             print(user.username, "likes", article.id, "th article")
 
+    def initialize_like_comments(self):
         print("Create like comments")
         for _ in range(300):
             user = random.choice(KhumuUser.objects.all())

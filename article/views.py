@@ -61,7 +61,9 @@ class ArticleViewSet(viewsets.ModelViewSet):
         return Article.objects.filter(
             Q(board__name__in=following_board_names) |
             Q(tags__name__in=following_article_tag_names)
-        ).all()
+        ).distinct().all()
+    # i, love, you
+    # Following: you
 
     def _get_my_articles(self):
         return self.request.user.article_set.all()
