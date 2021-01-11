@@ -27,7 +27,7 @@ class ArticleTagSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Article
-        fields = ['id', 'url', 'board', 'title', 'author', 'kind',
+        fields = ['id', 'url', 'board_name', 'board_display_name', 'title', 'author', 'kind',
                   'content', 'tags', 'images', 'comment_count', 'created_at',
                   'liked', 'like_article_count',
                   'bookmarked', 'bookmark_article_count']
@@ -35,7 +35,8 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         # fields = ['board', 'title', 'author', 'content', 'create_at', 'comment_count']
 
     author = serializers.SerializerMethodField()
-    board = serializers.SerializerMethodField()
+    board_name = serializers.SerializerMethodField()
+    board_display_name = serializers.SerializerMethodField()
     liked = serializers.SerializerMethodField()
     comment_count = serializers.SerializerMethodField()
     like_article_count = serializers.SerializerMethodField()
@@ -51,7 +52,7 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         request_user = self.context['request'].user
         body = json.loads(self.context['request'].body)
-        tag_names = body.pop("tags", [])
+        tag_names = list(map(lambda tag_data: tag_data['name'], body.pop("tags", [])))
 
         board_name = body.get("board")
         article = Article(**validated_data, author_id=request_user.username, board_id=board_name)
@@ -89,9 +90,13 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
             author_data['nickname'] = '익명'
 
         return author_data
-    def get_board(self, obj):
+    def get_board_name(self, obj):
         # print(self.context['request'])
         return obj.board.name
+
+    def get_board_display_name(self, obj):
+        # print(self.context['request'])
+        return obj.board.display_name
 
     def get_tags(self, obj):
         return map(lambda tag: tag.name, obj.tags.all())
