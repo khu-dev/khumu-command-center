@@ -52,9 +52,9 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         request_user = self.context['request'].user
         body = json.loads(self.context['request'].body)
+        board_name = body.get("board")
         tag_names = list(map(lambda tag_data: tag_data['name'], body.pop("tags", [])))
 
-        board_name = body.get("board")
         article = Article(**validated_data, author_id=request_user.username, board_id=board_name)
         article.save()  # 우선은 저장을 해서 Article을 생성해야 many to many 관계를 생성 가능
 
@@ -72,9 +72,19 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     def update(self, instance, validated_data):
         body = json.loads(self.context['request'].body)
         board_name = body.get("board")
+        tag_names = list(map(lambda tag_data: tag_data['name'], body.pop("tags", [])))
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         setattr(instance, 'board_id', board_name)
+
+        for tag_name in tag_names:
+            ArticleTag.objects.get_or_create(name=tag_name)
+        tags = []
+        for tag_instance in ArticleTag.objects.filter(name__in=tag_names):
+            tags.append(tag_instance)
+        instance.tags.set(tags)
+
         instance.save()
         return instance
 

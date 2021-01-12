@@ -21,7 +21,7 @@ class InitializeTest(TestCase):
 
     articles_data = [
         {
-            "board": "computer_engineering",
+            "board": "department_computer_engineering",
             "title": "아옹~ 현기랑 치후니가 찡찡거려서 쿠뮤 홍보 포스터 만들어줬다~", "content": "맘에 들게 나와서 뿌듯.. 현기야 고마운 줄 알아라 알았징~?\n - 오하요오하0410영 -",
             "comments": [{
                 "content": "ㅋㅋㅋㅋ 고생했으~",
@@ -190,7 +190,7 @@ class InitializeTest(TestCase):
             }],
         },
         {
-            "board": "computer_engineering",
+            "board": "department_computer_engineering",
             "title": "컴구 강의 들어도 뭔 말인지 하나도 모르겠네.", "content": "내가 바보인건가?ㅜㅜ 제때 제때 들을 껄",
             "comments": [{
                 "content": "엥 교수님 디게 좋은데,,, 인생 교수님이심. 중간중간 웃기기도 하고 ㅋㅋㅋ 전에 객프도 그 교수님거 들었는데 굳굳",
@@ -201,7 +201,7 @@ class InitializeTest(TestCase):
             },],
         },
         {
-            "board": "computer_engineering",
+            "board": "department_computer_engineering",
             "title": "이번 방학에 같이 코테 준비하실 분들 계신가요?", "content": "혼자하려니 좀 재미없구 어렵네욧~!",
             "comments": [{
                 "content": "저요",
@@ -212,7 +212,7 @@ class InitializeTest(TestCase):
             }],
         },
         {
-            "board": "computer_engineering",
+            "board": "department_computer_engineering",
             "title": "공모전 같은 거 해보신 분들 후기 좀", "content": "어때요? 상 타기 많이 힘든가요? 상 못 타면 말짱 도루묵이에요??",
             "comments": [{
                 "content": "케바케입니다.",
@@ -223,7 +223,7 @@ class InitializeTest(TestCase):
             }],
         },
         {
-            "board": "computer_engineering",
+            "board": "department_computer_engineering",
             "title": "계절학기 수학", "content": "주우신 분 계신가요??",
             "comments": [{
                 "content": "",
@@ -232,21 +232,21 @@ class InitializeTest(TestCase):
             },],
         },
         {
-            "board": "computer_engineering",
+            "board": "department_computer_engineering",
             "title": "이번 프로젝트는 성공적이다.", "content": "나라도 나의 머리를 쓰담쓰담해줘야지 ㅎㅅㅎ... 고마웡 >_< 킈킈킈",
             "comments": [{
                 "content": "",
             }],
         },
         {
-            "board": "computer_engineering",
+            "board": "department_computer_engineering",
             "title": "오토스케일링 시뮬레이션 하는데", "content": "신기하고도 재미지다.",
             "comments": [{
                 "content": "",
             }],
         },
         {
-            "board": "chemical_engineering",
+            "board": "department_chemical_engineering",
             "title": "화공과를 나온 것은 신의 한 수", "content": "leave.....",
             "comments": [{"content": "ㅇㅈ"},{"content": "나가서 어디감?"},
                  {"content": "댓글이"},{"content": "겁나"},{"content": "많으면"},{"content": "속도가"},{"content": "어떤지"},
@@ -254,19 +254,19 @@ class InitializeTest(TestCase):
             + [{"content": "테.스.트."}] * 100
         },
         {
-            "board": "chemical_engineering",
+            "board": "department_chemical_engineering",
             "title": "선배님덜 요즘 화공과 전망이 어떤가요??", "content": "주변에 있는 화공친구들이 자꾸 컴공 소융으로 떠나요...ㅜㅜ 저도 떠나야하나요?",
             "comments": [{
                 "content": "미래는 아무도 모른다.",
             }],
         },
         {
-            "board": "chemical_engineering",
+            "board": "department_chemical_engineering",
             "title": "일반화학 왜케 어렵냐", "content": "고딩때는 나름 화학 잘 했던 것 같은데 같은 내용인데도 어렵네",
             "comments": [],
         },
         {
-            "board": "chemical_engineering",
+            "board": "department_chemical_engineering",
             "title": "그만그만 연습문제는 질린다구", "content": "주말에 하루종일 연습문제만 푸는 내 인생 레전드",
             "comments": [],
         },
@@ -293,9 +293,6 @@ class InitializeTest(TestCase):
     comments = []
 
     def test_initialize(self):
-        # article 순서를 초기화 때마다 랜덤하게 함.
-        random.shuffle(self.articles_data)
-
         users = []
         articles = []
         comments = []
@@ -343,22 +340,23 @@ class InitializeTest(TestCase):
               campus=None).save()
         Board(name="free", display_name="자유게시판", description="자유로운 내용을 담은 게시판입니다.").save()
 
-        Board(name="computer_engineering", category="department", display_name="컴퓨터공학과",
+        Board(name="department_computer_engineering", category="department", display_name="컴퓨터공학과",
               description="컴퓨터공학과와 관련된 내용 담은 게시판입니다.").save()
-        Board(name="chemical_engineering", category="department", display_name="화학공학과",
+        Board(name="department_chemical_engineering", category="department", display_name="화학공학과",
               description="화학공학과와 관련된 내용을 담은 게시판입니다.").save()
-        Board(name="lecture_database", category="lecture", display_name="데이터베이스 수업",
+        Board(name="lecture_database", category="lecture", display_name="데이터베이스",
               description="데이터베이스 수업과 관련된 내용의 게시판입니다.").save()
-        Board(name="lecture_datacenter", category="lecture", display_name="데이터센터프로그래밍 수업",
+        Board(name="lecture_data_center_programming", category="lecture", display_name="데이터센터프로그래밍",
               description="데이터센터프로그래밍 수업과 관련된 내용의 게시판입니다.").save()
-        Board(name="lecture_calculus", category="lecture", display_name="미분적분 수업",
+        Board(name="lecture_calculus", category="lecture", display_name="미분적분학",
               description="미분적분 수업과 관련된 내용의 게시판입니다.").save()
 
     def initialize_follow_boards(self):
         print("Create follow-boards")
         for user_data in self.users_data:
-            FollowBoard(board_id="free", user_id=user_data[0]).save()
-            print(user_data[0], "follows the board named free")
+            for board_name in ["free", "department_computer_engineering", "lecture_data_center_programming"]:
+                FollowBoard(board_id=board_name, user_id=user_data[0]).save()
+                print(f'{user_data[0]} follows Board({board_name})')
 
     def initialize_article_tags(self):
         print("Create article-tags")
@@ -393,7 +391,7 @@ class InitializeTest(TestCase):
                     article_id=article_id,
                     author_id=random.choice(self.users).username,
                     content=comment['content'],
-                    parent_id=random.choice(self.comments).id if article_id // 2 == 1 else None
+                    parent_id=None
                 )
                 comment_instance.save()
                 self.comments.append(comment_instance)
