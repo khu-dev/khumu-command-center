@@ -271,12 +271,12 @@ class InitializeTest(TestCase):
             "comments": [],
         },
         {
-            "board": "temporary",
+            "board": "deleted",
             "title": "이 게시판은 임시게시판이라서", "content": "일반적으로는 보이면 안됨. 보이면 리폿 좀.",
             "comments": [],
         },
         {
-            "board": "temporary",
+            "board": "deleted",
             "title": "나 이거 삭제할거임", "content": "삭제할꺼얏!!",
             "comments": [],
         },
@@ -337,6 +337,9 @@ class InitializeTest(TestCase):
         Board(name="announcement", category="announcement", display_name="공지사항",
               description="경희대 관련 각종 공지사항입니다.").save()
         Board(name="temporary", category="temporary", display_name="임시게시판", description="사용자에게 공개되지 않는 기본 게시판입니다.",
+              campus=None).save()
+        Board(name="deleted", category="temporary", display_name="삭제 게시판",
+              description="사용자에게 공개되지 않는 삭제된 게시물을 담은 게시판입니다.",
               campus=None).save()
         Board(name="free", display_name="자유게시판", description="자유로운 내용을 담은 게시판입니다.").save()
 

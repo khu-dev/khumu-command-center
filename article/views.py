@@ -49,16 +49,16 @@ class ArticleViewSet(viewsets.ModelViewSet):
         elif board_name == 'commented':
             return self._get_commented_articles()
         elif board_name:
-            return Article.objects.filter(board_id=self.request.query_params['board'])
+            return Article.objects.filter(~Q(board__category__exact='temporary')).filter(board_id=self.request.query_params['board'])
 
-        # board_name이 정의되지 않은 경우는 그냥 all
-        return Article.objects.all()
+        # board_name이 정의되지 않은 경우는 임시 카테고리의 게시판 빼고 query
+        return Article.objects.filter(~Q(board__category__exact='temporary'))
 
     # 사용자별 feed를 위한 최신 게시물을 제공해야함.
     def _get_articles_from_following(self):
         following_board_names = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board__name')
         following_article_tag_names = FollowArticleTag.objects.filter(user_id=self.request.user.username).all().values('tag__name')
-        return Article.objects.filter(
+        return Article.objects.filter(~Q(board__category__exact='temporary')).filter(
             Q(board__name__in=following_board_names) |
             Q(tags__name__in=following_article_tag_names)
         ).distinct().all()
@@ -66,24 +66,27 @@ class ArticleViewSet(viewsets.ModelViewSet):
     # Following: you
 
     def _get_my_articles(self):
-        return self.request.user.article_set.all()
+        return self.request.user.article_set.filter(~Q(board__category__exact='temporary'))
+
 
     def _get_bookmarked_articles(self):
         articles = []
         for bookmarkArticle in self.request.user.bookmarkarticle_set.all():
-            articles.append(bookmarkArticle.article)
+            if bookmarkArticle.article.board.category != 'temporary':
+                articles.append(bookmarkArticle.article)
         return articles
 
     def _get_liked_articles(self):
         articles = []
         for likeArticle in self.request.user.likearticle_set.all():
-            articles.append(likeArticle.article)
+            if likeArticle.article.board.category != 'temporary':
+                articles.append(likeArticle.article)
         return articles
 
     def _get_commented_articles(self):
         articles = []
         for comment in self.request.user.comment_set.all().order_by('-created_at'):
-            if comment.article not in articles:
+            if comment.article.board.category != 'temporary' and comment.article not in articles:
                 articles.append(comment.article)
         return articles
 
