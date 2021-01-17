@@ -148,8 +148,6 @@ class BookmarkArticleToggleView(views.APIView):
         :param format:
         :return:
         """
-
-        article_id = request.data['article']
         username = request.user.username
         bookmarks = BookmarkArticle.objects.filter(user_id=username, article_id=id)
 
@@ -158,6 +156,7 @@ class BookmarkArticleToggleView(views.APIView):
         if len(bookmarks) == 0:
             s = BookmarkArticleSerializer(data={"article": id, "user": username})
             is_valid = s.is_valid()
+
             if is_valid:
                 s.save()
                 return DefaultResponse(True, status=201)
