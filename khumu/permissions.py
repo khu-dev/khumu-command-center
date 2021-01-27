@@ -14,7 +14,6 @@ class OpenPermission(permissions.BasePermission):
 
 
 def is_author_or_admin(username:str, author:str):
-    print(KhumuUser.objects.get(username=username).groups.all())
     if KhumuUser.objects.get(username=username).groups.filter(name='admin'):
         return True
     else:

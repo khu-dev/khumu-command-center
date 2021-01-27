@@ -1,4 +1,5 @@
 from rest_framework.response import Response
+
 def BadRequestResponse(message:str=""):
     return Response({
         "status_code": 400,
