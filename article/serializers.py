@@ -53,11 +53,13 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         request_user = self.context['request'].user
         body = json.loads(self.context['request'].body)
         board_name = body.get("board")
+        image_file_names_str = json.dumps(body.get("images"))
         tag_names = list(map(lambda tag_data: tag_data['name'], body.pop("tags", [])))
 
         article = Article(**validated_data, author_id=request_user.username, board_id=board_name)
-        article.save()  # 우선은 저장을 해서 Article을 생성해야 many to many 관계를 생성 가능
+        article.save()  # 우선은 저장을 해서 Article을 생성해야 tag 와의 many to many 관계를 생성 가능
 
+        # Article과 Tag의 관계
         for tag_name in tag_names:
             ArticleTag.objects.get_or_create(name=tag_name)
         tags = []

@@ -190,6 +190,35 @@ class InitializeTest(TestCase):
             }],
         },
         {
+            "board": "free",
+            "title": "우와 밖에 눈 또 온다!", "content": "눈 올 때에는 오리를 키워줘야지 암 그렇구 말구",
+            "comments": [{
+                "content": "으앙 ㅋㅋㅋㅋ 기여워!!",
+            }, {
+                "content": "저거 오리 만드는 거 어디서 사??",
+            }, ],
+            "image": '["initial_data_snow_duck.jpeg"]'
+        },
+        {
+            "board": "free",
+            "title": "쿠뮤 제 1회 워크샵!", "content": "누가 수정하는 거?",
+            "comments": [{
+                "content": "누가누가누가",
+            }, {
+                "content": "오 누가누가누가~!",
+            }, ],
+            "images": '["initial_data_workshop_1.png", "initial_data_workshop_2.png", initial_data_workshop_3.png]'
+        },
+        {
+            "board": "free",
+            "title": "우리학교 나무 위키 내용", "content": "누가 수정하는 거?",
+            "comments": [{
+                "content": "누가누가누가",
+            }, {
+                "content": "오 누가누가누가~!",
+            }, ],
+        },
+        {
             "board": "department_computer_engineering",
             "title": "컴구 강의 들어도 뭔 말인지 하나도 모르겠네.", "content": "내가 바보인건가?ㅜㅜ 제때 제때 들을 껄",
             "comments": [{
