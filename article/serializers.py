@@ -27,7 +27,7 @@ class ArticleTagSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Article
-        fields = ['id', 'url', 'board_name', 'board_display_name', 'title', 'author', 'kind',
+        fields = ['id', 'url', 'board_name', 'board_display_name', 'title', 'author', 'is_author', 'kind',
                   'content', 'tags', 'images', 'comment_count', 'created_at',
                   'liked', 'like_article_count',
                   'bookmarked', 'bookmark_article_count']
@@ -35,6 +35,7 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         # fields = ['board', 'title', 'author', 'content', 'create_at', 'comment_count']
 
     author = serializers.SerializerMethodField()
+    is_author = serializers.SerializerMethodField()
     board_name = serializers.SerializerMethodField()
     board_display_name = serializers.SerializerMethodField()
     liked = serializers.SerializerMethodField()
@@ -53,6 +54,7 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         request_user = self.context['request'].user
         body = json.loads(self.context['request'].body)
         board_name = body.get("board")
+        # json field ref: https://docs.djangoproject.com/en/dev/releases/3.1/#jsonfield-for-all-supported-database-backends
         image_file_names_str = json.dumps(body.get("images"))
         tag_names = list(map(lambda tag_data: tag_data['name'], body.pop("tags", [])))
 
@@ -102,6 +104,13 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
             author_data['nickname'] = '익명'
 
         return author_data
+
+    def get_is_author(self, obj):
+        request_user = self.context['request'].user
+        if request_user.username == obj.author.username:
+            return True
+        else: return False
+
     def get_board_name(self, obj):
         # print(self.context['request'])
         return obj.board.name
