@@ -99,7 +99,7 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
             "nickname": obj.author.nickname,
             "state": obj.author.state
         }
-        if obj.kind == "anonymous" and obj.author.username != request_user.username:
+        if obj.kind == "anonymous":
             author_data['username'] = '익명'
             author_data['nickname'] = '익명'
 
