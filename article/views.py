@@ -1,6 +1,6 @@
 import json
 import time
-from rest_framework import viewsets, pagination, permissions, views
+from rest_framework import viewsets, pagination, permissions, views, status
 from rest_framework import response
 from rest_framework.parsers import JSONParser, MultiPartParser
 from khumu.permissions import is_author_or_admin
@@ -11,7 +11,8 @@ from django.db.models import Q
 from article.models import Article, ArticleTag, FollowArticleTag, LikeArticle, BookmarkArticle
 from board.models import Board, FollowBoard
 
-from article.serializers import ArticleSerializer, LikeArticleSerializer, BookmarkArticleSerializer, ArticleTagSerializer
+from article.serializers import ArticleSerializer, LikeArticleSerializer, BookmarkArticleSerializer, \
+    ArticleTagSerializer, FollowArticleTagSerializer
 from user.serializers import KhumuUserSimpleSerializer
 
 
@@ -179,34 +180,6 @@ class ArticleTagViewSet(viewsets.ModelViewSet):
 
         return ArticleTag.objects.all()
 
-    # 사용자별 feed를 위한 최신 게시물을 제공해야함.
-    def _get_recent_articles(self):
-        board_ids = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board_id')
-
-        return Article.objects.filter(board__name__in=board_ids).all()
-
-    def _get_my_articles(self):
-        return self.request.user.article_set.all()
-
-    def _get_bookmarked_articles(self):
-        articles = []
-        for bookmarkArticle in self.request.user.bookmarkarticle_set.all():
-            articles.append(bookmarkArticle.article)
-        return articles
-
-    def _get_liked_articles(self):
-        articles = []
-        for likeArticle in self.request.user.likearticle_set.all():
-            articles.append(likeArticle.article)
-        return articles
-
-    def _get_commented_articles(self):
-        articles = []
-        for comment in self.request.user.comment_set.all().order_by('-created_at'):
-            if comment.article not in articles:
-                articles.append(comment.article)
-        return articles
-
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         # serializer = self.get_serializer(queryset, many=True)
@@ -225,3 +198,24 @@ class ArticleTagViewSet(viewsets.ModelViewSet):
         article_serialized = self.get_serializer(article).data
 
         return DefaultResponse(article_serialized)
+
+
+class FollowArticleTagView(views.APIView):
+    serializer_class = FollowArticleTagSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return FollowArticleTag.objects.filter(user=self.request.user)
+
+    # toggle follow
+    def patch(self, request, *args, **kwargs):
+        if self.get_queryset().exists():
+            self.get_queryset().delete()
+            return DefaultResponse(data=None, status=status.HTTP_204_NO_CONTENT)
+        else:
+            s = self.serializer_class(data={
+                'user': request.user.username, 'tag': kwargs.get('tag_name')
+            })
+            s.is_valid(raise_exception=True)
+            s.save()
+            return DefaultResponse(data=None, status=status.HTTP_201_CREATED)

@@ -59,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'khumu.middlewares.logging',
-    'khumu.middlewares.force_content_type_multipart_form_data_on_post',
+    'khumu.middlewares.force_content_type_application_json_on_post',
 ]
 
 ROOT_URLCONF = 'khumu.urls'

@@ -191,26 +191,6 @@ class InitializeTest(TestCase):
         },
         {
             "board": "free",
-            "title": "우와 밖에 눈 또 온다!", "content": "눈 올 때에는 오리를 키워줘야지 암 그렇구 말구",
-            "comments": [{
-                "content": "으앙 ㅋㅋㅋㅋ 기여워!!",
-            }, {
-                "content": "저거 오리 만드는 거 어디서 사??",
-            }, ],
-            "image": '["initial_data_snow_duck.jpeg"]'
-        },
-        {
-            "board": "free",
-            "title": "쿠뮤 제 1회 워크샵!", "content": "누가 수정하는 거?",
-            "comments": [{
-                "content": "누가누가누가",
-            }, {
-                "content": "오 누가누가누가~!",
-            }, ],
-            "images": '["initial_data_workshop_1.png", "initial_data_workshop_2.png", initial_data_workshop_3.png]'
-        },
-        {
-            "board": "free",
             "title": "우리학교 나무 위키 내용", "content": "누가 수정하는 거?",
             "comments": [{
                 "content": "누가누가누가",
@@ -308,6 +288,38 @@ class InitializeTest(TestCase):
             "board": "deleted",
             "title": "나 이거 삭제할거임", "content": "삭제할꺼얏!!",
             "comments": [],
+        },
+        {
+            "board": "free",
+            "title": "우와 밖에 눈 또 온다!", "content": "눈 올 때에는 오리를 키워줘야지 암 그렇구 말구",
+            "comments": [{
+                "content": "으앙 ㅋㅋㅋㅋ 기여워!!",
+            }, {
+                "content": "저거 오리 만드는 거 어디서 사??",
+            }, ],
+            "image": []
+        },
+        # image 데이터는 ./initialize.sh에 저장되어있음.
+        {
+            "board": "free",
+            "title": "쿠뮤 제 1회 워크샵!", "content": "누가 수정하는 거?",
+            "comments": [{
+                "content": "누가누가누가",
+            }, {
+                "content": "오 누가누가누가~!",
+            }, ],
+            # "images": '["initial_data_workshop_1.png", "initial_data_workshop_2.png", initial_data_workshop_3.png]'
+        },
+        {
+            "board": "free",
+            "title": "쿠뮤 멤버들을 소개합니다~!",
+            "content": "Go와 컨테이너를 좋아하는 우미와 현기증 날 것만 같은 dizzy, Java와 보드를 좋아하는 치훈입니다.",
+            "comments": [{
+                "content": "화이팅 쿠뮤~!",
+            }, {
+                "content": "눈누난나 개발 중~!",
+            }, ],
+            "images": ["jinsu.jpeg", "dizzy.jpeg", "chihoon.jpeg"]
         },
 
     ]
@@ -408,7 +420,8 @@ class InitializeTest(TestCase):
         for i, article in enumerate(self.articles_data):
             article_instance = Article(board_id=article['board'], title=article['title'],
                                        author_id=random.choice(self.users).username,
-                                       content=article['content'], kind="anonymous" if i % 2 == 0 else "named")
+                                       content=article['content'], kind="anonymous" if i % 2 == 0 else "named",
+                                       images=article.get('images', []))
             article_instance.save()
             article_instance.tags.set(ArticleTag.objects.filter(name=random.choice(self.article_tag_names)))
             article_instance.save()

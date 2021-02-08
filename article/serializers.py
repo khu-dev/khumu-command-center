@@ -152,6 +152,12 @@ class BookmarkArticleSerializer(serializers.ModelSerializer):
         model = BookmarkArticle
         fields = ['article', 'user']
 
+class FollowArticleTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowArticleTag
+        fields = '__all__'
+        extra_kwargs = {'user': {'required': True}, 'tag': {'required': True}}
+
 # datetime.datetime type의 시각을 받아서 쿠뮤에서 원하는 형태의 시각으로 변환한다.
 def get_converted_time_string(t:datetime.datetime):
     t = t.replace(tzinfo=datetime.timezone.utc).astimezone(tz=None)

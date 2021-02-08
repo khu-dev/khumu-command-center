@@ -54,7 +54,7 @@ urlpatterns = [
 
     path(r'api/articles/<id>/likes', articleView.LikeArticleToggleView.as_view(), name='like-article'),
     path(r'api/articles/<id>/bookmarks', articleView.BookmarkArticleToggleView.as_view(), name='bookmark-article'),
-
+    path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
     path(r'admin', admin.site.urls),
     path(r'api/token', KhumuJWTObtainPairView.as_view(), name='token_obtain_pair'),
     path(r'api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),

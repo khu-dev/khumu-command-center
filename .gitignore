@@ -6,3 +6,4 @@ __pycache__
 */migrations/*
 config/*
 !config/local.yaml
+test_data

@@ -9,7 +9,6 @@ class KhumuJWTSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
 
         token['nickname'] = user.nickname
-        print(token['nickname'])
         return token
 
 
