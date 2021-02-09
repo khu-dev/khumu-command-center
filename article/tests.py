@@ -19,6 +19,7 @@ class ArticleView(TestCase):
 
     def setUp(self):
         Board(name=self.board).save()
+        # password는 바로 주입하면 안되고, set_password를 통해 암호화해주어야한다.
         u = KhumuUser(username=self.username, nickname=self.nickname)
         u.set_password(self.password)
         u.save()

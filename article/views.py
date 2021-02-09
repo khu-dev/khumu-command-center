@@ -175,8 +175,7 @@ class ArticleTagViewSet(viewsets.ModelViewSet):
         followed = self.request.query_params.get('followed', False) #  내가 follow 중인 tag
         if followed:
             following_tag_names = FollowArticleTag.objects.filter(user__username=self.request.user.username).values('tag__name')
-            print(following_tag_names)
-            return ArticleTag.objects.filter()
+            return ArticleTag.objects.filter(name__in=following_tag_names)
 
         return ArticleTag.objects.all()
 
