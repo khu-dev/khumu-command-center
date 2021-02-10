@@ -25,11 +25,14 @@ def force_content_type_application_json_on_post(get_response):
         is_desired_content_types = any(content_type.startswith(desired) for desired in desired_content_types)
         if http_method == 'POST' and not is_desired_content_types:
             # return UnsupportedContentTypeResponse(content_type, "application/json")
-            return JsonResponse(
-                status=400,
-                data={
+            resp = {
                 "data": None,
                 "message": f'Unsupported Content-Type {content_type}. Please try {",".join(desired_content_types)}'
-            })
+            }
+            logger.error(resp)
+            return JsonResponse(
+                status=400,
+                data=resp
+            )
         return get_response(request)
     return middleware
