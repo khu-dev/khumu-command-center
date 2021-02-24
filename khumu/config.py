@@ -3,7 +3,7 @@ import os
 from pprint import pprint
 
 import yaml
-config_file_name = f'config/{os.getenv("KHUMU_ENVIRONMENT", "DEFAULT").lower()}.yml'
+config_file_name = f'config/{os.getenv("KHUMU_ENVIRONMENT", "DEFAULT").lower()}.yaml'
 CONFIG = dict()
 with open(config_file_name, "r") as f:
     CONFIG = yaml.load(f, yaml.SafeLoader)

@@ -5,5 +5,5 @@ __pycache__
 .pyc
 */migrations/*
 config/*
-!config/default.yml
+!config/default.yaml
 test_data

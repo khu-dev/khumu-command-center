@@ -29,7 +29,7 @@ class Initializer(TestCase):
     users_data = [
         ("admin", "관리자"), ("jinsu", "찡수"), ("gusrl4025", "꿀주먹"), ("somebody", "썸바디"), ("david", "다비드 or 데이빗"),
         ("Park", "박씨"),  ("kim", "김씨"), ("haley", 'haley'), ("mike", "아임 마이크"),  ("justin", 'justin'), ('chemical', "화공과 유령"), ('computer', '컴퓨터귀신'),
-        ("jo", '조교님'), ('pro', '전문가'), ("marhead", "치후닝"), ("ohayo", "오하요오하영")
+        ("jo", '조교님'), ('pro', '전문가'), ("marhead", "치후닝"), ("ohayo", "오하요오하영"), ("haryeong", "하령하령")
     ]
 
     articles_data = [
@@ -268,6 +268,48 @@ class Initializer(TestCase):
             }],
         },
         {
+            "board": "department_computer_engineering",
+            "title": "컴퓨터 공학과란",
+            "content": "무엇을 하는 전공인가. 어디에 속하는 전공인가.\n공대의 이름을 달고 흔히 물리를 공부하거나 공학 수학을 공부하는 공대생들과는 다르다. 사실상 수학이 필요 없다.\n애초에 이과=공대식의 사고가 이상한건가",
+            "comments": [
+                {
+                    "content": "그냥 이럴 시간에 열심히 하잣 ㅋㅋㅋ",
+                }, {
+                    "content": "컴공과 조아~!",
+                }, {
+                    "content": "다른 과 취준하는 거 보면 답 없다 절레 절레...",
+                }, {
+                    "content": "뿌시뿌시",
+                },
+            ],
+        },
+        {
+            "board": "department_computer_engineering",
+            "title": "hell, world!",
+            "content": "hello, world. 그것은 새로운 세계의 시작",
+            "comments": [
+                {
+                    "content": "hello world",
+                }, {
+                    "content": "R.I.P",
+                },
+            ],
+        },
+        {
+            "board": "department_computer_engineering",
+            "title": "워쿠맨 재밌당.",
+            "content": "일주일에 몇 편씩 마니 마니 나왔으면 좋겠어~!",
+            "comments": [
+                {
+                    "content": "우리 학교도 나왔으면 좋겠다!!",
+                }, {
+                    "content": "도대체 머하느라 이따구인지 궁금해.",
+                }, {
+                    "content": "쿠뮤나 번창하길..",
+                },
+            ],
+        },
+        {
             "board": "department_chemical_engineering",
             "title": "화공과를 나온 것은 신의 한 수", "content": "leave.....",
             "comments": [{"content": "ㅇㅈ"},{"content": "나가서 어디감?"},
@@ -315,12 +357,17 @@ class Initializer(TestCase):
         # image 데이터는 ./initialize.sh에 저장되어있음.
         {
             "board": "free",
-            "title": "쿠뮤 제 1회 워크샵!", "content": "누가 수정하는 거?",
+            "title": "쿠뮤 제 1회 워크샵!", "content": "현기 동네 게스트룸에서 진행",
             "comments": [{
                 "content": "누가누가누가",
-            }, {
-                "content": "오 누가누가누가~!",
-            }, ],
+                }, {
+                    "content": "오 누가누가누가~!",
+                }, {
+                    "content": "냠냠이 많이 했다.",
+                }, {
+                    "content": "개발도 많이 했다!",
+                },
+            ],
             # "images": '["initial_data_workshop_1.png", "initial_data_workshop_2.png", initial_data_workshop_3.png]'
         },
         {
@@ -334,12 +381,26 @@ class Initializer(TestCase):
             }, ],
             "images": ["jinsu.jpeg", "dizzy.jpeg", "chihoon.jpeg"]
         },
-
+        {
+            "board": "free",
+            "title": "디자이너님이 오셨습니다~!",
+            "content": "저희 쿠뮤의 디자인과 일부 기획을 맡아주실 디자이너님이 오셨습니다. 쨕쨕쨕~~~",
+            "comments": [
+                {
+                    "content": "화이팅 쿠뮤~!",
+                }, {
+                    "content": "웰컴입니다 ㅎㅎ",
+                }, {
+                    "content": "반갑습니다",
+                },
+            ],
+            "images": ["jinsu.jpeg", "dizzy.jpeg", "chihoon.jpeg"]
+        },
     ]
 
     # user는 앞의 절반의 tag를 follow, 게시판에는 임의로 태그 삽입
     article_tag_names = ['흥해라쿠뮤', '임의의태그', '익명의태그', '코끼리', '침팬지', '맘모스', '기린',
-                    'docker', 'kubernetes', 'golang', '치후니', '현the기', '현기', '진수']
+                    'docker', 'kubernetes', 'golang', '치후니', '현the기', '현기', '진수', '하령']
 
     # raw data가 아닌 instance를 담는 녀석들
     users = []
