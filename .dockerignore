@@ -7,7 +7,7 @@ __pycache__
 .pyc
 */migrations/*
 config/*
-!config/local.yaml
+!config/default.yml
 test_data
 
 # docker image에서만 제외할 부분

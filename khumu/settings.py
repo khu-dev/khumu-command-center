@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'comment',
     'board',
     'khumu',
+    'notification',
     'corsheaders',
     'drf_yasg',
     'django.contrib.admin',

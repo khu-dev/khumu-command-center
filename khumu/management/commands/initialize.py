@@ -6,6 +6,7 @@ import time
 # from django.test import TestCase
 from unittest import TestCase
 from article.models import Article, LikeArticle, BookmarkArticle, FollowArticleTag, ArticleTag
+from notification.models import Notification
 from user.models import KhumuUser
 from comment.models import Comment, LikeComment
 from board.models import Board, FollowBoard
@@ -361,6 +362,7 @@ class Initializer(TestCase):
         self.initialize_bookmark_articles()
         self.initialize_like_articles()
         self.initialize_like_comments()
+        self.initialize_notifications()
 
     def initialize_groups(self):
         print("Create groups. If the name of group exists, pass.")
@@ -483,3 +485,14 @@ class Initializer(TestCase):
                 like_comment = LikeComment(comment_id=comment.id, user_id=user.username)
                 like_comment.save()
             print(user.username, "likes", comment.id, "th comment")
+
+    def initialize_notifications(self):
+        print("Create notifications about comment")
+        for comment in Comment.objects.all():
+            article_id = comment.article_id
+            article_author_username = comment.article.author_id
+            Notification(kind='comment', title='게시물에 댓글이 달렸습니다.', content=comment.content, is_read=False, recipient_id=comment.author_id).save()
+            print(f'Notification about creating comment({comment.id})')
+
+
+

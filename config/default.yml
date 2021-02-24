@@ -6,3 +6,7 @@ database:
   password:
   host:
   port:
+redis:
+  enabled: true
+  host: localhost
+  port: 6379
