@@ -10,3 +10,7 @@ class Notification(models.Model):
     is_read = models.BooleanField(null=False, blank=False)
     recipient = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+
+class PushSubscription(models.Model):
+    device_token = models.CharField(max_length=320, primary_key=True, null=False)
+    user = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)

@@ -552,7 +552,7 @@ class Initializer(TestCase):
         for comment in Comment.objects.all():
             article_id = comment.article_id
             article_author_username = comment.article.author_id
-            Notification(kind='comment', title='게시물에 댓글이 달렸습니다.', content=comment.content, is_read=False, recipient_id=comment.author_id).save()
+            Notification(kind='커뮤니티', title='게시물에 댓글이 달렸습니다.', content=comment.content, is_read=False, recipient_id=comment.author_id).save()
             print(f'Notification about creating comment({comment.id})')
 
 
