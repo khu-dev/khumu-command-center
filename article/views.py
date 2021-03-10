@@ -18,7 +18,7 @@ from user.serializers import KhumuUserSimpleSerializer
 
 class ArticlePagination(pagination.PageNumberPagination):
 
-    page_size = 400  # 임의로 설정하느라 우선 크게 잡았음.
+    page_size = 30  # 임의로 설정하느라 우선 크게 잡았음.
 
     def get_paginated_response(self, data):
         return response.Response({
@@ -39,21 +39,25 @@ class ArticleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         board_name = self.request.query_params.get('board')
+        queryset = None
         if board_name == 'following':
-            return self._get_articles_from_following()
+            queryset = self._get_articles_from_following()
         elif board_name == 'my':
-            return self._get_my_articles()
+            queryset = self._get_my_articles()
         elif board_name == 'liked':
-            return self._get_liked_articles()
+            queryset = self._get_liked_articles()
         elif board_name == 'bookmarked':
-            return self._get_bookmarked_articles()
+            queryset = self._get_bookmarked_articles()
         elif board_name == 'commented':
-            return self._get_commented_articles()
+            queryset = self._get_commented_articles()
         elif board_name:
-            return Article.objects.filter(~Q(board__category__exact='temporary')).filter(board_id=self.request.query_params['board'])
+            queryset = Article.objects.filter(~Q(board__category__exact='temporary')).filter(board_id=self.request.query_params['board'])
+        # 기본 쿼리셋
+        else:
+            queryset = Article.objects.filter(~Q(board__category__exact='temporary'))
 
         # board_name이 정의되지 않은 경우는 임시 카테고리의 게시판 빼고 query
-        return Article.objects.filter(~Q(board__category__exact='temporary'))
+        return queryset
 
     # 사용자별 feed를 위한 최신 게시물을 제공해야함.
     def _get_articles_from_following(self):
@@ -62,7 +66,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
         return Article.objects.filter(~Q(board__category__exact='temporary')).filter(
             Q(board__name__in=following_board_names) |
             Q(tags__name__in=following_article_tag_names)
-        ).distinct().all()
+        ).distinct()
     # i, love, you
     # Following: you
 
