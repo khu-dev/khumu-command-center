@@ -57,3 +57,8 @@ DB와 연결 되어있는 지 체크 후 초기화할 것.
   * `KHUMU_ENVIRONMENT` 값을 통해 설정 가능 (`LOCAL` | `DEV`, default는 `LOCAL`)
   * `KHUMU_ENVIRONMENT` 의 값에 따라`config/local.yaml` 혹은 `config/dev.yaml` 를 이용해 `settings.py` 에서 각종 설정을 동적으로 취한다.
 
+## Install chrome driver
+
+```shell
+curl https://chromedriver.storage.googleapis.com/89.0.4389.23/chromedriver_linux64.zip -o chromedriver.zip && unzip chromedriver.zip
+```

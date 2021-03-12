@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'notification',
     'corsheaders',
     'drf_yasg',
+    'khu',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -190,3 +191,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 APPEND_SLASH = False
 
+SITE_ROOT = os.path.dirname(os.path.realpath(__file__))

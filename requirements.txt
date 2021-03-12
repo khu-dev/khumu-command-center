@@ -27,6 +27,7 @@ redis==3.5.3
 requests==2.24.0
 ruamel.yaml==0.16.12
 ruamel.yaml.clib==0.2.2
+selenium==3.141.0
 soupsieve==2.0.1
 sqlparse==0.4.1
 uritemplate==3.0.1

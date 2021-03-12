@@ -7,3 +7,6 @@ __pycache__
 config/*
 !config/default.yaml
 test_data
+
+chromedriver
+chromedriver*
