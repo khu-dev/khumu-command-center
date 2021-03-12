@@ -50,6 +50,7 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
         headers = self.get_success_headers(serializer.data)
         return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 
