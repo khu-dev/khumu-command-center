@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'notification',
     'corsheaders',
     'drf_yasg',
-    'khu',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -192,3 +191,16 @@ STATIC_URL = '/static/'
 APPEND_SLASH = False
 
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}

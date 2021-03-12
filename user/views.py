@@ -1,10 +1,16 @@
+import logging
+
 from django.contrib.auth.models import Group
 from rest_framework import viewsets, status
 from rest_framework import permissions
 from rest_framework import response
-from khumu.response import DefaultResponse
+
+from job.khu_auth_job import KhuAuthJob
+from khumu.response import *
 from user.serializers import KhumuUserSerializer, GroupSerializer
 from user.models import KhumuUser
+
+logger = logging.getLogger(__name__)
 
 class KhumuUserPermission(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -24,6 +30,28 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
     queryset = KhumuUser.objects.all().order_by('-created_at')
     serializer_class = KhumuUserSerializer
     permission_classes = [KhumuUserPermission]
+
+    def create(self, request, *args, **kwargs):
+        if not request.data.get("username", "") or not request.data.get("password", ""):
+            return DefaultResponse(data=None, message="id와 password를 입력해주세요.", status=400)
+        khu_auth_job = KhuAuthJob()
+        user_info = khu_auth_job.process({
+            'id': request.data.get('username'),
+            'password': request.data.get('password')
+        })
+        data = request.data
+        data['username'] = request.data.get('username')
+        data['department'] = user_info.dept
+        data['student_number'] = user_info.student_num
+        if user_info.verified:
+            data['state'] = 'active'
+        else:
+            return BadRequestResponse('유저의 인증 정보가 유효하지 않습니다.')
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        headers = self.get_success_headers(serializer.data)
+        return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
