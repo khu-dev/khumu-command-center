@@ -33,7 +33,9 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         if not request.data.get("username", "") or not request.data.get("password", ""):
-            return DefaultResponse(data=None, message="id와 password를 입력해주세요.", status=400)
+            return DefaultResponse(data=None, message="아이디와 비밀번호를 입력해주세요.", status=400)
+        if KhumuUser.objects.filter(username=request.data.get('username')).exists():
+            return BadRequestResponse('중복된 아이디의 유저가 존재합니다.')
         khu_auth_job = KhuAuthJob()
         user_info = khu_auth_job.process({
             'id': request.data.get('username'),

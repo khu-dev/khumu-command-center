@@ -436,7 +436,7 @@ class Initializer(TestCase):
     def initialize_users(self):
         print("Create users", self.users_data)
         for i, user_data in enumerate(self.users_data):
-            user = KhumuUser(username=user_data[0], password=make_password("123123"), student_number=str(2000101000+i), nickname=user_data[1])
+            user = KhumuUser(username=user_data[0], password=make_password("123123"), student_number=str(2000101000+i), nickname=user_data[1], kind='guest')
             if not KhumuUser.objects.filter(username=user_data[0]).exists():
                 if user_data[0] == 'admin':
                     user.is_superuser = True

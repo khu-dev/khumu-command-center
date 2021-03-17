@@ -15,7 +15,11 @@ class KhumuUser(AbstractUser, PermissionsMixin):
     # password inherited
     # email = models.EmailField(blank=True) #
 
-    kind = models.CharField(max_length=16, default="normal", null=False) # (normal|orgainzation)
+    # student는 Info21을 통해 로그인하는 종류의 유저
+    # guest는 테스터 계정과 같은 종류의 유저
+    # staff는 우리 관리자. 근데 지금은 필요 없긴 함.
+    # organization은 학생회 같은 단체 계정
+    kind = models.CharField(max_length=16, default="student", null=False) # (student | organization | staff | guest)
     nickname = models.CharField(max_length=20, unique=True, null=False)
     student_number = models.CharField(max_length=10, default="2000123123", unique=False, null=True, blank=True)
     department = models.CharField(max_length=16, default="학과 미설정", null=True, blank=True)
