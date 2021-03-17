@@ -1,6 +1,9 @@
 import json
 import logging
 
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -24,29 +27,13 @@ class KhumuJWTSerializer(TokenObtainPairSerializer):
             self.username_field: attrs[self.username_field],
             'password': attrs['password'],
         }
-        try:
-            auth_job = KhuAuthJob()
+        auth_job = KhuAuthJob()
 
-            user_info = auth_job.process({
-                'id': attrs[self.username_field],
-                'password': attrs['password']
-            })
+        user_info = auth_job.process({
+            'id': attrs[self.username_field],
+            'password': attrs['password']
+        })
 
-        except Info21LoginWrongHtmlException as e:
-            logger.error(e)
-            return {
-                'message': e.message
-            }
-        except Info21LoginParsingException as e:
-            logger.error(e)
-            return {
-                'message': e.message
-            }
-        except Info21WrongCredential as e:
-            logger.error(e)
-            return {
-                'message': e.message
-            }
         if not user_info.verified:
             logger.error('알 수 없는 이유로 info21 로그인에 실패했습니다.')
             return {
@@ -65,3 +52,18 @@ class KhumuJWTSerializer(TokenObtainPairSerializer):
 
 class KhumuJWTObtainPairView(TokenObtainPairView):
     serializer_class = KhumuJWTSerializer
+
+    # 부모 클래스인 TokenObtainPairView의
+    # post 메소드를 override
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            raise InvalidToken(e.args[0])
+        # BaseKhuException은 많은 Info21 로그인 관련 Exception들의 부모이며 .message field를 갖는다.
+        except BaseKhuException as e:
+            return DefaultResponse(data=None, message=e.message, status=401)
+
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
