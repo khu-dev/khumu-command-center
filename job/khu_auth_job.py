@@ -4,7 +4,7 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 
-from job.base_khu_job import BaseKhuJob
+from job.base_khu_job import BaseKhuJob, BaseKhuException
 
 logger = logging.getLogger(__name__)
 
@@ -105,11 +105,6 @@ class UserInfo:
     def __str__(self) -> str:
         return f'name: {self.name}, student_num: {self.student_num}, deptartment: {self.dept}, verified: {self.verified}'''
         return super().__str__()
-
-
-class BaseKhuException(Exception):
-    def __init__(self, message):
-        self.message = message
 
 class Info21WrongCredential(BaseKhuException):
     def __init__(self, message, exception=None):

@@ -27,7 +27,7 @@ class Command(BaseCommand):
 # 쿠뮤의 초기화를 수행
 class Initializer(TestCase):
     users_data = [
-        ("admin", "관리자"), ("jinsu", "찡수"), ("gusrl4025", "꿀주먹"), ("somebody", "썸바디"), ("david", "다비드 or 데이빗"),
+        ("admin", "관리자"), ("jinsu", "찡수"), ("honeypunch123", "꿀주먹"), ("somebody", "썸바디"), ("david", "다비드 or 데이빗"),
         ("Park", "박씨"),  ("kim", "김씨"), ("haley", 'haley'), ("mike", "아임 마이크"),  ("justin", 'justin'), ('chemical', "화공과 유령"), ('computer', '컴퓨터귀신'),
         ("jo", '조교님'), ('pro', '전문가'), ("marhead", "치후닝"), ("ohayo", "오하요오하영"), ("haryeong", "하령하령")
     ]
