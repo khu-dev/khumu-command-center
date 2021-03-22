@@ -61,7 +61,7 @@ urlpatterns = [
     path(r'api/token', KhumuJWTObtainPairView.as_view(), name='token_obtain_pair'),
     path(r'api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path(r'auth', include('rest_framework.urls', namespace='rest_framework')),
-    path(r'api/users/<id>/qr-code', student_qr_code_job.GetQrCodeInfoView.as_view(), name='get-qr-code'),
+    path(r'api/qr-code', student_qr_code_job.GetQrCodeInfoView.as_view(), name='get-qr-code'),
 
     url(r'^docs/command-center', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]

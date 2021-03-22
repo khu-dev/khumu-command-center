@@ -73,10 +73,10 @@ class StudentQrCodeJob(BaseKhuJob):
 
 class GetQrCodeInfoView(APIView):
     def get(self, request, format=None, *args, **kwargs):
-        logger.info(kwargs)
-        user = KhumuUser.objects.filter(username=kwargs.get('id')).first()
+        if request.user.kind != 'student':
+            return DefaultResponse(data=None, status=status.HTTP_400_BAD_REQUEST, message='학생 계정이 아닙니다.')
         job = StudentQrCodeJob()
-        qr_code_info = job.process(user.student_number)
+        qr_code_info = job.process(request.user.student_number)
         return DefaultResponse(data=qr_code_info, status=status.HTTP_200_OK)
 
 class QrCodeInfo(dict):
