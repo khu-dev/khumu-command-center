@@ -59,6 +59,8 @@ DB와 연결 되어있는 지 체크 후 초기화할 것.
 
 ## Install chrome driver
 
+인포 21 인증을 위해 Selenium과 chrome driver를 사용한다. chrome driver는 project root에 위치해야한다.
+
 ```shell
 curl https://chromedriver.storage.googleapis.com/89.0.4389.23/chromedriver_linux64.zip -o chromedriver.zip && unzip chromedriver.zip
 ```

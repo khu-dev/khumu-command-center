@@ -54,12 +54,14 @@ class StudentQrCodeJob(BaseKhuJob):
         student_number = soup.select_one('user_code').text.strip()
         if not student_number:
             raise QrCodeWrongResponseException()
-        dept_name = soup.select_one('user_deptName').text.encode('utf-8').decode('utf-8').strip()
+
         qr_code_str = soup.select_one('qr_code').text.strip()
+        name = soup.select_one('user_name').text.strip()
+        dept_name = soup.select_one('user_deptName').text.strip()
+        logger.info("응답: " + qr_code_str + name + student_number + dept_name)
 
-        logger.info("응답: " + student_number + dept_name + qr_code_str)
+        result = QrCodeInfo(qr_code_str, name, student_number, dept_name)
 
-        result = QrCodeInfo(qr_code_str)
         return result
 
     def student_number_to_base64_str(self, student_number:str):
@@ -80,9 +82,12 @@ class GetQrCodeInfoView(APIView):
         return DefaultResponse(data=qr_code_info, status=status.HTTP_200_OK)
 
 class QrCodeInfo(dict):
-    def __init__(self, qr_code_str):
+    def __init__(self, qr_code_str, name, student_number, department):
         self.qr_code_str = qr_code_str
-        dict.__init__(self, qr_code_str=qr_code_str)
+        self.name = name
+        self.student_number = student_number
+        self.department = department
+        dict.__init__(self, qr_code_str=qr_code_str,  name=name, student_number=student_number, department=department)
 
 class QrCodeWrongCredentialException(BaseKhuException):
     def __init__(self, message, exception=None):
