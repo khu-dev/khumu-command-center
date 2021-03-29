@@ -194,13 +194,21 @@ SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {"format": "[%(name)s] %(message)s"},
+        'detailed' : {
+            "format": "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
+        }
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'detailed'
         },
     },
     'root': {
         'handlers': ['console'],
         'level': 'INFO',
+        'formatter': 'simple'
     },
 }

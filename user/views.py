@@ -4,10 +4,12 @@ from django.contrib.auth.models import Group
 from rest_framework import viewsets, status
 from rest_framework import permissions
 from rest_framework import response
+from rest_framework.exceptions import ValidationError
 
+from job.base_khu_job import BaseKhuException
 from job.khu_auth_job import KhuAuthJob
 from khumu.response import *
-from user.serializers import KhumuUserSerializer, GroupSerializer
+from user.serializers import KhumuUserSerializer, GroupSerializer, SignUpWrongValueException
 from user.models import KhumuUser
 
 logger = logging.getLogger(__name__)
@@ -34,13 +36,17 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         if not request.data.get("username", "") or not request.data.get("password", ""):
             return DefaultResponse(data=None, message="아이디와 비밀번호를 입력해주세요.", status=400)
-        if KhumuUser.objects.filter(username=request.data.get('username')).exists():
-            return BadRequestResponse('중복된 아이디의 유저가 존재합니다.')
-        khu_auth_job = KhuAuthJob()
-        user_info = khu_auth_job.process({
-            'id': request.data.get('username'),
-            'password': request.data.get('password')
-        })
+
+        try:
+            khu_auth_job = KhuAuthJob({
+                'id': request.data.get('username'),
+                'password': request.data.get('password')
+            })
+            user_info = khu_auth_job.process()
+        except BaseKhuException as e:
+            return DefaultResponse(data=None, message=e.message, status=400)
+
+
         data = request.data
         data['username'] = request.data.get('username')
         data['department'] = user_info.dept
@@ -49,9 +55,14 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
             data['state'] = 'active'
         else:
             return BadRequestResponse('유저의 인증 정보가 유효하지 않습니다.')
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        try:
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+        except SignUpWrongValueException as e:
+            logger.error(str(e))
+            return DefaultResponse(data=None, message=e.message, status=400)
 
         headers = self.get_success_headers(serializer.data)
         return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)

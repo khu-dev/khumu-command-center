@@ -25,8 +25,9 @@ class KhumuJWTSerializer(TokenObtainPairSerializer):
 
     @classmethod
     def validate(self, attrs):
+        logger.info(attrs)
         user_queryset = KhumuUser.objects.filter(username=attrs[self.username_field])
-        if user_queryset.none():
+        if not user_queryset.exists():
             raise AuthenticationFailed(detail="ID 혹은 Password가 잘못되었습니다.")
         self.user = user_queryset.first()
 
@@ -38,12 +39,12 @@ class KhumuJWTSerializer(TokenObtainPairSerializer):
                 pass # 인증 성공
         # student kind라면 password로 info 21 인증
         else:
-            auth_job = KhuAuthJob()
-
-            user_info = auth_job.process({
+            auth_job = KhuAuthJob({
                 'id': attrs[self.username_field],
                 'password': attrs['password']
             })
+
+            user_info = auth_job.process()
 
             if not user_info.verified:
                 logger.error('알 수 없는 이유로 info21 로그인에 실패했습니다.')
@@ -68,16 +69,17 @@ class KhumuJWTObtainPairView(TokenObtainPairView):
     # post 메소드를 override
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-
         try:
             serializer.is_valid(raise_exception=True)
         except TokenError as e:
-            raise InvalidToken(e.args[0])
+            return DefaultResponse(data=None, message=str(e), status=400)
         # BaseKhuException은 많은 Info21 로그인 관련 Exception들의 부모이며 .message field를 갖는다.
         except BaseKhuException as e:
             return DefaultResponse(data=None, message=e.message, status=401)
         except AuthenticationFailed as e:
             # e.detail은 dict이고 detail이라는 키를 가짐.
             return DefaultResponse(data=None, message=e.detail['detail'], status=401)
+        except Exception as e:
+            return DefaultResponse(data=None, message=str(e), status=503)
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
