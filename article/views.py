@@ -1,3 +1,5 @@
+import datetime
+from django.db.models import Count
 import json
 import time
 from rest_framework import viewsets, pagination, permissions, views, status
@@ -18,8 +20,8 @@ from user.serializers import KhumuUserSimpleSerializer
 
 class ArticlePagination(pagination.PageNumberPagination):
 
-    page_size = 30  # 임의로 설정하느라 우선 크게 잡았음.
-
+    # page_size = 30  # 임의로 설정하느라 우선 크게 잡았음.
+    page_query_param = 'size'
     def get_paginated_response(self, data):
         return response.Response({
             'links': {
@@ -50,6 +52,8 @@ class ArticleViewSet(viewsets.ModelViewSet):
             queryset = self._get_bookmarked_articles()
         elif board_name == 'commented':
             queryset = self._get_commented_articles()
+        elif board_name == 'hot':
+            queryset = self._get_current_hot_articles()
         elif board_name:
             queryset = Article.objects.filter(~Q(board__category__exact='temporary')).filter(board_id=self.request.query_params['board'])
         # 기본 쿼리셋
@@ -94,6 +98,17 @@ class ArticleViewSet(viewsets.ModelViewSet):
             if comment.article.board.category != 'temporary' and comment.article not in articles:
                 articles.append(comment.article)
         return articles
+
+    def _get_current_hot_articles(self):
+        # 아직은 게시물이 새로 올라오는 게 많지 않아서 최근 31일 동안의 게시물로 제한했는데,
+        # 나중에는 하루로 하는 게 나을 듯
+        articles =  Article.objects\
+            .annotate(like_article_count=Count('likearticle')) \
+            .filter(created_at__gte=datetime.datetime.now() - datetime.timedelta(days=31)) \
+            .order_by('-like_article_count')
+
+        return articles
+
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
