@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    'khu_domain',
     'health_check',
     'rest_framework',
     'user',

@@ -25,11 +25,11 @@ class Command(BaseCommand):
 
 
 # 쿠뮤의 초기화를 수행
-class Initializer(TestCase):
+class Initializer:
     users_data = [
         ("admin", "관리자"), ("jinsu", "찡수"), ("honeypunch123", "꿀주먹"), ("somebody", "썸바디"), ("david", "다비드 or 데이빗"),
         ("Park", "박씨"),  ("kim", "김씨"), ("haley", 'haley'), ("mike", "아임 마이크"),  ("justin", 'justin'), ('chemical', "화공과 유령"), ('computer', '컴퓨터귀신'),
-        ("jo", '조교님'), ('pro', '전문가'), ("marhead", "치후닝"), ("ohayo", "오하요오하영"), ("haryeong", "하령하령")
+        ("jo", '조교님'), ('pro', '전문가'), ("marhead", "치후닝"), ("ohayo", "오하요오하영"), ("haryeong", "하령하령"), ("1seok2", "원석원석")
     ]
 
     articles_data = [
@@ -373,7 +373,7 @@ class Initializer(TestCase):
         {
             "board": "free",
             "title": "쿠뮤 멤버들을 소개합니다~!",
-            "content": "Go와 컨테이너를 좋아하는 우미와 현기증 날 것만 같은 dizzy, Java와 보드를 좋아하는 치훈입니다.",
+            "content": "Go와 컨테이너를 좋아하는 우미와 현기증 날 것만 같은 dizzy, Java와 보드를 좋아하는 치훈입니다.\n디자이너 하령님과 프론트 개발자 원석님도 합류해주셨습니다~!",
             "comments": [{
                 "content": "화이팅 쿠뮤~!",
             }, {
@@ -395,6 +395,21 @@ class Initializer(TestCase):
                 },
             ],
             "images": ["jinsu.jpeg", "dizzy.jpeg", "chihoon.jpeg"]
+        },
+        {
+            "board": "free",
+            "title": "웹 프론트 개발자분이 오셨습니다~!",
+            "content": "저희 쿠뮤의 다양한 웹페이지와 앱 내의 웹뷰를 개발해주실 개발자 @1seok2 원석님께서 합류해주셨습니다. 잘 부탁드려요.",
+            "comments": [
+                {
+                    "content": "화이팅 쿠뮤~!",
+                }, {
+                    "content": "웰컴입니다 ㅎㅎ",
+                }, {
+                    "content": "반갑습니다",
+                },
+            ],
+            "images": []
         },
     ]
 

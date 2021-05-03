@@ -24,5 +24,5 @@ class ArticleNotificationSubscription(models.Model):
     is_activated = models.BooleanField(null=False, blank=False)
 
 class PushSubscription(models.Model):
-    device_token = models.CharField(max_length=320, primary_key=True, null=False)
+    device_token = models.TextField(null=False, blank=False)
     user = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)

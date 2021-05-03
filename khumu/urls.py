@@ -17,6 +17,7 @@ from job import student_qr_code_job
 from user import views as userView
 from article import views as articleView
 from comment import views as commentView
+from khu_domain import views as khu_domain_view
 from board import views as boardView
 from .jwt import KhumuJWTObtainPairView
 
@@ -28,6 +29,7 @@ router.register(r'/boards', boardView.BoardViewSet, basename='board')
 router.register(r'/boards/(?P<board_name>[^/.]+)/follows', boardView.FollowBoardViewSet, basename='follow-board')
 router.register(r'/articles', articleView.ArticleViewSet, basename='article')
 router.register(r'/article-tags', articleView.ArticleTagViewSet, basename='article-tag')
+router.register(r'/lecture-suites', khu_domain_view.LectureSuiteViewSet, basename='lecture-suites')
 # router.register(r'/comments', commentView.CommentViewSet)
 
 schema_view = get_schema_view(

@@ -1,0 +1,86 @@
+# 학과 구하는 법
+# $0.querySelectorAll("option").forEach((e, i)=>{
+#    if (!e.innerText.includes("[폐]")){
+#        console.log(e.innerText + "#" + e.value)
+#    }
+#})
+
+campuses:
+  - name: 국제캠퍼스
+    code: "2"
+    universities:
+      - name: 학부
+        code: A10081
+        # 단과대
+        organizations:
+          - name: 공과대학
+            code: A04754
+            departments:
+              - name: 원자력공학과
+                code: A04782
+              - name: 건축학과
+                code: A04837
+              - name: 기계공학과
+                code: A04763
+              - name: 사회기반시스템공학과
+                code: A04817
+              - name: 화학공학과
+                code: A04819
+              - name: 산업경영공학과
+                code: A04839
+              - name: 정보전자신소재공학과
+                code: A04844
+              - name: 건축공학과
+                code: A04755
+              - name: 환경학및환경공학과
+                code: A04847
+          - name: 전자정보대학
+            code: A05091
+            departments:
+              - name: 생체의공학과
+                code: A05126
+              - name: 전자공학과
+                code: A05128
+          - name: 소프트웨어융합대학
+            code: A07340
+            departments:
+              - name: 컴퓨터공학과
+                code: A07333
+          - name: 응용과학대학
+            code: A05346
+            departments: []
+          - name: 생명과학대학
+            code: A05165
+            departments: []
+          - name: 국제대학
+            code: A05366
+            departments: []
+          - name: 외국어대학
+            code: A04620
+            departments: []
+          - name: 예술디자인대학
+            code: A05240
+            departments: []
+          - name: 체육대학
+            code: A05297
+            departments: []
+          - name: 동서의과학과
+            code: A05373
+            departments: []
+          - name: 융합
+            code: A10158
+            departments: []
+          - name: 후마니타스칼리지교육과정(국제)
+            code: A10258
+            departments: []
+          - name: 자연계열
+            code: A05418
+            departments: []
+          - name: 경희사이버대학(학점교류)-국제
+            code: A05519
+            departments: []
+          - name: 기타(국제)
+            code: A05522
+
+#      - name: 대학원
+#        code: A10014
