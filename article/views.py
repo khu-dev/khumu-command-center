@@ -20,8 +20,9 @@ from user.serializers import KhumuUserSimpleSerializer
 
 class ArticlePagination(pagination.PageNumberPagination):
 
-    # page_size = 30  # 임의로 설정하느라 우선 크게 잡았음.
-    page_query_param = 'size'
+    page_size = 3  # 임의로 설정하느라 우선 크게 잡았음.
+    page_query_param = 'page'
+    page_size_query_param = 'size'
     def get_paginated_response(self, data):
         return response.Response({
             'links': {
