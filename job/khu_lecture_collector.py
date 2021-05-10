@@ -96,7 +96,7 @@ class KhuLectureCollectorJob(KhuAuthJob):
                 if lecture_code == "":
                     print("수업이 2일 이상 있는 경우. 우선 현재의 기능에서는 패스...")
                 else:
-                    lecture_suite,created = LectureSuite.objects.get_or_create(name=name, department_id=dept_code, school_year=school_year, course_credit=course_credit)
+                    lecture_suite, created = LectureSuite.objects.get_or_create(name=name, department_id=dept_code, school_year=school_year, course_credit=course_credit)
                     self.logger.info(f'LectureSuite 생성 or 조회 {lecture_suite}')
                     lecture, created = Lecture.objects.get_or_create(id=lecture_code, name=name, lecture_suite_id=lecture_suite.id, professor=professor)
                     self.logger.info(f'Lecture 생성 or 조회 {lecture}')

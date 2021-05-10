@@ -6,101 +6,58 @@ import yaml
 import requests
 from bs4 import BeautifulSoup
 
+from board.models import Board, FollowBoard
+from board.serializers import FollowBoardSerializer
 from job.base_khu_job import BaseKhuJob, BaseKhuException
 from job.khu_auth_job import *
 from khu_domain.models import Lecture, LectureSuite, Campus, Organization, Department
+from user.models import KhumuUser
 
 logger = logging.getLogger(__name__)
 
-class KhuLectureCollectorJob(KhuAuthJob):
-
-    max_page_for_current_query = None # 매 학과를 쿼리할 때 마다 max_page 설정
-    current_page = None
-    organizations = None # 제한하고자하는 organization. None이면 다.
-    def __init__(self, data: dict, organizations:list):
+class KhuLectureSyncJob(KhuAuthJob):
+    lectures = []
+    def __init__(self, data: dict):
         super().__init__(data)
-        self.logger = logger
-        self.organizations = organizations
-
     def process(self):
         user_info_html = self.login(self.data)
-        # manage.py의 command로서 실행할 것이기떄문에 
-        # 프로젝트 루트를 기준 위치로 이용한다.
-        with open('khu_domain/data.yaml') as f:
-            y = yaml.load(f, Loader=yaml.FullLoader)
-            for campus in y['campuses']:
-                campus_instance, created = Campus.objects.get_or_create(name=campus['name'])
-                self.logger.info(f'Campus 생성 or 조회 {campus_instance}')
-                for university in campus['universities']:
-                    for organization in university['organizations']:
-                        # 모든 organization에 대해 쿼리하는 경우와
-                        # 인자로 받은 특정 organizations만 쿼리하는 경우
-                        if self.organizations == None or \
-                                (self.organizations != None and organization['name'] in self.organizations):
-                            organization_instance, created = Organization.objects.get_or_create(id=organization['code'], name=organization['name'], campus=campus_instance)
-                            self.logger.info(f'Organization 생성 or 조회 {organization_instance}')
-                            for dept in organization['departments']:
-                                department_instance, created = Department.objects.get_or_create(id=dept['code'], name=dept['name'], organization=organization_instance)
-                                self.max_page_for_current_query = 300 # 무한 루프 방지용 겸 초기 맥스값
-                                self.current_page = 1
-                                while self.current_page <= self.max_page_for_current_query:
-                                    # 국제캠, 2021학년도, 1학기, 단과대, 학과
-                                    self.logger.info(f'쿼리 시작 2, 2021, 10, {organization["name"] + organization["code"]}, { dept["name"] + dept["code"]}')
-                                    self.query(2, 2021, 10, organization['code'], dept['code'])
-                                    self.current_page += 1
+        user = KhumuUser.objects.get(username=self.data['id'])
+        lecture_codes = self.get_lecture_codes_registered()
+        # lecture_codes = ['CSE301-02', 'CSE327-00', 'CSE406-00', 'CSE335-00', 'APHY1002-16', 'GEB1102-G00', 'GEE1670-G00']
+        lecture_suites = LectureSuite.objects.filter(lecture__id__in=lecture_codes)
+        print(LectureSuite.objects.filter(lecture__id__in=lecture_codes))
+        print(lecture_suites)
+        boardsToFollow = Board.objects.filter(category='lecture_suite', related_lecture_suite__in=lecture_suites)
+        follows = []
+        for board in boardsToFollow:
+            follow, is_created = FollowBoard.objects.get_or_create(user=user, board=board)
+            logger.info(board.id + ' 보드에 대한 팔로우를 생성하거나 조회했습니다. is_create=' + is_created)
+            follows.append(follow)
+
+        # Verify 잘 동작했는지.
+        for lecture_suite in lecture_suites:
+            if lecture_suite.id not in map(lambda b: b.related_lecture_suite.id, boardsToFollow):
+                logger.warning(f'{lecture_suite.id} LectureSuite에 대한 Board가 존재하지 않습니다. Board 목록을 점검해주세요.')
+
+        for board in boardsToFollow:
+            if board.id in map(lambda f: f.board.id, follows):
+                logger.warning(f'{board.id} Board에 대한 Follow가 생성되지 않았습니다. 버그를 픽스해주세요.')
 
 
-
-    def query(self, campus_id:int, year:int, semester_code:int, org_code:str, dept_code:str):
-        r = self.sess.post('https://portal.khu.ac.kr/haksa/clss/clss/totTmTbl/index.do', data={
-            "currentPageNo": self.current_page,
-            # "corseCode": None, # 컴퓨터공학과, 컴퓨터공학과(소프트웨어) 와 같이 불필요한 정보이므로 생략
-            "searchSyy": year,
-            "searchSemstCode": semester_code,
-            "searchCampsSeCode": campus_id,
-            "searchUnivGdhlSeCode": "A10081", # 학부 과정 ( 대학원 X)
-            "searchOrgnzCode": org_code,
-            "searchDeprtCode": dept_code,
-            # 전공부서 내의 전공은 불필요..
-            # "searchMajorCode": "A07308",
-            "searchSupdcSeCode": "2",
-            # "searchEnglCorseSeCode": None,
-            # "searchDaywCode": None,
-            # "searchBeginHm": "0600",
-            # "searchEndHm": "2330",
-            # "searchAtnlcHy": "",
-            # "searchPersNm": "",
-        })
+    def get_lecture_codes_registered(self):
+        r = self.sess.get('https://portal.khu.ac.kr/haksa/clss/clss/atnlReqsDtls/index.do')
+        # print(r.text)
         body_soup = BeautifulSoup(r.text, 'html.parser')
 
-        # 예시
-        # 총 게시물 113 페이지 1 / 15
-        page_raw_text = body_soup.select_one('ul.tab_bottom').text.strip()
-        max_page = int(page_raw_text[page_raw_text.find('/') + 1:])
-        self.max_page_for_current_query = max_page
-        self.logger.info(f'max_page update:  {self.max_page_for_current_query}')
-
-        for elem in body_soup.select('tbody>tr'):
-            td_list = elem.select('td')
-            try:
-                school_year = int(td_list[1].text.strip() if td_list[1].text.strip() else 0)
-                lecture_code = td_list[2].text.strip()
-                lecture_kind = td_list[3].text.strip()
-                name = td_list[4].text.strip()
-                # is_english_lecture = td_list[5]
-                remark = td_list[6].text.strip() # 특이사항
-                # is_abeek = td_list[7].text.strip()
-                course_credit = int(td_list[8].text.strip() if td_list[8].text.strip() else 0)
-                professor = td_list[9].text.strip()
-
-                if lecture_code == "":
-                    print("수업이 2일 이상 있는 경우. 우선 현재의 기능에서는 패스...")
-                else:
-                    lecture_suite,created = LectureSuite.objects.get_or_create(name=name, department_id=dept_code, school_year=school_year, course_credit=course_credit)
-                    self.logger.info(f'LectureSuite 생성 or 조회 {lecture_suite}')
-                    lecture, created = Lecture.objects.get_or_create(id=lecture_code, name=name, lecture_suite_id=lecture_suite.id, professor=professor)
-                    self.logger.info(f'Lecture 생성 or 조회 {lecture}')
-            except Exception as e:
-                self.logger.warning(e)
-                self.logger.warning('자료가 존재하지 않는 경우이거나 알 수 없는 오류가 발생했습니다.')
-                self.logger.warning(td_list)
+        lecture_codes = []
+        for row in body_soup.select("table.table.t_list tbody tr"):
+            lecture_code_dom = row.select_one('td[data-mb^="학수번호-분반"]')
+            # lecture_code_dom이 None이라는 것은 "데이터없음" 을 나타내는 row만 있는 경우임.
+            # 예를 들어 나는 재수강표에서는 재수강 수강 내역이 없어서 데이터 없음 행만 나옴.
+            if lecture_code_dom:
+                lecture_code = lecture_code_dom.text.strip() \
+                    .replace('-', '') # 분반코드 없앰. 예를 들어 우리 DB에는 CSE33500로 저장되어있는데 수강 목록에선 CSE335-00으로 조회되기 때문
+                lecture_codes.append(lecture_code)
+            else:
+                pass
+        return lecture_codes

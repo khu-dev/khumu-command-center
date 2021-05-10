@@ -1,8 +1,13 @@
-from rest_framework import viewsets, pagination, permissions, views, status
-from rest_framework import response
+import traceback
 
+from rest_framework import viewsets, pagination, permissions, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from job.khu_lecture_sync import KhuLectureSyncJob
 from khu_domain.models import LectureSuite, Organization
 from khu_domain.serializers import LectureSuiteSerializer, OrganizationSerializer
+from khumu.permissions import IsAuthenticatedKhuStudent
 from khumu.response import DefaultResponse
 
 class OrganizationViewSet(viewsets.ModelViewSet):
@@ -62,3 +67,23 @@ class LectureSuiteViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
 
         return DefaultResponse(serializer.data)
+
+class KhuSyncAPIView(APIView):
+    permission_classes = [IsAuthenticatedKhuStudent]
+
+    def post(self, request):
+        info21_id = request.data['id']
+        info21_password = request.data['password']
+        # 강의 동기화 작업
+        job = KhuLectureSyncJob({
+            "id": info21_id,
+            "password": info21_password,
+        })
+        try:
+            job.process()
+        except Exception as e:
+            traceback.print_exception(e)
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={'message': str(e)})
+        return Response(status=status.HTTP_200_OK, data={
+            'message': '강의 목록을 수집했습니다.'
+        })
