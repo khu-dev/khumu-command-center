@@ -56,15 +56,23 @@ urlpatterns = [
     path(r'', lambda req:HttpResponseRedirect("/api")),
     path(r'healthz', include('health_check.urls')),
     path(r'api', include(router.urls)),
+    path(r'api/token', KhumuJWTObtainPairView.as_view(), name='token_obtain_pair'),
+    path(r'api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
 
+    # 나의 QR코드 가져오기
+    path(r'api/users/me/qr-code', student_qr_code_job.GetQrCodeInfoView.as_view(), name='get-qr-code'),
+    # 내가 수강 중인 강의 목록과 이것 저것을 Sync 맞추기
+    path(r'api/users/me/sync-lectures', khu_domain_view.KhuLectureSyncAPIView.as_view(), name='sync-lectures'),
     path(r'api/articles/<id>/likes', articleView.LikeArticleToggleView.as_view(), name='like-article'),
     path(r'api/articles/<id>/bookmarks', articleView.BookmarkArticleToggleView.as_view(), name='bookmark-article'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
+    path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
+
+
     path(r'admin', admin.site.urls),
-    path(r'api/token', KhumuJWTObtainPairView.as_view(), name='token_obtain_pair'),
-    path(r'api/token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
+
     path(r'auth', include('rest_framework.urls', namespace='rest_framework')),
-    path(r'api/qr-code', student_qr_code_job.GetQrCodeInfoView.as_view(), name='get-qr-code'),
+
 
     url(r'^docs/command-center', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
