@@ -30,6 +30,7 @@ router.register(r'/boards/(?P<board_name>[^/.]+)/follows', boardView.FollowBoard
 router.register(r'/articles', articleView.ArticleViewSet, basename='article')
 router.register(r'/article-tags', articleView.ArticleTagViewSet, basename='article-tag')
 router.register(r'/lecture-suites', khu_domain_view.LectureSuiteViewSet, basename='lecture-suites')
+router.register(r'/organizations', khu_domain_view.OrganizationViewSet, basename='organizations')
 # router.register(r'/comments', commentView.CommentViewSet)
 
 schema_view = get_schema_view(
