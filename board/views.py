@@ -35,7 +35,11 @@ class BoardViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Board.objects.all()
+        query_display_name = self.request.query_params.get('query_display_name', '')
         category = self.request.query_params.get('category', '')
+        
+        if query_display_name:
+            queryset = queryset.filter(display_name__contains=query_display_name)
         if category:
             queryset = queryset.filter(category__in=category.split(","))
 

@@ -33,7 +33,7 @@ class OrganizationListView(generics.ListAPIView):
     pagination_class = KhuDomainSearchPagination
     serializer_class = OrganizationSerializer
     permission_classes = [OpenPermission]
-    
+
     def get_queryset(self):
         # 강의 이름으로 검색
         query_name = self.request.query_params.get('query_name', None)
