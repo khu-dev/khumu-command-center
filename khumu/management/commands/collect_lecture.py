@@ -30,11 +30,15 @@ class Command(BaseCommand):
     def create_lecture_boards(self):
         lecture_suites = LectureSuite.objects.all()
         for lecture_suite in lecture_suites:
-            board, is_created = Board.objects.get_or_create(
-                name=lecture_suite.name,
-                display_name=lecture_suite.name,
-                description =f'{lecture_suite.name}에 대한 게시판입니다.',
-                category='lecture_suite',
-                related_lecture_suite=lecture_suite,
-            )
-            logger.info(f'{lecture_suite.name} LectureSuite에 대한 Board를 생성하거나 조회합니다. is_created={is_created}')
+            if len(Board.objects.filter(display_name__exact=lecture_suite.name)) > 0:
+                logger.info(f'{lecture_suite.name}에 대한 게시판이 존재합니다.')
+            else:
+                board = Board(
+                    name=lecture_suite.name,
+                    display_name=lecture_suite.name,
+                    description =f'{lecture_suite.name}에 대한 게시판입니다.',
+                    category='lecture_suite',
+                    related_lecture_suite=lecture_suite,
+                )
+                board.save()
+                logger.info(f'{lecture_suite.name} LectureSuite에 대한 Board를 생성했습니다.')

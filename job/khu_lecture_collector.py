@@ -24,9 +24,10 @@ class KhuLectureCollectorJob(KhuAuthJob):
 
     def process(self):
         user_info_html = self.login(self.data)
+        logger.info(f'로그인 완료. {user_info_html}')
         # manage.py의 command로서 실행할 것이기떄문에 
         # 프로젝트 루트를 기준 위치로 이용한다.
-        with open('khu_domain/data.yaml') as f:
+        with open('job/data.yaml') as f:
             y = yaml.load(f, Loader=yaml.FullLoader)
             for campus in y['campuses']:
                 campus_instance, created = Campus.objects.get_or_create(name=campus['name'])
@@ -52,25 +53,37 @@ class KhuLectureCollectorJob(KhuAuthJob):
 
 
     def query(self, campus_id:int, year:int, semester_code:int, org_code:str, dept_code:str):
-        r = self.sess.post('https://portal.khu.ac.kr/haksa/clss/clss/totTmTbl/index.do', data={
-            "currentPageNo": self.current_page,
-            # "corseCode": None, # 컴퓨터공학과, 컴퓨터공학과(소프트웨어) 와 같이 불필요한 정보이므로 생략
-            "searchSyy": year,
-            "searchSemstCode": semester_code,
-            "searchCampsSeCode": campus_id,
-            "searchUnivGdhlSeCode": "A10081", # 학부 과정 ( 대학원 X)
-            "searchOrgnzCode": org_code,
-            "searchDeprtCode": dept_code,
-            # 전공부서 내의 전공은 불필요..
-            # "searchMajorCode": "A07308",
-            "searchSupdcSeCode": "2",
-            # "searchEnglCorseSeCode": None,
-            # "searchDaywCode": None,
-            # "searchBeginHm": "0600",
-            # "searchEndHm": "2330",
-            # "searchAtnlcHy": "",
-            # "searchPersNm": "",
-        })
+        try:
+            r = self.sess.post('https://portal.khu.ac.kr/haksa/clss/clss/totTmTbl/index.do',
+               headers={
+                'Host': 'portal.khu.ac.kr',
+                'Origin': 'https://portal.khu.ac.kr',
+                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'
+               },
+               timeout=3, data={
+                "currentPageNo": self.current_page,
+                "corseCode": None, # 컴퓨터공학과, 컴퓨터공학과(소프트웨어) 와 같이 불필요한 정보이므로 생략
+                "searchSyy": year,
+                "searchSemstCode": semester_code,
+                "searchCampsSeCode": campus_id,
+                "searchUnivGdhlSeCode": "A10081", # 학부 과정 ( 대학원 X)
+                "searchOrgnzCode": org_code,
+                "searchDeprtCode": dept_code,
+                # 전공부서 내의 전공은 불필요..
+                # "searchMajorCode": "A07308",
+                # "searchSupdcSeCode": "2",
+                # "searchEnglCorseSeCode": None,
+                # "searchDaywCode": None,
+                # "searchBeginHm": "0600",
+                # "searchEndHm": "2330",
+                # "searchAtnlcHy": "",
+                # "searchPersNm": "",
+            })
+        except requests.exceptions.ReadTimeout:
+            logger.error(f'Read timeout 발생. current page를 {self.current_page}에서 1 감소시켜 재실행.')
+            self.current_page -= 1
+            return
+
         body_soup = BeautifulSoup(r.text, 'html.parser')
 
         # 예시

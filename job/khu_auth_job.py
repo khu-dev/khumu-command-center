@@ -26,13 +26,17 @@ class KhuAuthJob(BaseKhuJob):
     def process(self):
         user_info_html = self.login(self.data)
         user_info = self.parse_user_info(user_info_html)
+        logger.info(f'인증 작업 완료. {user_info}')
         return user_info
 
     # body_data는 id와 password 필요.
     def login(self, body_data):
         try:
-            logger.info(self.get_logger_prefix() + '인포21 로그인 시도 ')
-            info21_login_response = self.sess.post("https://info21.khu.ac.kr/com/KsignCtr/loginProc.do", data={
+            info21_login_response = self.sess.post("https://info21.khu.ac.kr/com/KsignCtr/loginProc.do", timeout=3,
+               headers={
+                   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'
+               },
+               data={
                 'userId': body_data.get('id'),
                 'userPw': body_data.get('password'),
                 'returnurl': None,

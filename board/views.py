@@ -24,9 +24,12 @@ class BoardViewSet(viewsets.ModelViewSet):
 
         if self.request.query_params.get('followed'):
             followed = self.request.query_params.get('followed').lower()
-            if followed == 'true':
+            if followed == 'true' or 'false':
                 following_board_ids = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board_id')
-                return Board.objects.filter(name__in=following_board_ids).all()
+                if followed == 'true':
+                    return Board.objects.filter(name__in=following_board_ids).all()
+                else:
+                    return Board.objects.exclude(name__in=following_board_ids).all()
             else:
                 return DefaultResponse(None, "Supported value for query string named followed: true, but got" + self.request.query_params.get('followed'), 400)
 

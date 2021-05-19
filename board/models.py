@@ -11,7 +11,7 @@ from khumu import settings
 # client는 ?board=recent와 같이 이용하지만, backend에 실제로 recent라는 게시판은 존재하지 않는다.
 class Board(models.Model):
     name = models.CharField(max_length=32, null=False, primary_key=True) # this is in english
-    display_name = models.CharField(max_length=16, null=False)
+    display_name = models.CharField(max_length=32, null=False)
     description = models.CharField(max_length=150, null=True, blank=True)
     admin = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
     campus = models.CharField(max_length=16, null=True, blank=True, default="global")  # (global | seoul | common)

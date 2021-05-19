@@ -1,0 +1,205 @@
+# https://portal.khu.ac.kr/haksa/clss/clss/totTmTbl/index.do
+
+# 학과 구하는 법
+# $0.querySelectorAll("option").forEach((e, i)=>{
+#    if (!e.innerText.includes("[폐]")){
+#        console.log(e.innerText + "#" + e.value)
+#    }
+#})
+
+campuses:
+  - name: 국제캠퍼스
+    code: "2"
+    universities:
+      - name: 학부
+        code: A10081
+        # 단과대
+        organizations:
+          - name: 공과대학
+            code: A04754
+            departments:
+              - name: 원자력공학과
+                code: A04782
+              - name: 건축학과
+                code: A04837
+              - name: 기계공학과
+                code: A04763
+              - name: 사회기반시스템공학과
+                code: A04817
+              - name: 화학공학과
+                code: A04819
+              - name: 산업경영공학과
+                code: A04839
+              - name: 정보전자신소재공학과
+                code: A04844
+              - name: 건축공학과
+                code: A04755
+              - name: 환경학및환경공학과
+                code: A04847
+          - name: 전자정보대학
+            code: A05091
+            departments:
+              - name: 생체의공학과
+                code: A05126
+              - name: 전자공학과
+                code: A05128
+          - name: 소프트웨어융합대학
+            code: A07340
+            departments:
+              - name: 컴퓨터공학과
+                code: A07333
+              - name: 소프트웨어융합학과
+                code: A07346
+          - name: 응용과학대학
+            code: A05346
+            departments:
+              - name: 응용수학과
+                code: A05354
+              - name: 응용물리학과
+                code: A05356
+              - name: 응용화학과
+                code: A05360
+              - name: 우주과학과
+                code: A05362
+          - name: 생명과학대학
+            code: A05165
+            departments:
+              - name: 유전공학과
+                code: A05177
+              - name: 유전생명공학과
+                code: A10457
+              - name: 식품생명공학과
+                code: A05191
+              - name: 한방재료공학과
+                code: A05193
+              - name: 한방생명공학과
+                code: A10458
+              - name: 식물·환경신소재공학과
+                code: A05186
+              - name: 원예생명공학과
+                code: A05189
+          - name: 국제대학
+            code: A05366
+            departments:
+              - name: 국제학과
+                code: A05367
+              - name: 글로벌한국학과
+                code: A10295
+          - name: 외국어대학
+            code: A04620
+            departments:
+              - name: 글로벌커뮤니케이션학부
+                code: A04674
+              - name: 프랑스어학과
+                code: A04662
+              - name: 스페인어학과
+                code: A04664
+              - name: 러시아어학과
+                code: A04666
+              - name: 중국어학과
+                code: A04668
+              - name: 일본어학과
+                code: A04670
+              - name: 한국어학과
+                code: A04672
+          - name: 예술디자인대학
+            code: A05240
+            departments:
+              - name: Post Modern음악학과
+                code: A05271
+              - name: 연극영화학과
+                code: A05275
+              - name: 도예학과
+                code: A05253
+              - name: 산업디자인학과
+                code: A05279
+              - name: 시각디자인학과
+                code: A05293
+              - name: 환경조경디자인학과
+                code: A05284
+              - name: 의류디자인학과
+                code: A05286
+              - name: 디지털콘텐츠학과
+                code: A05288
+          - name: 체육대학
+            code: A05297
+            departments:
+              - name: 체육학과
+                code: A05316
+              - name: 스포츠지도학과
+                code: A05323
+              - name: 스포츠의학과
+                code: A05318
+              - name: 골프산업학과
+                code: A05325
+              - name: 태권도학과
+                code: A05306
+          - name: 동서의과학과
+            code: A05373
+            departments:
+              - name: 동서의과학과
+                code: A05374
+          - name: 융합
+            code: A10158
+            departments:
+              - name: 글로벌엔지니어링
+                code: A10163
+              - name: 글로벌문화기술
+                code: A10162
+              - name: 4D아트
+                code: A10161
+              - name: 아트&테크놀로지
+                code: A10160
+              - name: 스마트팜공학
+                code: A10159
+          - name: 후마니타스칼리지교육과정(국제)
+            code: A10258
+            departments:
+              - name: 필수교과
+                code: A10142
+              - name: 기초교과
+                code: A05399
+              - name: 기초교양
+                code: A05416
+              - name: 중핵교과
+                code: A05386
+              - name: 배분이수교과
+                code: A05391
+              - name: 자유이수
+                code: A05404
+              - name: 취업스쿨
+                code: A05382
+              - name: 교직전공
+                code: A05380
+              - name: OTC과정
+                code: A05384
+          - name: 자연계열
+            code: A05418
+            departments:
+              - name: 전공기초
+                code: A05419
+          - name: 경희사이버대학(학점교류)-국제
+            code: A05519
+            departments:
+              - name: 경희사이버대학(학점교류)
+                code: A05520
+          - name: 기타(국제)
+            code: A05522
+            departments:
+              - name: 연계전공
+                code: A05529
+              - name: ROTC과정
+                code: A05523
+              - name: 취업스쿨
+                code: A05527
+              - name: 사회봉사
+                code: A05543
+              - name: 학점교류
+                code: A05545
+              - name: 기타1
+                code: A05547
+              - name: 현장실습관련강좌
+                code: A10125
+
+#      - name: 대학원
+#        code: A10014
