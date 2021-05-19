@@ -30,8 +30,6 @@ router.register(r'/boards', boardView.BoardViewSet, basename='board')
 router.register(r'/boards/(?P<board_name>[^/.]+)/follows', boardView.FollowBoardViewSet, basename='follow-board')
 router.register(r'/articles', articleView.ArticleViewSet, basename='article')
 router.register(r'/article-tags', articleView.ArticleTagViewSet, basename='article-tag')
-router.register(r'/lecture-suites', khu_domain_view.LectureSuiteViewSet, basename='lecture-suites')
-router.register(r'/organizations', khu_domain_view.OrganizationViewSet, basename='organizations')
 # router.register(r'/comments', commentView.CommentViewSet)
 
 schema_view = get_schema_view(
@@ -68,6 +66,9 @@ urlpatterns = [
     path(r'api/articles/<id>/bookmarks', articleView.BookmarkArticleToggleView.as_view(), name='bookmark-article'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
+
+    path(r'api/lecture-suites', khu_domain_view.LectureSuiteListView.as_view(), name='lecture-suites'),
+    path(r'api/organizations', khu_domain_view.OrganizationListView.as_view(), name='organizations'),
     path(r'api/haksa-schedules', khu_domain_view.HaksaScheduleListView.as_view(), name='haksa-schedule'),
 
     path(r'admin', admin.site.urls),

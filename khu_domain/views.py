@@ -12,8 +12,25 @@ from khu_domain.serializers import LectureSuiteSerializer, OrganizationSerialize
 from khumu.permissions import IsAuthenticatedKhuStudent, OpenPermission
 from khumu.response import DefaultResponse
 
-class OrganizationViewSet(viewsets.ModelViewSet):
+# 학과, 강의 같은 잡다한 검색 기능이 붙은 애들의 pagination
+class KhuDomainSearchPagination(pagination.PageNumberPagination):
 
+    page_size = 15  # 임의로 설정하느라 우선 크게 잡았음.
+    page_query_param = 'page'
+    page_size_query_param = 'size'
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
+            'data': data
+        })
+
+class OrganizationListView(generics.ListAPIView):
+    permission_classes = OpenPermission
+    pagination_class = KhuDomainSearchPagination
     serializer_class = OrganizationSerializer
 
     def get_queryset(self):
@@ -26,21 +43,9 @@ class OrganizationViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        # serializer = self.get_serializer(queryset, many=True)
-        # articles = serializer.data
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-
-        return DefaultResponse(serializer.data)
-
-class LectureSuiteViewSet(viewsets.ModelViewSet):
-
+class LectureSuiteListView(generics.ListAPIView):
+    permission_classes = OpenPermission
+    pagination_class = KhuDomainSearchPagination
     serializer_class = LectureSuiteSerializer
 
     def get_queryset(self):
@@ -56,19 +61,6 @@ class LectureSuiteViewSet(viewsets.ModelViewSet):
             else queryset
 
         return queryset
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        # serializer = self.get_serializer(queryset, many=True)
-        # articles = serializer.data
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-
-        return DefaultResponse(serializer.data)
 
 class HaksaScheduleListView(generics.ListAPIView):
     serializer_class = HaksaScheduleSerializer
