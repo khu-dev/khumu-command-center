@@ -82,7 +82,7 @@ class KhuSyncAPIView(APIView):
         try:
             job.process()
         except Exception as e:
-            traceback.print_exception(e)
+            traceback.print_exc()
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={'message': str(e)})
         return Response(status=status.HTTP_200_OK, data={
             'message': '강의 목록을 수집했습니다.'

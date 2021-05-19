@@ -1,7 +1,7 @@
 import abc
 import logging
 import os
-from unittest import TestCase
+from django.test import TestCase
 import yaml
 import requests
 from bs4 import BeautifulSoup
@@ -31,7 +31,7 @@ class KhuLectureSyncJob(KhuAuthJob):
         follows = []
         for board in boardsToFollow:
             follow, is_created = FollowBoard.objects.get_or_create(user=user, board=board)
-            logger.info(board.id + ' 보드에 대한 팔로우를 생성하거나 조회했습니다. is_create=' + is_created)
+            logger.info(f'{board.name} 보드에 대한 팔로우를 생성하거나 조회했습니다. is_create={is_created}')
             follows.append(follow)
 
         # Verify 잘 동작했는지.
@@ -40,8 +40,8 @@ class KhuLectureSyncJob(KhuAuthJob):
                 logger.warning(f'{lecture_suite.id} LectureSuite에 대한 Board가 존재하지 않습니다. Board 목록을 점검해주세요.')
 
         for board in boardsToFollow:
-            if board.id in map(lambda f: f.board.id, follows):
-                logger.warning(f'{board.id} Board에 대한 Follow가 생성되지 않았습니다. 버그를 픽스해주세요.')
+            if board.name not in map(lambda f: f.board.name, follows):
+                logger.warning(f'{board.name} Board에 대한 Follow가 생성되지 않았습니다. 버그를 픽스해주세요.')
 
 
     def get_lecture_codes_registered(self):
