@@ -94,6 +94,7 @@ class KhuLectureCollectorJob(KhuAuthJob):
                 professor = td_list[9].text.strip()
 
                 if lecture_code == "":
+                    # 그냥 날짜나 수업시간은 처리하지 않음.
                     print("수업이 2일 이상 있는 경우. 우선 현재의 기능에서는 패스...")
                 else:
                     lecture_suite, created = LectureSuite.objects.get_or_create(name=name, department_id=dept_code, school_year=school_year, course_credit=course_credit)
