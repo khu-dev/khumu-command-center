@@ -13,6 +13,7 @@ from rest_framework import permissions
 from django.urls import include, path, reverse
 from rest_framework import routers
 
+import khu_domain
 from job import student_qr_code_job
 from user import views as userView
 from article import views as articleView
@@ -67,7 +68,7 @@ urlpatterns = [
     path(r'api/articles/<id>/bookmarks', articleView.BookmarkArticleToggleView.as_view(), name='bookmark-article'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
-
+    path(r'api/haksa-schedules', khu_domain_view.HaksaScheduleListView.as_view(), name='haksa-schedule'),
 
     path(r'admin', admin.site.urls),
 

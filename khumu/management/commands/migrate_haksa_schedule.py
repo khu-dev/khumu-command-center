@@ -1,8 +1,10 @@
 import logging
 from django.core.management.base import BaseCommand, CommandError
 
-from job.migrate_haksa_schedule import MigrateHaksaSchedule
-from django.db import transaction
+
+
+from job.migrate_haksa_schedule_job import MigrateHaksaScheduleJob
+
 logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
@@ -12,8 +14,9 @@ class Command(BaseCommand):
     #     parser.add_argument('poll_ids', nargs='+', type=int)
 
     def add_arguments(self, parser):
-        parser.add_argument('-f', '--haksa-file', help='학사 일정을 담은 csv 파일의 경로', required=False)
+        parser.add_argument('-f', '--haksa-file', help='학사 일정을 담은 csv 파일의 경로', required=True)
 
-    @transaction.atomic
+
     def handle(self, *args, **options):
-        MigrateHaksaSchedule()
+        job = MigrateHaksaScheduleJob(options['haksa_file'])
+        job.process()

@@ -159,6 +159,7 @@ _혹시라도 도와주실 학우분들 계시면 말씀해주시면 좋을 것 
 * KhuLectureCollectorJob - 인포21에 인증 후 존재하는 강의 정보를 수집하는 작업
 * KhuLectureSyncJob - 인포21에 인증 후 해당 계정이 수강 중인 강의와 학과의 게시판을 Follow하는 작업
 * StudentQrCodeJob - 저장된 학번을 이용해 QrCode를 얻어오는 작업
+* MigrateHaksaScheduleJob - 학사일정 csv 파일을 database에 migrate하는 작업.
 
 
 
