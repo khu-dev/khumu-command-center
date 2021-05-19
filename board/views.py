@@ -18,22 +18,23 @@ class BoardViewSet(viewsets.ModelViewSet):
     serializer_class = BoardSerializer
 
     def get_queryset(self):
+        queryset = Board.objects.all()
         category = self.request.query_params.get('category', '')
         if category:
-            return Board.objects.filter(category__in=category.split(","))
+            queryset = queryset.filter(category__in=category.split(","))
 
         if self.request.query_params.get('followed'):
             followed = self.request.query_params.get('followed').lower()
             if followed == 'true' or 'false':
                 following_board_ids = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board_id')
                 if followed == 'true':
-                    return Board.objects.filter(name__in=following_board_ids).all()
+                    queryset = queryset.filter(name__in=following_board_ids).all()
                 else:
-                    return Board.objects.exclude(name__in=following_board_ids).all()
+                    queryset = queryset.exclude(name__in=following_board_ids).all()
             else:
                 return DefaultResponse(None, "Supported value for query string named followed: true, but got" + self.request.query_params.get('followed'), 400)
 
-        return Board.objects.all()
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

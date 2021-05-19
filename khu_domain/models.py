@@ -7,7 +7,7 @@ class Campus(models.Model):
 
 # 단과대
 class Organization(models.Model):
-    id = models.CharField(max_length=16, primary_key=True)
+    id = models.CharField(max_length=32, primary_key=True)
     name = models.CharField(max_length=32, null=False, blank=False)
     campus = models.ForeignKey(Campus, on_delete=models.CASCADE, null=True, blank=True)
 
@@ -27,7 +27,7 @@ class LectureSuite(models.Model):
 # 개별 Lecture
 # 개별 Lecture를 만들기 전에 Lecture suite 데이터를 만들어줘야함.
 class Lecture(models.Model):
-    id = models.CharField(max_length=16, primary_key=True)
+    id = models.CharField(max_length=32, primary_key=True)
     name = models.CharField(max_length=32, null=False, blank=False)
     lecture_suite = models.ForeignKey(LectureSuite, on_delete=models.CASCADE, null=True, blank=True)
     professor = models.CharField(max_length=32, null=False, blank=False)

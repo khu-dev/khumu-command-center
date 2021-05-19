@@ -33,6 +33,7 @@ class Command(BaseCommand):
             if len(Board.objects.filter(display_name__exact=lecture_suite.name)) > 0:
                 logger.info(f'{lecture_suite.name}에 대한 게시판이 존재합니다.')
             else:
+                logger.info(f'{lecture_suite.name} LectureSuite에 대한 Board를 생성합니다.')
                 board = Board(
                     name=lecture_suite.name,
                     display_name=lecture_suite.name,
@@ -41,4 +42,4 @@ class Command(BaseCommand):
                     related_lecture_suite=lecture_suite,
                 )
                 board.save()
-                logger.info(f'{lecture_suite.name} LectureSuite에 대한 Board를 생성했습니다.')
+

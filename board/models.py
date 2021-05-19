@@ -10,14 +10,14 @@ from khumu import settings
 
 # client는 ?board=recent와 같이 이용하지만, backend에 실제로 recent라는 게시판은 존재하지 않는다.
 class Board(models.Model):
-    name = models.CharField(max_length=32, null=False, primary_key=True) # this is in english
-    display_name = models.CharField(max_length=32, null=False)
+    name = models.CharField(max_length=64, null=False, primary_key=True) # this is in english
+    display_name = models.CharField(max_length=64, null=False)
     description = models.CharField(max_length=150, null=True, blank=True)
     admin = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
-    campus = models.CharField(max_length=16, null=True, blank=True, default="global")  # (global | seoul | common)
+    campus = models.CharField(max_length=32, null=True, blank=True, default="global")  # (global | seoul | common)
     # category가 logical인 경우엔 직접 article이 참조하는 것이 아니라, business logic에 따라 article을 조회한다.
     # 예를 들어 name=bookmarked, category=logical인 경우 board의 article 조회 시 내가 북마크한 게시물만 가져옴.
-    category = models.CharField(max_length=16, null=False, blank=False, default="free")  # e.g. (department | lecture_suite | free | temporary, announcement)
+    category = models.CharField(max_length=32, null=False, blank=False, default="free")  # e.g. (department | lecture_suite | free | temporary, announcement)
     related_department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     related_lecture_suite = models.ForeignKey(LectureSuite, on_delete=models.SET_NULL, null=True, blank=True)
 
