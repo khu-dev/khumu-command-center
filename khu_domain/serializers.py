@@ -1,7 +1,7 @@
 from comment.models import Comment
 from rest_framework import serializers
 
-from khu_domain.models import Department, LectureSuite, Lecture, Organization
+from khu_domain.models import Department, LectureSuite, Lecture, Organization, HaksaSchedule
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
@@ -31,3 +31,7 @@ class LectureSerializer(serializers.ModelSerializer):
         model = Lecture
         fields = '__all__'
 
+class HaksaScheduleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HaksaSchedule
+        fields = '__all__'

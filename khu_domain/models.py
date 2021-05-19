@@ -31,3 +31,8 @@ class Lecture(models.Model):
     name = models.CharField(max_length=32, null=False, blank=False)
     lecture_suite = models.ForeignKey(LectureSuite, on_delete=models.CASCADE, null=True, blank=True)
     professor = models.CharField(max_length=32, null=False, blank=False)
+
+class HaksaSchedule(models.Model):
+    starts_at = models.DateTimeField(auto_now_add=False, null=False, blank=False)
+    ends_at = models.DateTimeField(auto_now_add=False, null=False, blank=False)
+    title = models.CharField(max_length=64, null=False, blank=False)

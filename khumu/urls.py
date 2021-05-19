@@ -13,6 +13,7 @@ from rest_framework import permissions
 from django.urls import include, path, reverse
 from rest_framework import routers
 
+import khu_domain
 from job import student_qr_code_job
 from user import views as userView
 from article import views as articleView
@@ -62,12 +63,12 @@ urlpatterns = [
     # 나의 QR코드 가져오기
     path(r'api/users/me/qr-code', student_qr_code_job.GetQrCodeInfoView.as_view(), name='get-qr-code'),
     # 내가 수강 중인 강의 목록과 이것 저것을 Sync 맞추기
-    path(r'api/users/me/sync-lectures', khu_domain_view.KhuLectureSyncAPIView.as_view(), name='sync-lectures'),
+    path(r'api/users/me/sync', khu_domain_view.KhuSyncAPIView.as_view(), name='khu-sync'),
     path(r'api/articles/<id>/likes', articleView.LikeArticleToggleView.as_view(), name='like-article'),
     path(r'api/articles/<id>/bookmarks', articleView.BookmarkArticleToggleView.as_view(), name='bookmark-article'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
-
+    path(r'api/haksa-schedules', khu_domain_view.HaksaScheduleListView.as_view(), name='haksa-schedule'),
 
     path(r'admin', admin.site.urls),
 

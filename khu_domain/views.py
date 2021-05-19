@@ -1,8 +1,15 @@
-from rest_framework import viewsets, pagination, permissions, views, status
-from rest_framework import response
+import datetime
+import time
+import traceback
 
-from khu_domain.models import LectureSuite, Organization
-from khu_domain.serializers import LectureSuiteSerializer, OrganizationSerializer
+from rest_framework import viewsets, pagination, permissions, status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.viewsets import generics
+from job.khu_lecture_sync import KhuLectureSyncJob
+from khu_domain.models import LectureSuite, Organization, HaksaSchedule
+from khu_domain.serializers import LectureSuiteSerializer, OrganizationSerializer, HaksaScheduleSerializer
+from khumu.permissions import IsAuthenticatedKhuStudent, OpenPermission
 from khumu.response import DefaultResponse
 
 class OrganizationViewSet(viewsets.ModelViewSet):
@@ -62,3 +69,33 @@ class LectureSuiteViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
 
         return DefaultResponse(serializer.data)
+
+class HaksaScheduleListView(generics.ListAPIView):
+    serializer_class = HaksaScheduleSerializer
+    permission_classes = [OpenPermission]
+
+    # 최근 5개의 학사일정을 가져옵니다.
+    def get_queryset(self):
+        # 빨리 시작하는 순으로 5개 정렬
+        # 표기상으로는 UTC+9라서 9시간 느리게 표기됨.
+        return HaksaSchedule.objects.filter(starts_at__gte=datetime.datetime.now(tz=datetime.timezone.utc)).order_by('starts_at')[:5]
+
+class KhuSyncAPIView(APIView):
+    permission_classes = [IsAuthenticatedKhuStudent]
+
+    def post(self, request):
+        info21_id = request.data['id']
+        info21_password = request.data['password']
+        # 강의 동기화 작업
+        job = KhuLectureSyncJob({
+            "id": info21_id,
+            "password": info21_password,
+        })
+        try:
+            job.process()
+        except Exception as e:
+            traceback.print_exc()
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={'message': str(e)})
+        return Response(status=status.HTTP_200_OK, data={
+            'message': '강의 목록을 수집했습니다.'
+        })
