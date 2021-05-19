@@ -29,10 +29,11 @@ class KhuDomainSearchPagination(pagination.PageNumberPagination):
         })
 
 class OrganizationListView(generics.ListAPIView):
-    permission_classes = OpenPermission
+
     pagination_class = KhuDomainSearchPagination
     serializer_class = OrganizationSerializer
-
+    permission_classes = [OpenPermission]
+    
     def get_queryset(self):
         # 강의 이름으로 검색
         query_name = self.request.query_params.get('query_name', None)
@@ -44,9 +45,10 @@ class OrganizationListView(generics.ListAPIView):
         return queryset
 
 class LectureSuiteListView(generics.ListAPIView):
-    permission_classes = OpenPermission
+
     pagination_class = KhuDomainSearchPagination
     serializer_class = LectureSuiteSerializer
+    permission_classes = [OpenPermission]
 
     def get_queryset(self):
         # 강의 이름으로 검색
