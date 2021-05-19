@@ -1,5 +1,5 @@
 from board.models import Board, FollowBoard
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, pagination,status, permissions
 from board.serializers import BoardSerializer, FollowBoardSerializer
 from rest_framework import  mixins, response
 from article.serializers import ArticleSerializer
@@ -9,12 +9,28 @@ from khumu.response import DefaultResponse
 
 MAX_ARTICLE_PREVIEW = 5
 
+class BoardPagination(pagination.PageNumberPagination):
+
+    page_size = 15  # 임의로 설정하느라 우선 크게 잡았음.
+    page_query_param = 'page'
+    page_size_query_param = 'size'
+    def get_paginated_response(self, data):
+        return response.Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
+            'data': data
+        })
+
 class BoardViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
 
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]  # Board는 특이하게 UnAuthenticated도 읽을 수 있다.
+    pagination_class = BoardPagination
     serializer_class = BoardSerializer
 
     def get_queryset(self):
@@ -28,8 +44,10 @@ class BoardViewSet(viewsets.ModelViewSet):
             if followed == 'true' or 'false':
                 following_board_ids = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board_id')
                 if followed == 'true':
+                    print(followed)
                     queryset = queryset.filter(name__in=following_board_ids).all()
                 else:
+                    print(followed)
                     queryset = queryset.exclude(name__in=following_board_ids).all()
             else:
                 return DefaultResponse(None, "Supported value for query string named followed: true, but got" + self.request.query_params.get('followed'), 400)
@@ -38,7 +56,12 @@ class BoardViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        # skip pagination
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
         serializer = self.get_serializer(queryset, many=True)
         serialized_boards = serializer.data
         # result_board: list, serialized_boards: ReturnList
