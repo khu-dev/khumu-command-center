@@ -1,7 +1,7 @@
 from django.db import models
 # Create your models here.
 from khumu import settings
-from board.models import Board
+from board.models import Board, StudyBoard
 from django.core.serializers.json import DjangoJSONEncoder
 from user.models import KhumuUser
 
@@ -21,6 +21,16 @@ class Article(models.Model):
     kind = models.CharField(max_length=16, default="anonymous", null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
 
+class StudyArticle(models.Model):
+    class Meta:
+        ordering = ("-created_at",)
+    study_board = models.ForeignKey(StudyBoard, on_delete=models.SET_NULL, null=True)
+    title = models.CharField(max_length=300, null=False, blank=False)
+    author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
+    content = models.TextField(null=True, blank=True)
+    images = models.JSONField(null=False, blank=True, default=list)
+    kind = models.CharField(max_length=16, default="anonymous", null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
 
 class LikeArticle(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
@@ -31,6 +41,13 @@ class BookmarkArticle(models.Model):
     class Meta:
         ordering = ("-created_at",)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
+    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+
+class BookmarkStudyArticle(models.Model):
+    class Meta:
+        ordering = ("-created_at",)
+    study_article = models.ForeignKey(StudyArticle, on_delete=models.CASCADE, null=False, blank=False)
     user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
 

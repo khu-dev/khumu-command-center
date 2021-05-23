@@ -1,11 +1,13 @@
 from django.db import models
-from article.models import Article
+from article.models import Article, StudyArticle
 from user.models import KhumuUser
 # Create your models here.
 from khumu import settings
 
 class Comment(models.Model):
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, null=True)
+    study_article = models.ForeignKey(StudyArticle, on_delete=models.CASCADE, null=True)
+
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)
     content = models.TextField(max_length=500, null=False)
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True)

@@ -27,8 +27,11 @@ router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'/users', userView.KhumuUserViewSet, basename='khumuuser')
 router.register(r'/groups', userView.GroupViewSet, basename='groups')
 router.register(r'/boards', boardView.BoardViewSet, basename='board')
+router.register(r'/study-boards', boardView.StudyBoardViewSet, basename='study-board')
 router.register(r'/boards/(?P<board_name>[^/.]+)/follows', boardView.FollowBoardViewSet, basename='follow-board')
+router.register(r'/study-boards/(?P<study_board_name>[^/.]+)/follows', boardView.FollowStudyBoardViewSet, basename='follow-study-board')
 router.register(r'/articles', articleView.ArticleViewSet, basename='article')
+router.register(r'/study-articles', articleView.StudyArticleViewSet, basename='study-article')
 router.register(r'/article-tags', articleView.ArticleTagViewSet, basename='article-tag')
 # router.register(r'/comments', commentView.CommentViewSet)
 
@@ -64,6 +67,7 @@ urlpatterns = [
     path(r'api/users/me/sync', khu_domain_view.KhuSyncAPIView.as_view(), name='khu-sync'),
     path(r'api/articles/<id>/likes', articleView.LikeArticleToggleView.as_view(), name='like-article'),
     path(r'api/articles/<id>/bookmarks', articleView.BookmarkArticleToggleView.as_view(), name='bookmark-article'),
+    path(r'api/study-articles/<id>/bookmarks', articleView.BookmarkStudyArticleToggleView.as_view(), name='bookmark-study-article'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
 
