@@ -30,6 +30,8 @@ class StudyArticle(models.Model):
     content = models.TextField(null=True, blank=True)
     images = models.JSONField(null=False, blank=True, default=list)
     kind = models.CharField(max_length=16, default="anonymous", null=False, blank=False)
+    study_method = models.CharField(max_length=64) # 비대면인지, 대면인지
+    study_frequency = models.CharField(max_length=64) # 스터디 주기는 어떻게 할 건지
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
 
 class LikeArticle(models.Model):
