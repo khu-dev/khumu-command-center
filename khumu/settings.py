@@ -212,3 +212,5 @@ LOGGING = {
         'formatter': 'simple'
     },
 }
+
+SNS = config.CONFIG.get("sns")

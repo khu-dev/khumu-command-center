@@ -2,8 +2,9 @@ import json
 
 from khumu import settings
 import logging
-from rest_framework.response import Response
 logger = logging.getLogger(__name__)
+from rest_framework.response import Response
+
 from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
 
 

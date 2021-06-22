@@ -5,6 +5,8 @@ import time
 from rest_framework import viewsets, pagination, permissions, views, status
 from rest_framework import response
 from rest_framework.parsers import JSONParser, MultiPartParser
+from khumu import settings, config
+import message.publisher
 from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse, DefaultResponse
 from rest_framework.pagination import PageNumberPagination
@@ -110,6 +112,11 @@ class ArticleViewSet(viewsets.ModelViewSet):
             .order_by('-like_article_count')
 
         return articles
+
+    def perform_create(self, serializer: ArticleSerializer):
+        super().perform_create(serializer)
+        if settings.SNS['enabled']:
+            message.publisher.publish("article", "create", serializer.instance)
 
 
     def list(self, request, *args, **kwargs):

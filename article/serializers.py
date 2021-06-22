@@ -1,4 +1,5 @@
 import json
+import logging
 
 import pytz
 
@@ -8,10 +9,15 @@ from message import publisher
 from user.models import KhumuUser
 from user.serializers import KhumuUserSimpleSerializer
 from rest_framework import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 from rest_framework.request import Request
 from comment.serializers import CommentSerializer
 from khumu import settings, config
 import datetime, time
+import logging
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 class ArticleTagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,8 +79,6 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         # many to many 관계 생성 후 다시 save
         article.save()
 
-        if config.CONFIG['redis']['enabled']:
-            self.publish_article_created_message(article)
         return article
 
     def update(self, instance, validated_data):
@@ -145,12 +149,6 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_created_at(self, obj):
         return get_converted_time_string(obj.created_at)
-
-    def publish_article_created_message(self, article):
-        publisher.publish({
-            'title': f'{article.title[:10]}...이 새로 작성되었습니다.',
-            'content': f'ㅎㅎㅎㅎㅎ읽어주삼',
-        }, 'tutorial')
 
 class StudyArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

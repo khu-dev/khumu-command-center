@@ -6,7 +6,7 @@ from pprint import pprint
 import yaml
 
 config_file_name = f'{path.join(path.dirname(path.realpath(__file__)), "..", "config")}/{os.getenv("KHUMU_ENVIRONMENT", "DEFAULT").lower()}.yaml'
-CONFIG = dict()
+
 with open(config_file_name, "r") as f:
     CONFIG = yaml.load(f, yaml.SafeLoader)
 
