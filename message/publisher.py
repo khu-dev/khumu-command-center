@@ -10,10 +10,14 @@ from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.forms import model_to_dict
 from django.db.models import Model
+from botocore.config import Config
 
 # 기본적으로 따로 process에 대한 AWS 자격 증명을 부여하진 않음.
 # Node나 container 등에 붙은 IAM 이용.
-client = boto3.client('sns')
+boto_config = Config(
+    region_name = 'ap-northeast-2'
+)
+client = boto3.client('sns', config=boto_config)
 
 class ExtendedEncoder(DjangoJSONEncoder):
     def default(self, o):
