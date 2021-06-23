@@ -1,71 +1,64 @@
 # KHUMU
 
-Django REST Framework을 바탕으로한 REST API 서버
+Django REST Framework을 바탕으로한 쿠뮤의 커뮤니티 위주의 RESTful API 서버입니다. 마이크로서비스 아키텍쳐의 쿠뮤에서 특이하게 커뮤니티 도메인 외의도 인증이나 학사일정 제공 등 경희대학교 관련 몇 가지 기능들을 수행하고 있습니다.
 
 ## API Documentation
 
-**[API Documentation](https://documenter.getpostman.com/view/13384984/TVsvfkxs)**
+**[API Documentation](https://documenter.getpostman.com/view/13384984/TVsvfkxs)** - POSTMan의 문서화 기능을 이용해 쿠뮤의 전체 API들을 문서화하고 있습니다.
 
-## How to run the server
+## 서비스 특징 및 동작 방식
 
-```bash
-$ pip install -r requirements.txt
-$ python manage.py runserver
-```
+* **커뮤니티 도메인 위주의 `RESTful API`를 제공합니다.** 
 
-## Docker을 이용해 개발 환경 구축하기
+  * 일반 게시판 CRUD
+  * 일반 게시글 CRUD
+  * 스터디류 게시판 CRUD
+  * 스터디류 게시글 CRUD
+  * 회원가입, 로그인
+  * 학사일정 조회
 
-### khumu-command-center만 이용하는 경우
+* **마이크로서비스 간에는 `메시지 큐`를 바탕으로 비동기적으로 작업하며 `느슨하게 결합`(Loosely coupled)합니다.**
 
-```bash
-$ docker run -t --rm --name tmp -v $PWD:/khumu -p 8000:8000 tmp
-```
+  예를 들어 게시글 작성 시 `SNS`로 작성 이벤트를 Publish합니다.
 
-* -t 옵션을 설정하지 않으면 terminal output이 제대로 출력되지 않는 경우가 있더라.
-* python package의 의존성이 변경되면 이미지 빌드를 새로해주어야한다.
-
-### How to build the image
-
-```bash
-$ docker build -f Dockerfile-dev . -t ${{ IMAGE_NAME }}
-```
-
-### How to initiate the data
-
-```bash
-$ make init
-```
-
-DB와 연결 되어있는 지 체크 후 초기화할 것.
+  1. 게시글 작성 후 Article Model instance를 JSON으로 변환합니다. (DRF Serializer로 직렬화하는 것이 아니라 단순 직렬화)
+  2. JSON 데이터를 SNS에 Publish 합니다.
+  3. `SNS`에서 구독 조건과 정보를 이용해 올바른 `SQS`에게 이벤트를 전달합니다.
+  4. 올바른 SQS 구독자(consumer)가 메시지를 받아 게시글 생성에 대한 이벤트를 처리합니다.
+     * 예를 들어 쿠뮤의 알림 서비스인 [alimi](https://github.com/khu-dev/alimi)는 게시글 생성에 대한 이벤트를 받아 Author가 게시글에 대한 댓글 생성과 같은 추가적인 알림들을 받아볼 수 있도록 해당 게시글을 구독시킵니다.
 
 ## 개발 팁
 
 * pip dependency
   ```bash
   $ pip freeze > requirements.txt
-  # requirements.txt 작성 후 pkg-resources==0.0.0 line을 지워준다. 
+  # requirements.txt 작성 후 pkg-resources==0.0.0 line을 지워줘야할 수 있습니다.
   ```
 
-* mysqlclient dependency - MySQL을 이용하기 위해서 필요한 ubuntu의 패키지들이다.
+* mysqlclient dependency - MySQL을 이용하기 위해서 필요한 ubuntu의 패키지들 입니다.
   * `sudo apt-get install python3-dev`
   * `sudo apt-get install libmysqlclient-dev`
-    * 일반 ubuntu에서는 `libmysqlclient-dev`, python ubuntu container에서는 `default-libmysqlclient-dev`(?). 아마 후자로만 해도 될 것 같음.
+    * 일반 ubuntu에서는 `libmysqlclient-dev`, python ubuntu container에서는 `default-libmysqlclient-dev`(?). 아마 후자로만 해도 될 것으로 추측합니다.
   * `pip install mysqlclient`
   * `pip install wheel`
 
-* 다양한 환경에 따른 config
-  * `KHUMU_ENVIRONMENT` 값을 통해 설정 가능 (`LOCAL` | `DEV`, default는 `LOCAL`)
-  * `KHUMU_ENVIRONMENT` 의 값에 따라`config/local.yaml` 혹은 `config/dev.yaml` 를 이용해 `settings.py` 에서 각종 설정을 동적으로 취한다.
+* 다양한 환경에 따른 config 적용하기
+  * `KHUMU_ENVIRONMENT` 값을 통해 이용할 환경을 설정할 수 있습니다. (`LOCAL` | `DEV`, default는 `LOCAL`)
+  * `KHUMU_ENVIRONMENT` 의 값에 따라`config/local.yaml` 혹은 `config/dev.yaml` 등의 설정 파일을 통해 애플리케이션에 설정을 적용합니다. `settings.py` 에서 각종 환경에 맞는 설정을 동적으로 적용합니다.
 
-## Install chrome driver
+## chrome driver을 설치하십시오
 
-인포 21 인증을 위해 Selenium과 chrome driver를 사용한다. chrome driver는 project root에 위치해야한다.
+⚠️ 인포 21 인증을 비롯한 인포 21과 관련된 작업은  `Selenium`과 `chrome driver`를 사용 합니다. `chrome driver`는 project root에 위치해야 합니다.
+
+​	이는 우리가 개발하는 "코드"가 아닌 "실행 파일"이기에 Git에는 포함하고 있지 않으니 로컬 개발 시에나 배포 시에는 `chrome driver`을 project root에 위치시켜야 함을 주의해주세요.
 
 ```shell
 curl https://chromedriver.storage.googleapis.com/89.0.4389.23/chromedriver_linux64.zip -o chromedriver.zip && unzip chromedriver.zip
 ```
 
 ## Entities
+
+> 작업 예정...
 
 ### Article
 
@@ -151,15 +144,15 @@ KhumuUser의 push device token을 저장함. 한 KhumuUser도 여러 device toke
 
 ## Jobs
 
-수행해야할 몇 가지 복잡한 동작들을 Job으로 정의해서 수행하고 있다. 아직 에러 핸들링과 정확한 로그 출력이 미흡하다. 특히나 졸업생, 휴학생, 부전공, 복수전공생들에 대한 케이스는 대비가 힘듦.
+인포 21 관련 작업 혹은 종종 RESTful한 요청이 아닌 CLI로 인해 trigger되는 몇 가지 동작들을 **"Job"**이라는 개념으로 정의하고 있습니다.
 
-_혹시라도 도와주실 학우분들 계시면 말씀해주시면 좋을 것 같습니다!!!_
+(아직 에러 핸들링과 정확한 로그 출력이 미흡하고, 관리가 힘들어 마이크로서비스로 뺄 생각도 있습니다. 그리고 특히나 졸업생, 휴학생, 부전공, 복수전공생들에 대한 케이스는 대비가 힘든 상황입니다... **_혹시라도 도와주실 학우분들 계시면 말씀해주시면 좋을 것 같습니다!!!_**)
 
-* KhuAuthJob - 인포21에 인증하는 작업
-* KhuLectureCollectorJob - 인포21에 인증 후 존재하는 강의 정보를 수집하는 작업
-* KhuLectureSyncJob - 인포21에 인증 후 해당 계정이 수강 중인 강의와 학과의 게시판을 Follow하는 작업
-* StudentQrCodeJob - 저장된 학번을 이용해 QrCode를 얻어오는 작업
-* MigrateHaksaScheduleJob - 학사일정 csv 파일을 database에 migrate하는 작업.
+* `KhuAuthJob` - 인포21에 인증하는 작업
+* `KhuLectureCollectorJob` - 인포21에 인증 후 존재하는 강의 정보를 수집하는 작업
+* `KhuLectureSyncJob` - 인포21에 인증 후 해당 계정이 수강 중인 강의와 학과의 게시판을 Follow하는 작업
+* `StudentQrCodeJob` - 저장된 학번을 이용해 QrCode를 얻어오는 작업
+* `MigrateHaksaScheduleJob` - 학사일정 csv 파일을 database에 migrate하는 작업.
 
 
 
