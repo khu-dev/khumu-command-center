@@ -148,11 +148,8 @@ class StudyArticleViewSet(viewsets.ModelViewSet):
     pagination_class = ArticlePagination
 
     def get_queryset(self):
-        study_board_name = self.request.query_params.get('study_board', '')
         queryset = StudyArticle.objects.all()
-        if study_board_name:
-            queryset = queryset.filter(study_board__name=study_board_name)
-        # board_name이 정의되지 않은 경우는 임시 카테고리의 게시판 빼고 query
+
         return queryset
 
     def list(self, request, *args, **kwargs):

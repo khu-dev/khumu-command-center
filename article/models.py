@@ -21,17 +21,23 @@ class Article(models.Model):
     kind = models.CharField(max_length=16, default="anonymous", null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
 
+class StudyArticleStudyField(models.Model):
+    id = models.CharField(max_length=64, primary_key=True)
+    name = models.CharField(max_length=128, null=False, blank=False)
+
 class StudyArticle(models.Model):
     class Meta:
         ordering = ("-created_at",)
-    study_board = models.ForeignKey(StudyBoard, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=300, null=False, blank=False)
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
+    numOfPeople = models.CharField(max_length=300, null=False, blank=False)
+    term = models.CharField(max_length=128, null=False, blank=False)
+    study_method = models.CharField(max_length=64)  # 비대면인지, 대면인지
+    study_frequency = models.CharField(max_length=64)  # 스터디 주기는 어떻게 할 건지
+    study_field = models.ForeignKey(StudyArticleStudyField, on_delete=models.SET_NULL, null=True, blank=True, default=None)
     content = models.TextField(null=True, blank=True)
     images = models.JSONField(null=False, blank=True, default=list)
     kind = models.CharField(max_length=16, default="anonymous", null=False, blank=False)
-    study_method = models.CharField(max_length=64) # 비대면인지, 대면인지
-    study_frequency = models.CharField(max_length=64) # 스터디 주기는 어떻게 할 건지
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
 
 class LikeArticle(models.Model):

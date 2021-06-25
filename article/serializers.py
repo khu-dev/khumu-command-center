@@ -195,22 +195,22 @@ class ArticleDetailSerializer(ArticleSerializer):
     class NotificationServiceUnavailableException(Exception):
         pass
 
-class StudyArticleSerializer(serializers.HyperlinkedModelSerializer):
+class StudyArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudyArticle
-        fields = ['id', 'study_board_name', 'study_board_display_name', 'title', 'author', 'is_author', 'kind',
-                  'content', 'images', 'comment_count', 'created_at',
-                  'bookmarked']
+        fields = ['id', 'title', 'author', 'numOfPeople', 'term', 'study_method', 'study_frequency', 'study_field',
+                  'content', 'images', 'kind', 'created_at'] + \
+                 ['is_author', 'comment_count', 'bookmarked', 'study_field_name']
         # depth = 3
         # fields = ['board', 'title', 'author', 'content', 'create_at', 'comment_count']
 
     author = serializers.SerializerMethodField()
     is_author = serializers.SerializerMethodField()
-    study_board_name = serializers.SerializerMethodField  ()
-    study_board_display_name = serializers.SerializerMethodField()
     comment_count = serializers.SerializerMethodField()
     created_at = serializers.SerializerMethodField()
     bookmarked = serializers.SerializerMethodField()
+    # instance의 field에 접근해서 return
+    study_field_name = serializers.CharField(source='study_field.name', read_only=True)
 
     # author = KhumuUserSimpleSerializer()
     # article의 경우 웬만해선 comment count가 필요하다.
@@ -219,11 +219,10 @@ class StudyArticleSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         request_user = self.context['request'].user
         body = json.loads(self.context['request'].body)
-        study_board_name = body.get("study_board")
         # json field ref: https://docs.djangoproject.com/en/dev/releases/3.1/#jsonfield-for-all-supported-database-backends
         image_file_names_str = json.dumps(body.get("images"))
 
-        article = StudyArticle(**validated_data, author_id=request_user.username, study_board_id=study_board_name)
+        article = StudyArticle(**validated_data, author_id=request_user.username)
         article.save()  # 우선은 저장을 해서 Article을 생성해야 tag 와의 many to many 관계를 생성 가능
 
         return article
@@ -258,14 +257,6 @@ class StudyArticleSerializer(serializers.HyperlinkedModelSerializer):
             return True
         else: return False
 
-    def get_study_board_name(self, obj):
-        # print(self.context['request'])
-        return obj.study_board.name
-
-    def get_study_board_display_name(self, obj):
-        # print(self.context['request'])
-        return obj.study_board.display_name
-
     def get_bookmarked(self, obj):
         return len(obj.bookmarkstudyarticle_set.filter(user_id=self.context['request'].user.username)) != 0
 
@@ -276,12 +267,6 @@ class StudyArticleSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_created_at(self, obj):
         return get_converted_time_string(obj.created_at)
-
-    def publish_article_created_message(self, article):
-        publisher.publish({
-            'title': f'{article.title[:10]}...이 새로 작성되었습니다.',
-            'content': f'ㅎㅎㅎㅎㅎ읽어주삼',
-        }, 'tutorial')
 
 class LikeArticleSerializer(serializers.ModelSerializer):
     class Meta:
