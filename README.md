@@ -6,7 +6,7 @@ Django REST Framework을 바탕으로한 쿠뮤의 커뮤니티 위주의 RESTfu
 
 **[API Documentation](https://documenter.getpostman.com/view/13384984/TVsvfkxs)** - POSTMan의 문서화 기능을 이용해 쿠뮤의 전체 API들을 문서화하고 있습니다.
 
-## 서비스 특징 및 동작 방식
+## 특징 및 동작 방식
 
 * **커뮤니티 도메인 위주의 `RESTful API`를 제공합니다.** 
 

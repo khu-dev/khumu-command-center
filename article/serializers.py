@@ -2,6 +2,7 @@ import json
 import logging
 
 import pytz
+import requests as requests
 
 from article.models import Article, LikeArticle, BookmarkArticle, ArticleTag, FollowArticleTag, BookmarkStudyArticle, \
     StudyArticle
@@ -149,6 +150,50 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_created_at(self, obj):
         return get_converted_time_string(obj.created_at)
+
+
+
+class ArticleDetailSerializer(ArticleSerializer):
+    class Meta:
+        model = Article
+        fields = ArticleSerializer.Meta.fields + ['is_subscribed']
+
+    is_subscribed = serializers.SerializerMethodField()
+
+    notification_service_root = settings.NOTIFICATION_SERVICE.get("root")
+
+    def get_is_subscribed(self, obj):
+        request_username = self.context['request'].user.username
+        print(f'Notification 서비스에 요청자가 해당 Article을 구독 중인지 조회합니다. {self.notification_service_root}subscriptions/{request_username}/article/{obj.id}')
+        response = requests.get(f'{self.notification_service_root}subscriptions/{request_username}/article/{obj.id}')
+        try:
+            if response.status_code != 200:
+                logger.error(f'Notification 서비스에 대한 요청의 status code가 200이 아닙니다. status_code={response.status_code}')
+                raise self.NotificationServiceUnavailableException()
+            data = json.loads(response.text)
+            '''
+            {
+                "message": null,
+                "data": {
+                    "resource_id": 179,
+                    "resource_kind": "article",
+                    "subscriber": "jinsu",
+                    "is_activated": true
+                }
+            }
+            '''
+            is_activated = data.get('data').get("is_activated")
+            logger.info(f'리소스 조회 결과 {data.get("data")}')
+            return is_activated
+        except self.NotificationServiceUnavailableException:
+            return False
+        except Exception as e:
+            logger.error(e)
+            return False
+        return False
+
+    class NotificationServiceUnavailableException(Exception):
+        pass
 
 class StudyArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

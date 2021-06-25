@@ -214,3 +214,4 @@ LOGGING = {
 }
 
 SNS = config.CONFIG.get("sns")
+NOTIFICATION_SERVICE = config.CONFIG.get("notificationService")

@@ -17,7 +17,8 @@ from article.models import Article, ArticleTag, FollowArticleTag, LikeArticle, B
 from board.models import Board, FollowBoard
 
 from article.serializers import ArticleSerializer, LikeArticleSerializer, BookmarkArticleSerializer, \
-    ArticleTagSerializer, FollowArticleTagSerializer, StudyArticleSerializer, BookmarkStudyArticleSerializer
+    ArticleTagSerializer, FollowArticleTagSerializer, StudyArticleSerializer, BookmarkStudyArticleSerializer, \
+    ArticleDetailSerializer
 from user.serializers import KhumuUserSimpleSerializer
 
 
@@ -38,8 +39,6 @@ class ArticlePagination(pagination.PageNumberPagination):
 
 
 class ArticleViewSet(viewsets.ModelViewSet):
-
-    serializer_class = ArticleSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = ArticlePagination
 
@@ -66,6 +65,10 @@ class ArticleViewSet(viewsets.ModelViewSet):
 
         # board_name이 정의되지 않은 경우는 임시 카테고리의 게시판 빼고 query
         return queryset
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return ArticleDetailSerializer
+        else: return ArticleSerializer
 
     # 사용자별 feed를 위한 최신 게시물을 제공해야함.
     def _get_articles_from_following(self):
