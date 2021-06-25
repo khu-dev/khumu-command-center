@@ -1,7 +1,7 @@
 from django.db import models
 # Create your models here.
 from khumu import settings
-from board.models import Board, StudyBoard
+from board.models import Board
 from django.core.serializers.json import DjangoJSONEncoder
 from user.models import KhumuUser
 

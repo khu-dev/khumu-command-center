@@ -31,14 +31,3 @@ class FollowBoard(models.Model):
     user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=False, blank=False)
     board = models.ForeignKey(Board, on_delete=models.CASCADE, null=False, blank=False)
     followed_at = models.DateTimeField(auto_now_add=True)
-
-class StudyBoard(models.Model):
-    name = models.CharField(max_length=64, null=False, primary_key=True) # this is in english
-    display_name = models.CharField(max_length=64, null=False)
-    description = models.CharField(max_length=150, null=True, blank=True)
-    campus = models.CharField(max_length=32, null=True, blank=True, default="global")  # (global | seoul | common)
-
-class FollowStudyBoard(models.Model):
-    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=False, blank=False)
-    study_board = models.ForeignKey(StudyBoard, on_delete=models.CASCADE, null=False, blank=False)
-    followed_at = models.DateTimeField(auto_now_add=True)
