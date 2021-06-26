@@ -35,6 +35,7 @@ class StudyArticle(models.Model):
     study_method = models.CharField(max_length=64)  # 비대면인지, 대면인지
     study_frequency = models.CharField(max_length=64)  # 스터디 주기는 어떻게 할 건지
     study_field = models.ForeignKey(StudyArticleStudyField, on_delete=models.SET_NULL, null=True, blank=True, default=None)
+    detailed_study_field = models.CharField(max_length=128, null=True, blank=True, default=None)
     content = models.TextField(null=True, blank=True)
     images = models.JSONField(null=False, blank=True, default=list)
     kind = models.CharField(max_length=16, default="anonymous", null=False, blank=False)
@@ -43,7 +44,6 @@ class StudyArticle(models.Model):
 class LikeArticle(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
     user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
-
 
 class BookmarkArticle(models.Model):
     class Meta:

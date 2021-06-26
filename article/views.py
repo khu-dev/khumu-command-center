@@ -2,7 +2,7 @@ import datetime
 from django.db.models import Count
 import json
 import time
-from rest_framework import viewsets, pagination, permissions, views, status
+from rest_framework import viewsets, pagination, permissions, views, status, generics
 from rest_framework import response
 from rest_framework.parsers import JSONParser, MultiPartParser
 from khumu import settings, config
@@ -12,13 +12,10 @@ from khumu.response import UnAuthorizedResponse, BadRequestResponse, DefaultResp
 from rest_framework.pagination import PageNumberPagination
 
 from django.db.models import Q
-from article.models import Article, ArticleTag, FollowArticleTag, LikeArticle, BookmarkArticle, StudyArticle, \
-    BookmarkStudyArticle
-from board.models import Board, FollowBoard
+from article.models import *
+from board.models import *
 
-from article.serializers import ArticleSerializer, LikeArticleSerializer, BookmarkArticleSerializer, \
-    ArticleTagSerializer, FollowArticleTagSerializer, StudyArticleSerializer, BookmarkStudyArticleSerializer, \
-    ArticleDetailSerializer
+from article.serializers import *
 from user.serializers import KhumuUserSimpleSerializer
 
 
@@ -171,6 +168,16 @@ class StudyArticleViewSet(viewsets.ModelViewSet):
 
         return DefaultResponse(article_serialized)
 
+class StudyFieldListView(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
+    queryset = StudyArticleStudyField.objects.all()
+    serializer_class = StudyArticleStudyFieldSerializer
+
+    # override 복붙
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return DefaultResponse(serializer.data)
 
 class LikeArticleToggleView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]

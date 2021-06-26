@@ -66,6 +66,7 @@ urlpatterns = [
     path(r'api/articles/<id>/likes', articleView.LikeArticleToggleView.as_view(), name='like-article'),
     path(r'api/articles/<id>/bookmarks', articleView.BookmarkArticleToggleView.as_view(), name='bookmark-article'),
     path(r'api/study-articles/<id>/bookmarks', articleView.BookmarkStudyArticleToggleView.as_view(), name='bookmark-study-article'),
+    path(r'api/study-fields', articleView.StudyFieldListView.as_view(), name='study-field'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
 

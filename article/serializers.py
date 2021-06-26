@@ -5,7 +5,7 @@ import pytz
 import requests as requests
 
 from article.models import Article, LikeArticle, BookmarkArticle, ArticleTag, FollowArticleTag, BookmarkStudyArticle, \
-    StudyArticle
+    StudyArticle, StudyArticleStudyField
 from message import publisher
 from user.models import KhumuUser
 from user.serializers import KhumuUserSimpleSerializer
@@ -194,6 +194,11 @@ class ArticleDetailSerializer(ArticleSerializer):
 
     class NotificationServiceUnavailableException(Exception):
         pass
+
+class StudyArticleStudyFieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudyArticleStudyField
+        fields = '__all__'
 
 class StudyArticleSerializer(serializers.ModelSerializer):
     class Meta:
