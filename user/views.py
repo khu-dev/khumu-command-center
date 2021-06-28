@@ -5,7 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework import permissions
 from rest_framework import response
 from rest_framework.exceptions import ValidationError
-
+from rest_framework.decorators import *
 from job.base_khu_job import BaseKhuException
 from job.khu_auth_job import KhuAuthJob
 from khumu.response import *
@@ -76,17 +76,42 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         if not request.user.is_authenticated:
             return DefaultResponse(None, "인증되지 않은 사용자입니다.", 401)
 
-        # me를 통한 자기 자신에 대한 조회인지
-        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-        if self.kwargs[lookup_url_kwarg] == 'me':
-            self.kwargs[lookup_url_kwarg] = request.user.username
+        self.set_pk_if_me_request(request, *args, **kwargs)
         # admin이 아닌데 남에 대한 조회:
-        if self.kwargs[lookup_url_kwarg] != request.user.username and 'admin' not in map(lambda g: g.name, request.user.groups.all()):
+        if self.kwargs['pk'] != request.user.username and 'admin' not in map(lambda g: g.name, request.user.groups.all()):
             return DefaultResponse(None, "해당 유저를 조회할 권한이 없습니다.", 403)
 
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return DefaultResponse(serializer.data)
+
+    def set_pk_if_me_request(self, request, *args, **kwargs):
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        if self.kwargs[lookup_url_kwarg] == 'me':
+            self.kwargs[lookup_url_kwarg] = request.user.username
+
+    # additional views
+    # ref: https://www.django-rest-framework.org/api-guide/viewsets/#marking-extra-actions-for-routing
+    @action(detail=True, methods=['get'], url_path='is-admin')
+    def is_admin(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return DefaultResponse(None, "인증되지 않은 사용자입니다.", 401)
+        self.set_pk_if_me_request(request, *args, **kwargs)
+        if self.kwargs['pk'] != request.user.username and 'admin' not in map(lambda g: g.name, request.user.groups.all()):
+            return DefaultResponse(None, "해당 유저를 조회할 권한이 없습니다.", 403)
+
+        is_admin = False
+        # me를 통한 자기 자신에 대한 조회인지
+
+        if 'admin' in map(lambda group: group.name, request.user.groups.all()):
+            is_admin = True
+
+        return DefaultResponse({
+            'is_admin': is_admin
+        }, None, 200)
+
+
+
 
 class GroupViewSet(viewsets.ModelViewSet):
     """
