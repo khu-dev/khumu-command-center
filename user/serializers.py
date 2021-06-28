@@ -18,7 +18,6 @@ def validate_nickname(nickname: str):
         raise SignUpWrongValueException('해당 닉네임의 유저가 존재합니다.')
 
 class KhumuUserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = KhumuUser
         fields = '__all__'
@@ -31,7 +30,7 @@ class KhumuUserSerializer(serializers.ModelSerializer):
                 'validators': [validate_nickname]
             },
         }
-
+    groups = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         # KhumuUser Instance를 직접 저장하는 것이 아니라
@@ -48,6 +47,12 @@ class KhumuUserSerializer(serializers.ModelSerializer):
         follow_board = FollowBoard(user=user, board_id='free')
         follow_board.save()
         return user
+
+    def get_groups(self, obj):
+        return list(map(lambda group: {
+            "id": group.id,
+            "name": group.name,
+        }, obj.groups.all()))
 
 class KhumuUserSimpleSerializer(serializers.ModelSerializer):
     class Meta:
