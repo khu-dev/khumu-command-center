@@ -7,12 +7,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.viewsets import generics
 from job.khu_lecture_sync import KhuLectureSyncJob
-from khu_domain.models import LectureSuite, Organization, HaksaSchedule
-from khu_domain.serializers import LectureSuiteSerializer, OrganizationSerializer, HaksaScheduleSerializer
+from khu_domain.models import LectureSuite, Organization, HaksaSchedule, Department
+from khu_domain.serializers import LectureSuiteSerializer, OrganizationSerializer, HaksaScheduleSerializer, \
+    DepartmentSerializer
 from khumu.permissions import IsAuthenticatedKhuStudent, OpenPermission
 from khumu.response import DefaultResponse
 
 # 학과, 강의 같은 잡다한 검색 기능이 붙은 애들의 pagination
+from user.models import KhumuUser
+
+
 class KhuDomainSearchPagination(pagination.PageNumberPagination):
 
     page_size = 15  # 임의로 설정하느라 우선 크게 잡았음.
@@ -43,6 +47,14 @@ class OrganizationListView(generics.ListAPIView):
             else Organization.objects.all()
 
         return queryset
+
+class DepartmentListView(generics.ListAPIView):
+    serializer_class = DepartmentSerializer
+    permission_classes = [OpenPermission]
+
+    def get_queryset(self):
+        # 강의 이름으로 검색
+        return Department.objects.all()
 
 class LectureSuiteListView(generics.ListAPIView):
 
@@ -75,7 +87,6 @@ class HaksaScheduleListView(generics.ListAPIView):
         return HaksaSchedule.objects.filter(starts_at__gte=datetime.datetime.now(tz=datetime.timezone.utc)).order_by('starts_at')[:5]
 
 class KhuSyncAPIView(APIView):
-    permission_classes = [IsAuthenticatedKhuStudent]
 
     def post(self, request):
         info21_id = request.data['id']
@@ -91,5 +102,5 @@ class KhuSyncAPIView(APIView):
             traceback.print_exc()
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={'message': str(e)})
         return Response(status=status.HTTP_200_OK, data={
-            'message': '강의 목록을 수집했습니다.'
+            'message': '수강 중인 강의들의 게시판을 팔로우했습니다.'
         })

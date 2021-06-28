@@ -20,7 +20,7 @@ class KhumuUserPermission(permissions.BasePermission):
         if 'admin' in map(lambda g: g.name, request.user.groups.all()):
             return True
         else:
-            if request.method == 'POST': return True
+            if request.method == 'POST' or request.method == 'GET': return True
             elif request.method in ['PUT', 'PATCH', 'DELETE']:
                 if request.user.username == request.data['username']: return True
                 else: return False
@@ -73,6 +73,17 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         return DefaultResponse(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return DefaultResponse(None, "인증되지 않은 사용자입니다.", 401)
+
+        # me를 통한 자기 자신에 대한 조회인지
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        if self.kwargs[lookup_url_kwarg] == 'me':
+            self.kwargs[lookup_url_kwarg] = request.user.username
+        # admin이 아닌데 남에 대한 조회:
+        if self.kwargs[lookup_url_kwarg] != request.user.username and 'admin' not in map(lambda g: g.name, request.user.groups.all()):
+            return DefaultResponse(None, "해당 유저를 조회할 권한이 없습니다.", 403)
+
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return DefaultResponse(serializer.data)

@@ -70,6 +70,7 @@ urlpatterns = [
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
     path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
 
+    path(r'api/departments', khu_domain_view.DepartmentListView.as_view(), name='departments'),
     path(r'api/lecture-suites', khu_domain_view.LectureSuiteListView.as_view(), name='lecture-suites'),
     path(r'api/organizations', khu_domain_view.OrganizationListView.as_view(), name='organizations'),
     path(r'api/haksa-schedules', khu_domain_view.HaksaScheduleListView.as_view(), name='haksa-schedule'),
