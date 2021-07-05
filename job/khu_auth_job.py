@@ -31,10 +31,11 @@ class KhuAuthJob(BaseKhuJob):
 
     # body_data는 id와 password 필요.
     def login(self, body_data):
+        logger.info("인포21 로그인 작업 시작")
         try:
             info21_login_response = self.sess.post("https://info21.khu.ac.kr/com/KsignCtr/loginProc.do", timeout=3,
                headers={
-                   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'
+                   'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36'
                },
                data={
                 'userId': body_data.get('id'),
@@ -44,7 +45,7 @@ class KhuAuthJob(BaseKhuJob):
                 'retUrl': None,
                 'socpsId': "",
                 'loginRequest': "",
-            })
+            }, verify=False)
             if info21_login_response.status_code != 200:
                 logger.error(self.get_logger_prefix() + "인포21 로그인 응답이 200이 아님. " + info21_login_response.text)
 
@@ -57,6 +58,7 @@ class KhuAuthJob(BaseKhuJob):
             soup2 = BeautifulSoup(info21_redirected_encode_response.text, 'html.parser')
             encoded_user_id_elem = soup2.select_one('[name="userId"]')
             if not encoded_user_id_elem:
+                logger.error("ID: " + body_data.get('id') + "에 대한 올바르지 않은 ID 혹은 PW 에러")
                 raise Info21WrongCredential(" ID: " + body_data.get('id') + " PW: ***")
             encoded_user_id = encoded_user_id_elem.get('value', "").strip()
             logger.info(self.get_logger_prefix() + "Encoded Username: " + encoded_user_id)
@@ -79,6 +81,7 @@ class KhuAuthJob(BaseKhuJob):
         except Info21WrongCredential as e:
             raise Info21WrongCredential(" ID: " + body_data.get('id') + " PW: ***")
         except Exception as e:
+            logger.error(e)
             raise Info21LoginWrongHtmlException(message="", exception=e)
 
         return user_info_response.text
@@ -101,6 +104,7 @@ class KhuAuthJob(BaseKhuJob):
             logger.info(user_info)
 
         except Exception as e:
+            logger.error(e)
             raise Info21LoginParsingException(message="", exception=e)
 
         return user_info
