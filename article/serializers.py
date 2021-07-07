@@ -268,7 +268,7 @@ class StudyArticleSerializer(serializers.ModelSerializer):
     # obj는 Article instance이다.
     def get_comment_count(self, obj):
         # print(self.context['request'])
-        return len(obj.comment_set.filter(article__pk=obj.pk))
+        return len(obj.comment_set.filter(study_article_id=obj.id))
 
     def get_created_at(self, obj):
         return get_converted_time_string(obj.created_at)
