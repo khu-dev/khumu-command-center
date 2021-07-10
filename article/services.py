@@ -9,7 +9,7 @@ from message.publisher import publish
 logger = logging.getLogger(__name__)
 
 class LikeArticleService:
-    MINIMUM_NUMBER_OF_LIKES_FOR_HOT = 3
+    MINIMUM_NUMBER_OF_LIKES_FOR_HOT = 5
 
     def like(self, article_id:int, username:str) ->(Exception, dict):
         s = LikeArticleSerializer(data={"article": article_id, "user": username})

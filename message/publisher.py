@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 
 import redis
@@ -11,6 +12,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.forms import model_to_dict
 from django.db.models import Model
 from botocore.config import Config
+
+logger = logging.getLogger(__name__)
 
 # 기본적으로 따로 process에 대한 AWS 자격 증명을 부여하진 않음.
 # Node나 container 등에 붙은 IAM 이용.
@@ -29,7 +32,7 @@ class ExtendedEncoder(DjangoJSONEncoder):
 
 # ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
 def publish(resource_kind:str, event_kind:str, obj):
-    print("메시지 발행.", obj)
+    logger.info("메시지 발행.", obj)
     response = client.publish(
         TopicArn=settings.SNS['topicArn'],
         Message=json.dumps(obj, cls=ExtendedEncoder),
