@@ -16,6 +16,7 @@ class Article(models.Model):
     title = models.CharField(max_length=300, null=False, blank=False)
     tags = models.ManyToManyField(ArticleTag)
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
+    is_hot = models.BooleanField(default=False)
     content = models.TextField(null=True, blank=True)
     images = models.JSONField(null=False, blank=True, default=list)
     kind = models.CharField(max_length=16, default="anonymous", null=False, blank=False)

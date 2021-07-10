@@ -213,5 +213,9 @@ LOGGING = {
     },
 }
 
+CRONJOBS = [
+    ('* * * * *', 'article.cron.hot_article_select_cronjob')
+]
+
 SNS = config.CONFIG.get("sns")
 NOTIFICATION_SERVICE = config.CONFIG.get("notificationService")

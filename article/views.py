@@ -1,10 +1,14 @@
 import datetime
+import traceback
+
 from django.db.models import Count
 import json
 import time
 from rest_framework import viewsets, pagination, permissions, views, status, generics
 from rest_framework import response
 from rest_framework.parsers import JSONParser, MultiPartParser
+
+from article.services import LikeArticleService, LikeArticleException
 from khumu import settings, config
 import message.publisher
 from khumu.permissions import is_author_or_admin
@@ -106,10 +110,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def _get_current_hot_articles(self):
         # 아직은 게시물이 새로 올라오는 게 많지 않아서 최근 31일 동안의 게시물로 제한했는데,
         # 나중에는 하루로 하는 게 나을 듯
-        articles =  Article.objects\
-            .annotate(like_article_count=Count('likearticle')) \
-            .filter(created_at__gte=datetime.datetime.now() - datetime.timedelta(days=31)) \
-            .order_by('-like_article_count')
+        articles = Article.objects.filter(is_hot=True)
 
         return articles
 
@@ -181,6 +182,9 @@ class StudyFieldListView(generics.ListAPIView):
 
 class LikeArticleToggleView(views.APIView):
     permission_classes = [permissions.IsAuthenticated]
+    # spring 같으면 DI를 이용할텐데 아직 장고는 테스트도 없고 사실상 거의 이곳에서만 해당 서비스를 이용하다보니
+    # DI까지 갈 필요성은 적어보임.
+    like_article_service = LikeArticleService()
 
     def patch(self, request, id: str, format=None):
         """
@@ -195,13 +199,15 @@ class LikeArticleToggleView(views.APIView):
         if Article.objects.filter(id=id, author_id=username).exists():
             return DefaultResponse(False, message="자신의 게시물은 좋아요할 수 없습니다.", status=400)
         if len(likes) == 0:
-            s = LikeArticleSerializer(data={"article": id, "user": username})
-            is_valid = s.is_valid()
-            if is_valid:
-                s.save()
+            try:
+                self.like_article_service.like(id, username)
                 return DefaultResponse(True, status=201)
-            else:
-                return DefaultResponse(False, message=str(s.errors), status=400)
+            except LikeArticleException as e:
+                traceback.print_exc(e)
+                return DefaultResponse(False, status=400, message="좋아요 생성을 실패했습니다. " + e.message)
+            except Exception as e:
+                traceback.print_exc(e)
+                return DefaultResponse(False, status=503, message="좋아요 생성 도중 알 수 없는 에러가 발생했습니다.")
         else:
             likes.delete()
             return response.Response(status=204)
