@@ -16,14 +16,15 @@ logger = logging.getLogger(__name__)
 
 class KhumuUserPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-
         if 'admin' in map(lambda g: g.name, request.user.groups.all()):
             return True
         else:
             if request.method == 'POST' or request.method == 'GET': return True
             elif request.method in ['PUT', 'PATCH', 'DELETE']:
-                if request.user.username == request.data['username']: return True
+                if request.parser_context['kwargs']['pk'] == 'me': return True
+                elif request.parser_context['kwargs']['pk'] == request.user.username : return True
                 else: return False
+        return False
 
 class KhumuUserViewSet(viewsets.ModelViewSet):
     """
@@ -37,11 +38,13 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         if not request.data.get("username", "") or not request.data.get("password", ""):
             return DefaultResponse(data=None, message="아이디와 비밀번호를 입력해주세요.", status=400)
 
+        # 인포21이 필요 없는 일반 계정 생성
         if request.data.get("kind", "") == 'normal':
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
+
         # 인포21을 통한 학생 계정 생성
         else:
             try:
@@ -91,6 +94,13 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return DefaultResponse(serializer.data)
+
+    def partial_update(self, request, *args, **kwargs):
+        self.set_pk_if_me_request(request, *args, **kwargs)
+        if self.kwargs['pk'] != request.user.username:
+            return DefaultResponse(None, "해당 유저를 수정할 권한이 없습니다.", 403)
+        else:
+            return super().partial_update(request, *args, **kwargs)
 
     def set_pk_if_me_request(self, request, *args, **kwargs):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
