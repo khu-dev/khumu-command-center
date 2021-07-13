@@ -26,7 +26,7 @@ class KhumuUser(AbstractUser, PermissionsMixin):
     created_at = models.DateTimeField(default=timezone.now, null=False)
     state = models.CharField(max_length=16, default="unverified", null=False)
     is_superuser = models.BooleanField(default=False, null=False)
-
+    profile_image = models.CharField(max_length=128, null=True)
     groups = models.ManyToManyField(
         Group,
         verbose_name='groups',
