@@ -1,6 +1,7 @@
 import datetime
 import traceback
-
+import urllib.parse as urlparse
+from urllib.parse import parse_qs
 from django.db.models import Count
 import json
 import time
@@ -23,18 +24,23 @@ from article.serializers import *
 from user.serializers import KhumuUserSimpleSerializer
 
 
-class ArticlePagination(pagination.PageNumberPagination):
+class ArticlePagination(pagination.CursorPagination):
 
     page_size = 30  # 임의로 설정하느라 우선 크게 잡았음.
-    page_query_param = 'page'
-    page_size_query_param = 'size'
+    ordering = '-created_at'
     def get_paginated_response(self, data):
+        next_link = self.get_next_link()
+        if next_link != None:
+            parsed = urlparse.urlparse(next_link)
+            next_cursor = parse_qs(parsed.query).get('cursor', None)
+
         return response.Response({
             'links': {
                 'next': self.get_next_link(),
+                'next_cursor': next_cursor,
                 'previous': self.get_previous_link()
             },
-            'count': self.page.paginator.count,
+            'count': len(self.page),
             'data': data
         })
 
@@ -45,6 +51,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         board_name = self.request.query_params.get('board')
+        q = self.request.query_params.get('q', '')
         queryset = None
         if board_name == 'following':
             queryset = self._get_articles_from_following()
@@ -57,15 +64,17 @@ class ArticleViewSet(viewsets.ModelViewSet):
         elif board_name == 'commented':
             queryset = self._get_commented_articles()
         elif board_name == 'hot':
-            queryset = self._get_current_hot_articles()
+            queryset = Article.objects.filter(is_hot=True)
         elif board_name:
             queryset = Article.objects.filter(~Q(board__category__exact='temporary')).filter(board_id=self.request.query_params['board'])
         # 기본 쿼리셋
         else:
-            queryset = Article.objects.filter(~Q(board__category__exact='temporary'))
-
+            queryset = Article.objects
+        if len(q) != 0:
+            queryset = queryset.filter(Q(title__contains=q) | Q(content__contains=q))
         # board_name이 정의되지 않은 경우는 임시 카테고리의 게시판 빼고 query
         return queryset
+
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return ArticleDetailSerializer
@@ -73,12 +82,8 @@ class ArticleViewSet(viewsets.ModelViewSet):
 
     # 사용자별 feed를 위한 최신 게시물을 제공해야함.
     def _get_articles_from_following(self):
-        following_board_names = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board__name')
-        following_article_tag_names = FollowArticleTag.objects.filter(user_id=self.request.user.username).all().values('tag__name')
-        return Article.objects.filter(~Q(board__category__exact='temporary')).filter(
-            Q(board__name__in=following_board_names) |
-            Q(tags__name__in=following_article_tag_names)
-        ).distinct()
+        # following_board_names = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board__name')
+        return Article.objects.filter(board__followboard__user__exact=self.request.user)
     # i, love, you
     # Following: you
 
@@ -88,6 +93,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
 
     def _get_bookmarked_articles(self):
         articles = []
+        # Article.objects.filter(bookmarkarticle__user__username__exact=self.request.user.username)
         for bookmarkArticle in self.request.user.bookmarkarticle_set.all():
             if bookmarkArticle.article.board.category != 'temporary':
                 articles.append(bookmarkArticle.article)
@@ -105,13 +111,6 @@ class ArticleViewSet(viewsets.ModelViewSet):
         for comment in self.request.user.comment_set.all().order_by('-created_at'):
             if comment.article.board.category != 'temporary' and comment.article not in articles:
                 articles.append(comment.article)
-        return articles
-
-    def _get_current_hot_articles(self):
-        # 아직은 게시물이 새로 올라오는 게 많지 않아서 최근 31일 동안의 게시물로 제한했는데,
-        # 나중에는 하루로 하는 게 나을 듯
-        articles = Article.objects.filter(is_hot=True)
-
         return articles
 
     def perform_create(self, serializer: ArticleSerializer):

@@ -1,17 +1,17 @@
+import random
+
 from board.models import Board, FollowBoard
 from rest_framework import viewsets, pagination,status, permissions
 from board.serializers import BoardSerializer, FollowBoardSerializer
 from rest_framework import  mixins, response
-from article.serializers import ArticleSerializer
-from rest_framework.serializers import SerializerMethodField
-from khumu.permissions import OpenPermission, is_author_or_admin
+from django.db.models import Q
 from khumu.response import DefaultResponse
 
 MAX_ARTICLE_PREVIEW = 5
 
 class BoardPagination(pagination.PageNumberPagination):
 
-    page_size = 15  # 임의로 설정하느라 우선 크게 잡았음.
+    page_size = 30
     page_query_param = 'page'
     page_size_query_param = 'size'
     def get_paginated_response(self, data):
@@ -35,13 +35,15 @@ class BoardViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Board.objects.all()
-        query_display_name = self.request.query_params.get('query_display_name', '')
+        q = self.request.query_params.get('q', '').strip()
         category = self.request.query_params.get('category', '')
-        
-        if query_display_name:
-            queryset = queryset.filter(display_name__contains=query_display_name)
+        random_sort = self.request.query_params.get('random', 'false') in ('true' or True)
+
         if category:
             queryset = queryset.filter(category__in=category.split(","))
+
+        if q:
+            queryset = queryset.filter(Q(display_name__contains=q) | Q(name__contains=q) | Q(description__contains=q))
 
         if self.request.query_params.get('followed'):
             followed = self.request.query_params.get('followed').lower()
@@ -56,6 +58,8 @@ class BoardViewSet(viewsets.ModelViewSet):
             else:
                 return DefaultResponse(None, "Supported value for query string named followed: true, but got" + self.request.query_params.get('followed'), 400)
 
+        if random_sort:
+            queryset = queryset.order_by('?')
         return queryset
 
     def list(self, request, *args, **kwargs):

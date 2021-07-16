@@ -152,7 +152,7 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         return get_converted_time_string(obj.created_at)
 
 
-
+# Article 상세 화면에서 사용할 serializer
 class ArticleDetailSerializer(ArticleSerializer):
     class Meta:
         model = Article
@@ -185,10 +185,11 @@ class ArticleDetailSerializer(ArticleSerializer):
             is_activated = data.get('data').get("is_activated")
             logger.info(f'리소스 조회 결과 {data.get("data")}')
             return is_activated
-        except self.NotificationServiceUnavailableException:
+        except self.NotificationServiceUnavailableException as e:
+            logger.error('알림 서비스와 통신 중 오류 발생' + e)
             return False
         except Exception as e:
-            logger.error(e)
+            logger.error('알림 서비스와 통신 중 알 수 없는 오류 발생' + e)
             return False
         return False
 
