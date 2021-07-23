@@ -29,6 +29,7 @@ class ArticlePagination(pagination.CursorPagination):
     page_size = 30  # 임의로 설정하느라 우선 크게 잡았음.
     ordering = '-created_at'
     def get_paginated_response(self, data):
+        next_cursor = None
         next_link = self.get_next_link()
         if next_link != None:
             parsed = urlparse.urlparse(next_link)
