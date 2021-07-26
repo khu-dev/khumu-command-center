@@ -34,7 +34,7 @@ class KhumuUserSerializer(serializers.ModelSerializer):
             }
         }
         # 커스텀하게 업데이트 가능한 필드를 정의하기 위함
-        updatable_fields = ['nickname', 'student_number', 'department', 'profile_image'] # state나 kind는 업데이트 불가능하게 하려고.
+        updatable_fields = ['nickname', 'department', 'profile_image'] # state나 kind는 업데이트 불가능하게 하려고.
     groups = serializers.SerializerMethodField()
 
     # user는 수정 가능한 필드만 수정하도록 커스텀한 KhumuUserSerializer.Meta.updatable_fields을 이용함.

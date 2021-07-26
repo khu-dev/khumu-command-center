@@ -25,7 +25,7 @@ class KhumuJWTSerializer(TokenObtainPairSerializer):
 
     @classmethod
     def validate(self, attrs):
-        logger.info(attrs)
+        logger.info(f'token validating. username: {attrs[self.username_field]}, password: ***')
         user_queryset = KhumuUser.objects.filter(username=attrs[self.username_field])
         if not user_queryset.exists():
             raise AuthenticationFailed(detail="ID 혹은 Password가 잘못되었습니다.")

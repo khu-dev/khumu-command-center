@@ -8,4 +8,4 @@ database:
   port:
 sns:
   enabled: true
-  topicArn: arn:aws:sns:ap-northeast-2:312979016576:khumu-messages
+  topicArn: arn:aws:sns:ap-northeast-2:xxxxx:xxxxx
