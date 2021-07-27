@@ -1,5 +1,6 @@
 import json
 import logging
+import traceback
 
 import pytz
 import requests as requests
@@ -165,8 +166,11 @@ class ArticleDetailSerializer(ArticleSerializer):
     def get_is_subscribed(self, obj):
         request_username = self.context['request'].user.username
         print(f'Notification 서비스에 요청자가 해당 Article을 구독 중인지 조회합니다. {self.notification_service_root}subscriptions/{request_username}/article/{obj.id}')
-        response = requests.get(f'{self.notification_service_root}subscriptions/{request_username}/article/{obj.id}')
         try:
+            response = requests.get(
+                f'{self.notification_service_root}subscriptions/{request_username}/article/{obj.id}',
+                timeout=(1, 3) # Connection timeout, Read timeout seconds
+            )
             if response.status_code != 200:
                 logger.error(f'Notification 서비스에 대한 요청의 status code가 200이 아닙니다. status_code={response.status_code}')
                 raise self.NotificationServiceUnavailableException()
@@ -186,11 +190,15 @@ class ArticleDetailSerializer(ArticleSerializer):
             logger.info(f'리소스 조회 결과 {data.get("data")}')
             return is_activated
         except self.NotificationServiceUnavailableException as e:
-            logger.error('알림 서비스와 통신 중 오류 발생' + e)
-            return False
+            logger.error('알림 서비스와 통신 중 오류 발생')
+            traceback.print_exc(e)
+        except requests.exceptions.Timeout as e:
+            logger.error('alimi와 통신 도중 Timeout error 발생.')
+            logger.error(e)
+            # traceback.print_exc(e)를 하면 Timeout error는 depth를 찾는 중에? 오류가 다는 듯.
         except Exception as e:
-            logger.error('알림 서비스와 통신 중 알 수 없는 오류 발생' + e)
-            return False
+            logger.error('알림 서비스와 통신 중 알 수 없는 오류 발생')
+            traceback.print_exc(e)
         return False
 
     class NotificationServiceUnavailableException(Exception):
