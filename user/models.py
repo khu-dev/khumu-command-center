@@ -27,6 +27,10 @@ class KhumuUser(AbstractUser, PermissionsMixin):
     state = models.CharField(max_length=16, default="unverified", null=False)
     is_superuser = models.BooleanField(default=False, null=False)
     profile_image = models.CharField(max_length=128, null=True)
+
+    # 언제 인포21 인증을 수행했는지. 없는 경우 null
+    info21_authenticated_at = models.DateTimeField(null=True, blank=True)
+
     groups = models.ManyToManyField(
         Group,
         verbose_name='groups',

@@ -5,6 +5,7 @@ from urllib.parse import parse_qs
 from django.db.models import Count
 import json
 import time
+from django.core.cache import cache
 from rest_framework import viewsets, pagination, permissions, views, status, generics
 from rest_framework import response
 from rest_framework.parsers import JSONParser, MultiPartParser
@@ -23,14 +24,16 @@ from board.models import *
 from article.serializers import *
 from user.serializers import KhumuUserSimpleSerializer
 
-
+logger = logging.getLogger(__name__)
 class ArticlePagination(pagination.CursorPagination):
 
     page_size = 30  # 임의로 설정하느라 우선 크게 잡았음.
     ordering = '-created_at'
     def get_paginated_response(self, data):
         next_cursor = None
-        next_link = self.get_next_link()
+        # next_link = self.get_next_link()
+        # 캐시 테스트 하느라 임시로 None
+        next_link = None
         if next_link != None:
             parsed = urlparse.urlparse(next_link)
             next_cursor = parse_qs(parsed.query).get('cursor', None)

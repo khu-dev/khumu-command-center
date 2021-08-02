@@ -9,3 +9,6 @@ database:
 sns:
   enabled: true
   topicArn: arn:aws:sns:ap-northeast-2:xxxxx:xxxxx
+cache:
+  enabled: true
+  endpoint: redis://127.0.0.1:6379/0

@@ -6,11 +6,11 @@ from board.serializers import BoardSerializer, FollowBoardSerializer
 from rest_framework import  mixins, response
 from django.db.models import Q
 from khumu.response import DefaultResponse
+from django.core.cache import cache
 
 MAX_ARTICLE_PREVIEW = 5
 
 class BoardPagination(pagination.PageNumberPagination):
-
     page_size = 30
     page_query_param = 'page'
     page_size_query_param = 'size'
@@ -50,10 +50,8 @@ class BoardViewSet(viewsets.ModelViewSet):
             if followed == 'true' or 'false':
                 following_board_ids = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board_id')
                 if followed == 'true':
-                    print(followed)
                     queryset = queryset.filter(name__in=following_board_ids).all()
                 else:
-                    print(followed)
                     queryset = queryset.exclude(name__in=following_board_ids).all()
             else:
                 return DefaultResponse(None, "Supported value for query string named followed: true, but got" + self.request.query_params.get('followed'), 400)

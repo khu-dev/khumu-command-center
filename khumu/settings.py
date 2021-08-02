@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'comment',
     'board',
     'khumu',
+    'cacheops',
     'corsheaders',
     'drf_yasg',
     'django.contrib.admin',
@@ -211,9 +212,33 @@ LOGGING = {
     },
 }
 
-CRONJOBS = [
-    ('* * * * *', 'article.cron.hot_article_select_cronjob')
-]
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379'
+    }
+}
+
+# CACHEOPS 설정
+# 참고: https://github.com/Suor/django-cacheops
+# 참고: https://jay-ji.tistory.com/76
+
+if config.CONFIG.get('cache').get('enabled', False):
+    CACHEOPS = {
+        'board.*': {},  # 앱.모델에 대해서 캐시적용
+        'user.*': {},
+        'article.*': {},
+        'comment.*': {},
+    }
+    CACHEOPS_LRU = True  # maxmemory-policy: volatile-lru 설정
+    CACHEOPS_REDIS = config.CONFIG.get('cache').get('endpoint')
+    CACHEOPS_DEFAULTS = {
+        'timeout': 60 * 60 * 24 * 3,  # 3일, 1시간 = 60 * 60
+        'ops': 'all',  # get, fetch ... 모든 동작 ex) 'ops': 'get' 이러면 get 할 때만 캐시
+        'cache_on_save': True  # save()할때 캐시 할건지
+    }
+
+
 
 SNS = config.CONFIG.get("sns")
 NOTIFICATION_SERVICE = config.CONFIG.get("notificationService")
