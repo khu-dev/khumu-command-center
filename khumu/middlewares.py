@@ -22,7 +22,7 @@ def logging(get_response):
                     logger.info(f'POST: application/json body: {tmp_json_body}')
                 except Exception as e:
                     logger.error("JSON body 출력 로깅 도중 에러 발생")
-                    traceback.print_exc(e)
+                    traceback.print_exc()
         response = get_response(request)
         return response
     return middleware

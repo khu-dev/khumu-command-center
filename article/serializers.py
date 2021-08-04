@@ -191,14 +191,14 @@ class ArticleDetailSerializer(ArticleSerializer):
             return is_activated
         except self.NotificationServiceUnavailableException as e:
             logger.error('알림 서비스와 통신 중 오류 발생')
-            traceback.print_exc(e)
+            traceback.print_exc()
         except requests.exceptions.Timeout as e:
             logger.error('alimi와 통신 도중 Timeout error 발생.')
-            logger.error(e)
+            logger.error()
             # traceback.print_exc(e)를 하면 Timeout error는 depth를 찾는 중에? 오류가 다는 듯.
         except Exception as e:
             logger.error('알림 서비스와 통신 중 알 수 없는 오류 발생')
-            traceback.print_exc(e)
+            traceback.print_exc()
         return False
 
     class NotificationServiceUnavailableException(Exception):

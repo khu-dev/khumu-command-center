@@ -206,10 +206,10 @@ class LikeArticleToggleView(views.APIView):
                 self.like_article_service.like(id, username)
                 return DefaultResponse(True, status=201)
             except LikeArticleException as e:
-                traceback.print_exc(e)
+                traceback.print_exc()
                 return DefaultResponse(False, status=400, message="좋아요 생성을 실패했습니다. " + e.message)
             except Exception as e:
-                traceback.print_exc(e)
+                traceback.print_exc()
                 return DefaultResponse(False, status=503, message="좋아요 생성 도중 알 수 없는 에러가 발생했습니다.")
         else:
             likes.delete()
