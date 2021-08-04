@@ -54,14 +54,17 @@ class KhuAuthJob(BaseKhuJob):
                 logger.info(f'인증 작업 완료. {user_info}')
                 # 성공했으면 break
                 break
-            except (Exception, RuntimeError) as e:
+            except (Info21WrongCredential) as e:
+                logger.warning(f'올바르지 않은 인포21 계정입니다. id: {self.data.get("id")}')
+                raise e
+            except Exception as e:
                 logger.error(f'ID: {self.data.get("id")}의 유저에 대한 인증 도중 에러 발생')
                 traceback.print_exc()
                 self.sess.close()
                 self.sess = requests.session()
         self.sess.close()
         if user_info == None:
-            raise Info21LoginUnknownException()
+            raise Info21AuthenticationUnknownException()
         return user_info
 
     # body_data는 id와 password 필요.
@@ -161,7 +164,8 @@ class Info21LoginParsingException(BaseKhuException):
         self.message = "인포 21 로그인 도중 올바른 값을 추출해내지 못했습니다." + message
         self.exception = exception
 
-class Info21LoginUnknownException(BaseKhuException):
+# timeout 과 같이 알 수 없는 이유로 인증이 실패했을 때
+class Info21AuthenticationUnknownException(BaseKhuException):
     def __init__(self, message, exception=None):
         self.message = "인포 21 인증이 알 수 없는 이유로 실패했습니다." + message
         self.exception = exception

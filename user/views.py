@@ -7,7 +7,7 @@ from rest_framework import response
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import *
 from job.base_khu_job import BaseKhuException
-from job.khu_auth_job import KhuAuthJob
+from job.khu_auth_job import KhuAuthJob, Info21AuthenticationUnknownException
 from khumu.response import *
 from user.serializers import KhumuUserSerializer, GroupSerializer
 from user.models import KhumuUser
@@ -35,47 +35,51 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
     permission_classes = [KhumuUserPermission]
 
     def create(self, request, *args, **kwargs):
-        if not request.data.get("username", "") or not request.data.get("password", ""):
-            return DefaultResponse(data=None, message="아이디와 비밀번호를 입력해주세요.", status=400)
-
-        # 인포21이 필요 없는 일반 계정 생성
-        if request.data.get("kind", "") == 'normal':
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
-
-        # 인포21을 통한 학생 계정 생성
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid(raise_exception=False):
+            for e in serializer.errors.values():
+                return DefaultResponse(data=None, message=e[-1], status=status.HTTP_400_BAD_REQUEST)
         else:
-            try:
-                khu_auth_job = KhuAuthJob({
-                    'id': request.data.get('username'),
-                    'password': request.data.get('password')
-                })
-                user_info = khu_auth_job.process()
-            except BaseKhuException as e:
-                return DefaultResponse(data=None, message=e.message, status=400)
+            # 인포21이 필요 없는 일반 계정 생성
+            if request.data.get("kind", "") == 'normal':
 
-
-            data = request.data
-            data['username'] = request.data.get('username')
-            data['department'] = user_info.dept
-            data['student_number'] = user_info.student_num
-            if user_info.verified:
-                data['state'] = 'active'
-            else:
-                return BadRequestResponse('유저의 인증 정보가 유효하지 않습니다.')
-            try:
-                serializer = self.get_serializer(data=data)
-                serializer.is_valid(raise_exception=True)
                 serializer.save()
+                return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 
-            except Exception as e:
-                logger.error(str(e))
-                return DefaultResponse(data=None, message=e.message, status=400)
+            # 인포21을 통한 학생 계정 생성
+            else:
+                try:
+                    khu_auth_job = KhuAuthJob({
+                        'id': request.data.get('username'),
+                        'password': request.data.get('password')
+                    })
+                    user_info = khu_auth_job.process()
+                except Info21AuthenticationUnknownException as e:
+                    return DefaultResponse(data=None, message=e.message, status=500)
+                except BaseKhuException as e:
+                    return DefaultResponse(data=None, message=e.message, status=400)
 
-            headers = self.get_success_headers(serializer.data)
-            return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
+
+
+                data = request.data
+                data['username'] = request.data.get('username')
+                data['department'] = user_info.dept
+                data['student_number'] = user_info.student_num
+                if user_info.verified:
+                    data['state'] = 'active'
+                else:
+                    return BadRequestResponse('유저의 인증 정보가 유효하지 않습니다.')
+                try:
+                    serializer = self.get_serializer(data=data)
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+
+                except Exception as e:
+                    logger.error(str(e))
+                    return DefaultResponse(data=None, message=e.message, status=400)
+
+                headers = self.get_success_headers(serializer.data)
+                return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
