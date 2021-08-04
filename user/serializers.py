@@ -43,12 +43,15 @@ class KhumuUserSerializer(serializers.ModelSerializer):
     # 함수로 validator 정의하는 방법 ref: https://www.django-rest-framework.org/api-guide/validators/#writing-custom-validators
     # 필드 레벨이 아닌 오브젝트 레벨의 validator 정의하는 방법 ref: https://www.django-rest-framework.org/api-guide/serializers/#field-level-validation
     def validate(self, data):
-        for key in data.keys():
-            if key not in KhumuUserSerializer.Meta.updatable_fields:
-                # error key를 주지 않으면
-                # 에러 메시지가 non_field_errors라는 키에 대한 값으로 전달됨.
-                # ref: https://stackoverflow.com/questions/40202858/django-rest-framework-how-to-set-a-custom-name-form-non-field-errors
-                raise serializers.ValidationError({'not_updatable_field_error': key + "는 임의로 수정할 수 없는 필드입니다."})
+        if self.context['view'].action == 'create':
+            pass
+        if self.context['view'].action == 'update':
+            for key in data.keys():
+                if key not in KhumuUserSerializer.Meta.updatable_fields:
+                    # error key를 주지 않으면
+                    # 에러 메시지가 non_field_errors라는 키에 대한 값으로 전달됨.
+                    # ref: https://stackoverflow.com/questions/40202858/django-rest-framework-how-to-set-a-custom-name-form-non-field-errors
+                    raise serializers.ValidationError({'not_updatable_field_error': key + "는 수정할 수 없는 필드입니다."})
         return super().validate(data)
 
     def create(self, validated_data):
