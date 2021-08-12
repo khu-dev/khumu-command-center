@@ -26,8 +26,8 @@ from user.serializers import KhumuUserSimpleSerializer
 
 logger = logging.getLogger(__name__)
 class ArticlePagination(pagination.CursorPagination):
-
-    page_size = 30  # 임의로 설정하느라 우선 크게 잡았음.
+    page_size_query_param = "size"
+    page_size = 20  # 임의로 설정하느라 우선 크게 잡았음.
     ordering = '-created_at'
     def get_paginated_response(self, data):
         next_cursor = None
