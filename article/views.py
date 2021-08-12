@@ -1,23 +1,18 @@
-import datetime
-import traceback
 import urllib.parse as urlparse
 from urllib.parse import parse_qs
-from django.db.models import Count
-import json
-import time
-from django.core.cache import cache
 from rest_framework import viewsets, pagination, permissions, views, status, generics
 from rest_framework import response
 from rest_framework.parsers import JSONParser, MultiPartParser
 
 from article.services import LikeArticleService, LikeArticleException
+from comment.models import Comment
 from khumu import settings, config
 import message.publisher
 from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse, DefaultResponse
 from rest_framework.pagination import PageNumberPagination
 
-from django.db.models import Q
+from django.db.models import FilteredRelation, Q
 from article.models import *
 from board.models import *
 
@@ -56,17 +51,17 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         board_name = self.request.query_params.get('board')
         q = self.request.query_params.get('q', '')
-        queryset = None
+
         if board_name == 'following':
-            queryset = self._get_articles_from_following()
+            queryset = Article.objects.filter(board__followboard__user=self.request.user)
         elif board_name == 'my':
-            queryset = self._get_my_articles()
+            queryset = self.request.user.article_set.filter(~Q(board__category__exact='temporary'))
         elif board_name == 'liked':
-            queryset = self._get_liked_articles()
+            queryset = Article.objects.filter(likearticle__in=LikeArticle.objects.filter(user=self.request.user))
         elif board_name == 'bookmarked':
-            queryset = self._get_bookmarked_articles()
+            queryset = Article.objects.filter(bookmarkarticle__in=BookmarkArticle.objects.filter(user=self.request.user))
         elif board_name == 'commented':
-            queryset = self._get_commented_articles()
+            queryset = Article.objects.filter(comment__in=Comment.objects.filter(author=self.request.user))
         elif board_name == 'hot':
             queryset = Article.objects.filter(is_hot=True)
         elif board_name:
@@ -84,44 +79,11 @@ class ArticleViewSet(viewsets.ModelViewSet):
             return ArticleDetailSerializer
         else: return ArticleSerializer
 
-    # 사용자별 feed를 위한 최신 게시물을 제공해야함.
-    def _get_articles_from_following(self):
-        # following_board_names = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board__name')
-        return Article.objects.filter(board__followboard__user__exact=self.request.user)
-    # i, love, you
-    # Following: you
-
-    def _get_my_articles(self):
-        return self.request.user.article_set.filter(~Q(board__category__exact='temporary'))
-
-
-    def _get_bookmarked_articles(self):
-        articles = []
-        # Article.objects.filter(bookmarkarticle__user__username__exact=self.request.user.username)
-        for bookmarkArticle in self.request.user.bookmarkarticle_set.all():
-            if bookmarkArticle.article.board.category != 'temporary':
-                articles.append(bookmarkArticle.article)
-        return articles
-
-    def _get_liked_articles(self):
-        articles = []
-        for likeArticle in self.request.user.likearticle_set.all():
-            if likeArticle.article.board.category != 'temporary':
-                articles.append(likeArticle.article)
-        return articles
-
-    def _get_commented_articles(self):
-        articles = []
-        for comment in self.request.user.comment_set.all().order_by('-created_at'):
-            if comment.article.board.category != 'temporary' and comment.article not in articles:
-                articles.append(comment.article)
-        return articles
-
+    # view에서 실제 저장을 할 때 수행할 동작
     def perform_create(self, serializer: ArticleSerializer):
         super().perform_create(serializer)
         if settings.SNS['enabled']:
             message.publisher.publish("article", "create", serializer.instance)
-
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
