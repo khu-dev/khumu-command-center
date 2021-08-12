@@ -1,4 +1,5 @@
 import logging
+import traceback
 
 from django.contrib.auth.models import Group
 from rest_framework import viewsets, status
@@ -55,11 +56,11 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
                     })
                     user_info = khu_auth_job.process()
                 except Info21AuthenticationUnknownException as e:
+                    traceback.print_exc()
                     return DefaultResponse(data=None, message=e.message, status=500)
                 except BaseKhuException as e:
+                    traceback.print_exc()
                     return DefaultResponse(data=None, message=e.message, status=400)
-
-
 
                 data = request.data
                 data['username'] = request.data.get('username')

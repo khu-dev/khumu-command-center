@@ -151,7 +151,7 @@ class KhuAuthJob(BaseKhuJob):
 
 class Info21WrongCredential(BaseKhuException):
     def __init__(self, message, exception=None):
-        self.message = "잘못된 인포 21 계정 정보입니다." + message
+        self.message = "잘못된 인포 21 계정 정보이거나 인포21이 올바르게 동작하지 않습니다."
         self.exception = exception
 
 class Info21LoginWrongHtmlException(BaseKhuException):
