@@ -42,8 +42,7 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
                 return DefaultResponse(data=None, message=e[-1], status=status.HTTP_400_BAD_REQUEST)
         else:
             # 인포21이 필요 없는 일반 계정 생성
-            if request.data.get("kind", "") == 'normal':
-
+            if request.data.get("kind", "") == 'guest':
                 serializer.save()
                 return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 

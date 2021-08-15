@@ -27,8 +27,8 @@ class KhuAuthJob(BaseKhuJob):
     sess = None
     logger = logger
     data = {}
-    max_retry = 5
-    each_step_timeout = 5
+    max_retry = 6
+    each_step_timeout = 2
 
     def __init__(self, data: dict):
         self.sess = requests.session()
