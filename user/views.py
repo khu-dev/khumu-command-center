@@ -89,12 +89,12 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='verify-new-student')
     def verify_new_student(self, request, *args, **kwargs):
-        # if KhumuUser.objects.filter(username=request.data.get('username')).exists():
-        #     return DefaultResponse(
-        #         data=None,
-        #         message='이미 존재하는 ID입니다.',
-        #         status=400
-        #     )
+        if KhumuUser.objects.filter(username=request.data.get('username')).exists():
+            return DefaultResponse(
+                data=None,
+                message='이미 존재하는 ID입니다.',
+                status=400
+            )
         job = KhuAuthJob({
             'id': request.data.get('username'),
             'password': request.data.get('password')
