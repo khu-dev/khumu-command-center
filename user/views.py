@@ -48,11 +48,6 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
 
             # 인포21을 통한 학생 계정 생성
             else:
-                data = request.data
-                # 기본적으론 student로 가입
-                data['kind'] = data.get('kind', 'student')
-                serializer = self.get_serializer(data=data)
-                serializer.is_valid(raise_exception=True)
                 serializer.save()
                 return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 

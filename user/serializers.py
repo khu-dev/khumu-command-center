@@ -58,10 +58,11 @@ class KhumuUserSerializer(serializers.ModelSerializer):
         # KhumuUser Instance를 직접 저장하는 것이 아니라
         # Serializer를 통하는 경우는 무조건 student kind로 등록
         # student는 password를 저장할 필요도 없고, 그 때 그 때 Info 21 로그인
+        validated_data['kind'] = validated_data.get('kind', 'student')
         user = super().create(validated_data)
         # 지금은 password 사용 안함.
-        # user.set_password(validated_data['password'])
-        # user.save()
+        user.set_password(validated_data['password'])
+        user.save()
         logging.info(user.username + '의 초기 게시판으로 자유게시판을 follow 함.')
         follow_board = FollowBoard(user=user, board_id='free')
         follow_board.save()
