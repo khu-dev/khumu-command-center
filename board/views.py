@@ -48,11 +48,11 @@ class BoardViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get('followed'):
             followed = self.request.query_params.get('followed').lower()
             if followed == 'true' or 'false':
-                following_board_ids = FollowBoard.objects.filter(user_id=self.request.user.username).all().values('board_id')
+                following_boards = FollowBoard.objects.filter(user=self.request.user)
                 if followed == 'true':
-                    queryset = queryset.filter(name__in=following_board_ids).all()
+                    queryset = queryset.filter(followboard__in=following_boards)
                 else:
-                    queryset = queryset.exclude(name__in=following_board_ids).all()
+                    queryset = queryset.exclude(followboard__in=following_boards)
             else:
                 return DefaultResponse(None, "Supported value for query string named followed: true, but got" + self.request.query_params.get('followed'), 400)
 
@@ -104,6 +104,10 @@ class FollowBoardViewSet(mixins.CreateModelMixin,
     # 여러 instance를 destroy 하는 경우는 delete 를 이용한다.
     def delete(self, request, *args, **kwargs):
         instances = self.get_queryset()
-        print(instances)
-        instances.delete()
+        # QuerySet으로 Bulk 삭제를 해도 되지만 그 경우 캐시 invalidate를 위해
+        # 오버라이딩한 FollowBoard Model의 delete 메소드가 아닌 QuerySet의 delete 메소드가 호출됨.
+        # QuerySet을 상속받아 delete를 오버라이드 하는 것은 번거로움
+        for instance in instances:
+            print('팔로우를 삭제합니다', instances)
+            instance.delete()
         return response.Response(status=status.HTTP_204_NO_CONTENT)
