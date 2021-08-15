@@ -112,6 +112,29 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         if self.kwargs[lookup_url_kwarg] == 'me':
             self.kwargs[lookup_url_kwarg] = request.user.username
 
+    @action(detail=False, methods=['post'], url_path='verify-new-student')
+    def verify_new_student(self, request, *args, **kwargs):
+        # if KhumuUser.objects.filter(username=request.data.get('username')).exists():
+        #     return DefaultResponse(
+        #         data=None,
+        #         message='이미 존재하는 ID입니다.',
+        #         status=400
+        #     )
+        job = KhuAuthJob({
+            'id': request.data.get('username'),
+            'password': request.data.get('password')
+        })
+        try:
+            user_info = job.process()
+            # json 직렬화를 위해 __dict__ 이용
+            return DefaultResponse(data=user_info.__dict__, message=None, status=200)
+        except Info21AuthenticationUnknownException as e:
+            traceback.print_exc()
+            return DefaultResponse(data=None, message=e.message, status=500)
+        except BaseKhuException as e:
+            traceback.print_exc()
+            return DefaultResponse(data=None, message=e.message, status=400)
+
     # additional views
     # ref: https://www.django-rest-framework.org/api-guide/viewsets/#marking-extra-actions-for-routing
     @action(detail=True, methods=['get'], url_path='is-admin')
@@ -131,8 +154,6 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         return DefaultResponse({
             'is_admin': is_admin
         }, None, 200)
-
-
 
 
 class GroupViewSet(viewsets.ModelViewSet):

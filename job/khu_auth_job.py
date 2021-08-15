@@ -1,6 +1,6 @@
 import logging
 import traceback
-
+import json
 import requests
 from bs4 import BeautifulSoup
 
@@ -64,7 +64,7 @@ class KhuAuthJob(BaseKhuJob):
                 self.sess = requests.session()
         self.sess.close()
         if user_info == None:
-            raise Info21AuthenticationUnknownException()
+            raise Info21AuthenticationUnknownException("")
         return user_info
 
     # body_data는 id와 password 필요.
