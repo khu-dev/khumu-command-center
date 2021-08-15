@@ -49,37 +49,12 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
 
             # 인포21을 통한 학생 계정 생성
             else:
-                try:
-                    khu_auth_job = KhuAuthJob({
-                        'id': request.data.get('username'),
-                        'password': request.data.get('password')
-                    })
-                    user_info = khu_auth_job.process()
-                except Info21AuthenticationUnknownException as e:
-                    traceback.print_exc()
-                    return DefaultResponse(data=None, message=e.message, status=500)
-                except BaseKhuException as e:
-                    traceback.print_exc()
-                    return DefaultResponse(data=None, message=e.message, status=400)
-
                 data = request.data
-                data['username'] = request.data.get('username')
-                data['department'] = user_info.dept
-                data['student_number'] = user_info.student_num
-                if user_info.verified:
-                    data['state'] = 'active'
-                else:
-                    return BadRequestResponse('유저의 인증 정보가 유효하지 않습니다.')
-                try:
-                    serializer = self.get_serializer(data=data)
-                    serializer.is_valid(raise_exception=True)
-                    serializer.save()
-
-                except Exception as e:
-                    logger.error(str(e))
-                    return DefaultResponse(data=None, message=e.message, status=400)
-
-                headers = self.get_success_headers(serializer.data)
+                # 기본적으론 student로 가입
+                data['kind'] = data.get('kind', 'student')
+                serializer = self.get_serializer(data=data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
                 return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
