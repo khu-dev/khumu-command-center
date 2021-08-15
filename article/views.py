@@ -86,17 +86,21 @@ class ArticleViewSet(viewsets.ModelViewSet):
             message.publisher.publish("article", "create", serializer.instance)
 
     def list(self, request, *args, **kwargs):
+        start = time.time()
         queryset = self.filter_queryset(self.get_queryset())
         # serializer = self.get_serializer(queryset, many=True)
         # articles = serializer.data
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            data = serializer.data
+            logger.info(f'{self.__class__.__name__}.list() 소요시간 {time.time() - start}')
+            return self.get_paginated_response(data)
 
         serializer = self.get_serializer(queryset, many=True)
-
-        return DefaultResponse(serializer.data)
+        data = serializer.data
+        logger.info(f'{self.__class__.__name__}.list() 소요시간 {time.time() - start}')
+        return DefaultResponse(data)
 
     def retrieve(self, request, *args, **kwargs):
         article = self.get_object()
