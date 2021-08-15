@@ -1,7 +1,7 @@
 from django.db import models
-
 from khu_domain.models import Department, LectureSuite
 from user.models import KhumuUser
+
 # Create your models here.
 from khumu import settings
 
