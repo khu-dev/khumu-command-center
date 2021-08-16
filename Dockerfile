@@ -10,5 +10,5 @@ ENV PYTHONUNBUFFERED 0
 # 인포21 연동을 위한 selenium 크롬 드라이버
 RUN curl https://chromedriver.storage.googleapis.com/89.0.4389.23/chromedriver_linux64.zip -o chromedriver.zip && unzip chromedriver.zip
 # please mount a config file later (like /khumu/config/dev.yaml)
-ENTRYPOINT ["python", "manage.py"]
-CMD ["runserver", "0.0.0.0:8000"]
+ENTRYPOINT ["gunicorn"]
+CMD ["--bind", "0.0.0.0:8000", "--workers", "3", "khumu.wsgi"]
