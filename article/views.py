@@ -28,7 +28,7 @@ class ArticlePagination(pagination.CursorPagination):
         next_cursor = None
         # next_link = self.get_next_link()
         # 캐시 테스트 하느라 임시로 None
-        next_link = None
+        next_link = self.get_next_link()
         if next_link != None:
             parsed = urlparse.urlparse(next_link)
             next_cursor = parse_qs(parsed.query).get('cursor', None)
