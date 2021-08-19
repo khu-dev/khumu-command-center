@@ -21,19 +21,20 @@ class UserInfo:
 
     def __str__(self) -> str:
         return f'name: {self.name}, student_num: {self.student_num}, deptartment: {self.dept}, verified: {self.verified}'''
-        return super().__str__()
 
 class KhuAuthJob(BaseKhuJob):
+    # 인증 리다이렉트 되면서 쿠키를 유지할 세션
     sess = None
     logger = logger
     data = {}
+    # 인증 작업 도중 오류가 발생할 경우 retry할 횟수
     max_retry = 6
+    # 인증 작업 도중 각 step들의 요청 timeout
     each_step_timeout = 2
 
     def __init__(self, data: dict):
         self.sess = requests.session()
         self.data = data
-
 
     def __del__(self):
         self.sess.close()
@@ -44,6 +45,7 @@ class KhuAuthJob(BaseKhuJob):
             log_data['id'] = self.data.get("id", "")
         return str(log_data) + " "
 
+    # Authenticate 작업을 하는 Job을 수행한다.
     def process(self) -> UserInfo:
         user_info = None
         for trial in range(self.max_retry):
@@ -63,7 +65,7 @@ class KhuAuthJob(BaseKhuJob):
                 self.sess.close()
                 self.sess = requests.session()
         self.sess.close()
-        if user_info == None:
+        if user_info is None:
             raise Info21AuthenticationUnknownException("")
         return user_info
 
@@ -84,20 +86,30 @@ class KhuAuthJob(BaseKhuJob):
                 'socpsId': "",
                 'loginRequest': "",
             }, verify=False)
-            if info21_login_response.status_code != 200:
-                logger.error(self.get_logger_prefix() + "인포21 로그인 응답이 200이 아님. " + info21_login_response.text)
+
+            soup1 = BeautifulSoup(info21_login_response.text, 'html.parser')
+            if info21_login_response.status_code != 200 or soup1.find('title') is not None:
+                # 인증이 성공한 경우 title은 None
+                # 인증이 실패한 경우 title은 "에러"
+                # - 2021.08.20
+                logger.error(self.get_logger_prefix() + "인포21 로그인 응답이 200이 아니거나 title이 None이 아닙니다. " + info21_login_response.text)
+                raise Info21WrongCredential()
+
 
             info21_redirected_encode_response = self.sess.get("https://portal.khu.ac.kr/ksign/index.jsp")
             logger.info(self.get_logger_prefix() + "인포21 로그인 리다이렉트 응답 코드" + str(info21_redirected_encode_response.status_code))
 
+            # 옛날엔 여기 redirect 되는 곳에서 올바르지 않은 credential인지 확인할 수 있었는데
+            # 이제는 위에서처럼 바로 info21에 로그인 요청 보낼 때 올바르지 않은 credential을 확인함.
+            # - 2021.08.20
             if info21_redirected_encode_response.status_code != 200 :
                 logger.error(self.get_logger_prefix() + "인포21 로그인 리다이렉트 응답이 200이 아님. " + str(info21_redirected_encode_response.text))
-                raise Info21WrongCredential(" ID: " + body_data.get('id') + " PW: ***")
+                raise Info21AuthenticationUnknownException()
             soup2 = BeautifulSoup(info21_redirected_encode_response.text, 'html.parser')
             encoded_user_id_elem = soup2.select_one('[name="userId"]')
             if not encoded_user_id_elem:
                 logger.error("ID: " + body_data.get('id') + "에 대한 올바르지 않은 ID 혹은 PW 에러")
-                raise Info21WrongCredential(" ID: " + body_data.get('id') + " PW: ***")
+                raise Info21AuthenticationUnknownException()
             encoded_user_id = encoded_user_id_elem.get('value', "").strip()
             logger.info(self.get_logger_prefix() + "Encoded Username: " + encoded_user_id)
 
@@ -117,7 +129,7 @@ class KhuAuthJob(BaseKhuJob):
             if info21_after_login_response.status_code != 200:
                 logger.error(self.get_logger_prefix() + "인포21 user info 응답이 200이 아님. " + user_info_response.text)
         except Info21WrongCredential as e:
-            raise Info21WrongCredential(" ID: " + body_data.get('id') + " PW: ***")
+            raise Info21WrongCredential()
         except Exception as e:
             logger.error(e)
             raise Info21LoginWrongHtmlException(message="", exception=e)
@@ -150,18 +162,8 @@ class KhuAuthJob(BaseKhuJob):
 
 
 class Info21WrongCredential(BaseKhuException):
-    def __init__(self, message, exception=None):
+    def __init__(self, exception=None):
         self.message = "잘못된 인포 21 계정 정보이거나 인포21이 올바르게 동작하지 않습니다."
-        self.exception = exception
-
-class Info21LoginWrongHtmlException(BaseKhuException):
-    def __init__(self, message, exception=None):
-        self.message = "인포 21 로그인 도중 예상치 못한 HTML 형태로 문제가 발생했습니다." + message
-        self.exception = exception
-
-class Info21LoginParsingException(BaseKhuException):
-    def __init__(self, message, exception=None):
-        self.message = "인포 21 로그인 도중 올바른 값을 추출해내지 못했습니다." + message
         self.exception = exception
 
 # timeout 과 같이 알 수 없는 이유로 인증이 실패했을 때
@@ -169,3 +171,14 @@ class Info21AuthenticationUnknownException(BaseKhuException):
     def __init__(self, message, exception=None):
         self.message = "인포 21 인증이 알 수 없는 이유로 실패했습니다." + message
         self.exception = exception
+
+class Info21LoginWrongHtmlException(Info21AuthenticationUnknownException):
+    def __init__(self, message, exception=None):
+        self.message = "인포 21 로그인 도중 예상치 못한 HTML 형태로 문제가 발생했습니다." + message
+        self.exception = exception
+
+class Info21LoginParsingException(Info21AuthenticationUnknownException):
+    def __init__(self, message, exception=None):
+        self.message = "인포 21 로그인 도중 올바른 값을 추출해내지 못했습니다." + message
+        self.exception = exception
+
