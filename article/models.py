@@ -22,6 +22,33 @@ class Article(models.Model):
     kind = models.CharField(max_length=16, default="anonymous", null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
 
+class LikeArticle(models.Model):
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
+    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        super().save(force_insert, force_update, using, update_fields)
+        invalidate_obj(self.article)
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete()
+        invalidate_obj(self.article)
+
+class BookmarkArticle(models.Model):
+    class Meta:
+        ordering = ("-created_at",)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
+    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        super().save(force_insert, force_update, using, update_fields)
+        invalidate_obj(self.article)
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete()
+        invalidate_obj(self.article)
+        
 class StudyArticleStudyField(models.Model):
     id = models.CharField(max_length=64, primary_key=True)
     name = models.CharField(max_length=128, null=False, blank=False)
@@ -41,33 +68,6 @@ class StudyArticle(models.Model):
     images = models.JSONField(null=False, blank=True, default=list)
     kind = models.CharField(max_length=16, default="anonymous", null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
-
-class LikeArticle(models.Model):
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
-    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        super().save(force_insert, force_update, using, update_fields)
-        invalidate_obj(self.board)
-
-    def delete(self, using=None, keep_parents=False):
-        super().delete()
-        invalidate_obj(self.board)
-
-class BookmarkArticle(models.Model):
-    class Meta:
-        ordering = ("-created_at",)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
-    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        super().save(force_insert, force_update, using, update_fields)
-        invalidate_obj(self.board)
-
-    def delete(self, using=None, keep_parents=False):
-        super().delete()
-        invalidate_obj(self.board)
 
 class BookmarkStudyArticle(models.Model):
     class Meta:

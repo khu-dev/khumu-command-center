@@ -1,6 +1,8 @@
 from django.db import models
 # Create your models here.
 from khumu import settings
+from user.models import KhumuUser
+
 
 class Campus(models.Model):
     name = models.CharField(max_length=32, null=False, blank=False)
@@ -36,3 +38,7 @@ class HaksaSchedule(models.Model):
     starts_at = models.DateTimeField(auto_now_add=False, null=False, blank=False)
     ends_at = models.DateTimeField(auto_now_add=False, null=False, blank=False)
     title = models.CharField(max_length=64, null=False, blank=False)
+
+class ConfirmHaksaSchedule(models.Model):
+    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=False)
+    haksa_schedule = models.ForeignKey(HaksaSchedule, on_delete=models.CASCADE, null=False)

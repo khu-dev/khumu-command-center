@@ -1,21 +1,23 @@
 import datetime
+import logging
 import time
 import traceback
-
+from rest_framework.decorators import action
 from rest_framework import viewsets, pagination, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.viewsets import generics
 from job.khu_lecture_sync import KhuLectureSyncJob
-from khu_domain.models import LectureSuite, Organization, HaksaSchedule, Department
+from khu_domain.models import LectureSuite, Organization, HaksaSchedule, Department, ConfirmHaksaSchedule
 from khu_domain.serializers import LectureSuiteSerializer, OrganizationSerializer, HaksaScheduleSerializer, \
     DepartmentSerializer
 from khumu.permissions import IsAuthenticatedKhuStudent, OpenPermission
 from khumu.response import DefaultResponse
 
+logger = logging.getLogger(__name__)
+
 # 학과, 강의 같은 잡다한 검색 기능이 붙은 애들의 pagination
 from user.models import KhumuUser
-
 
 class KhuDomainSearchPagination(pagination.PageNumberPagination):
 
@@ -76,7 +78,7 @@ class LectureSuiteListView(generics.ListAPIView):
 
         return queryset
 
-class HaksaScheduleListView(generics.ListAPIView):
+class HaksaScheduleViewSet(viewsets.ViewSet, generics.ListAPIView):
     serializer_class = HaksaScheduleSerializer
     permission_classes = [OpenPermission]
 
@@ -84,7 +86,24 @@ class HaksaScheduleListView(generics.ListAPIView):
     def get_queryset(self):
         # 빨리 시작하는 순으로 5개 정렬
         # 표기상으로는 UTC+9라서 9시간 느리게 표기됨.
-        return HaksaSchedule.objects.filter(starts_at__gte=datetime.datetime.now(tz=datetime.timezone.utc)).order_by('starts_at')[:5]
+        confirmed = self.request.query_params.get('confirmed')
+        if confirmed == 'true':
+            return HaksaSchedule.objects.filter(ends_at__gte=datetime.datetime.now(tz=datetime.timezone.utc), confirmhaksaschedule__in=ConfirmHaksaSchedule.objects.filter(user=self.request.user)).order_by(
+                'starts_at')[:8]
+        elif confirmed == 'false':
+            return HaksaSchedule.objects.filter(ends_at__gte=datetime.datetime.now(tz=datetime.timezone.utc)).exclude(confirmhaksaschedule__in=ConfirmHaksaSchedule.objects.filter(user=self.request.user)).order_by(
+                'starts_at')[:8]
+
+        return HaksaSchedule.objects.filter(ends_at__gte=datetime.datetime.now(tz=datetime.timezone.utc)).order_by('starts_at')[:8]
+
+    @action(methods=['POST'], detail=True, url_path='confirm')
+    def confirm(self, request, pk):
+        logger.info(f'{pk}를 읽음 처리합니다.')
+        confirm = ConfirmHaksaSchedule(user=request.user, haksa_schedule_id=pk)
+        confirm.save()
+
+        return DefaultResponse(None, f'학사일정({pk})을 읽었습니다.', 200)
+
 
 class KhuSyncAPIView(APIView):
 
