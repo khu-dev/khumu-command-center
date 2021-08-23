@@ -1,6 +1,7 @@
 from django.db import models
 from khu_domain.models import Department, LectureSuite
 from user.models import KhumuUser
+from cacheops import invalidate_obj
 
 # Create your models here.
 from khumu import settings
@@ -31,3 +32,15 @@ class FollowBoard(models.Model):
     user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=False, blank=False)
     board = models.ForeignKey(Board, on_delete=models.CASCADE, null=False, blank=False)
     followed_at = models.DateTimeField(auto_now_add=True)
+
+    # one to many, many to one 등은 캐시 invalidation을 해주는 것이 안전하다..
+    # .filter()는 잘 동작하는 것 같은데
+    # .exclude)(로 조회할 땐 cache가 동작하지 않는 것 같음...ㅜㅜ
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        super().save(force_insert, force_update, using, update_fields)
+        invalidate_obj(self.board)
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete()
+        invalidate_obj(self.board)

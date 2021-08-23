@@ -4,7 +4,7 @@ from khumu import settings
 from board.models import Board
 from django.core.serializers.json import DjangoJSONEncoder
 from user.models import KhumuUser
-
+from cacheops import invalidate_obj
 
 class ArticleTag(models.Model):
     name = models.CharField(primary_key=True, unique=True, max_length=32, null=False, blank=False)
@@ -45,6 +45,14 @@ class StudyArticle(models.Model):
 class LikeArticle(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
     user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        super().save(force_insert, force_update, using, update_fields)
+        invalidate_obj(self.board)
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete()
+        invalidate_obj(self.board)
 
 class BookmarkArticle(models.Model):
     class Meta:
@@ -52,6 +60,14 @@ class BookmarkArticle(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
     user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        super().save(force_insert, force_update, using, update_fields)
+        invalidate_obj(self.board)
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete()
+        invalidate_obj(self.board)
 
 class BookmarkStudyArticle(models.Model):
     class Meta:

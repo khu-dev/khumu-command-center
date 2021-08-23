@@ -178,7 +178,8 @@ class LikeArticleToggleView(views.APIView):
                 traceback.print_exc()
                 return DefaultResponse(False, status=503, message="좋아요 생성 도중 알 수 없는 에러가 발생했습니다.")
         else:
-            likes.delete()
+            for instance in likes:
+                instance.delete()
             return response.Response(status=204)
 
 
@@ -207,7 +208,8 @@ class BookmarkArticleToggleView(views.APIView):
             else:
                 return DefaultResponse(False, message=str(s.errors), status=400)
         else:
-            bookmarks.delete()
+            for instance in bookmarks:
+                instance.delete()
             return response.Response(status=204)
 
 class BookmarkStudyArticleToggleView(views.APIView):
@@ -235,7 +237,8 @@ class BookmarkStudyArticleToggleView(views.APIView):
             else:
                 return DefaultResponse(False, message=str(s.errors), status=400)
         else:
-            bookmarks.delete()
+            for instance in bookmarks:
+                instance.delete()
             return response.Response(status=204)
 
 class ArticleTagViewSet(viewsets.ModelViewSet):

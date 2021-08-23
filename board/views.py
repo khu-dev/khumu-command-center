@@ -49,6 +49,13 @@ class BoardViewSet(viewsets.ModelViewSet):
             followed = self.request.query_params.get('followed').lower()
             if followed == 'true' or 'false':
                 following_boards = FollowBoard.objects.filter(user=self.request.user)
+                for f in following_boards:
+                    print(f)
+                    print(f.board)
+                    print()
+                for b in Board.objects.filter(name='bts'):
+                    print(b)
+                    print(b.followboard_set)
                 if followed == 'true':
                     queryset = queryset.filter(followboard__in=following_boards)
                 else:
@@ -104,6 +111,7 @@ class FollowBoardViewSet(mixins.CreateModelMixin,
     # 여러 instance를 destroy 하는 경우는 delete 를 이용한다.
     def delete(self, request, *args, **kwargs):
         instances = self.get_queryset()
-        print('팔로우를 삭제합니다', instances)
-        instances.delete()
+        for instance in instances:
+            print('팔로우를 삭제합니다', instance)
+            instance.delete()
         return response.Response(status=status.HTTP_204_NO_CONTENT)
