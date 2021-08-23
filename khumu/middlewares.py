@@ -1,4 +1,5 @@
 import json
+import time
 import traceback
 
 from khumu import settings
@@ -11,6 +12,8 @@ from django.http import HttpResponseForbidden, JsonResponse, HttpResponse
 
 def logging(get_response):
     def middleware(request):
+        start = time.time()
+        logger.info(f'{request.method} {request.path}')
         if settings.DEBUG == True:
             logger.debug(f'user: {request.user}')
             if request.body:
@@ -24,6 +27,7 @@ def logging(get_response):
                     logger.error("JSON body 출력 로깅 도중 에러 발생")
                     traceback.print_exc()
         response = get_response(request)
+        logger.info(f'{request.method} {request.path} {", ".join(map(lambda item: item[0] + "=" + item[1], request.GET.items()))} {time.time() - start}s')
         return response
     return middleware
 
