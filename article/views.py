@@ -7,7 +7,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from article.services import LikeArticleService, LikeArticleException
 from comment.models import Comment
 from khumu import settings, config
-import message.publisher
+import adapter.message.publisher
 from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse, DefaultResponse
 from rest_framework.pagination import PageNumberPagination
@@ -83,7 +83,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer: ArticleSerializer):
         super().perform_create(serializer)
         if settings.SNS['enabled']:
-            message.publisher.publish("article", "create", serializer.instance)
+            adapter.message.publisher.publish("article", "create", serializer.instance)
 
     def list(self, request, *args, **kwargs):
         start = time.time()

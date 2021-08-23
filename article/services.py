@@ -4,7 +4,7 @@ import traceback
 
 from article.models import Article, LikeArticle
 from article.serializers import LikeArticleSerializer
-from message.publisher import publish
+from adapter.message.publisher import publish
 
 logger = logging.getLogger(__name__)
 
