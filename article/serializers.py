@@ -7,13 +7,7 @@ import requests as requests
 
 from article.models import Article, LikeArticle, BookmarkArticle, ArticleTag, FollowArticleTag, BookmarkStudyArticle, \
     StudyArticle, StudyArticleStudyField
-from message import publisher
-from user.models import KhumuUser
-from user.serializers import KhumuUserSimpleSerializer
 from rest_framework import serializers
-from django.core.serializers.json import DjangoJSONEncoder
-from rest_framework.request import Request
-from comment.serializers import CommentSerializer
 from khumu import settings, config
 import datetime, time
 import logging

@@ -16,6 +16,7 @@ from article import views as articleView
 from comment import views as commentView
 from khu_domain import views as khu_domain_view
 from board import views as boardView
+from adapter.slack.views import SlackFeedbackAPIView
 from .jwt import KhumuJWTObtainPairView
 
 router = routers.DefaultRouter(trailing_slash=False)
@@ -51,6 +52,7 @@ urlpatterns = [
     path(r'api/lecture-suites', khu_domain_view.LectureSuiteListView.as_view(), name='lecture-suites'),
     path(r'api/organizations', khu_domain_view.OrganizationListView.as_view(), name='organizations'),
     path(r'api/haksa-schedules', khu_domain_view.HaksaScheduleListView.as_view(), name='haksa-schedule'),
+    path(r'api/feedbacks', SlackFeedbackAPIView.as_view(), name='slack-feedback'),
 
     path(r'admin', admin.site.urls),
 

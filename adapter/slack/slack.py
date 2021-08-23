@@ -1,15 +1,17 @@
 import logging
 import os
 import traceback
-
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
+from django.conf import settings
+
 logger = logging.getLogger(__name__)
 
-client = WebClient(token=os.environ['SLACK_BOT_TOKEN'])
+client = WebClient(token=settings.SLACK_BOT_TOKEN)
 
-def send_feedback(username, content):
+# 성공한 경우 True, 실패한 경우 False를 return
+def send_feedback(username, content) -> bool:
     try:
         response = client.chat_postMessage(channel='#khumu', text="", attachments=[
             {
@@ -36,8 +38,10 @@ def send_feedback(username, content):
             }
         ])
         logging.info(response)
+        return True
     except SlackApiError as e:
         traceback.print_exc()
         # You will get a SlackApiError if "ok" is False
         if not e.response["ok"]:
             print(f"Got an error: {e.response['error']}")
+        return False
