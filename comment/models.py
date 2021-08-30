@@ -11,6 +11,7 @@ class Comment(models.Model):
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_DEFAULT, default='deleted', null=True)
     content = models.TextField(max_length=500, null=False)
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True)
+    is_written_by_article_author = models.BooleanField(null=False, default=False)
     created_at = models.DateTimeField(auto_now=True, null=False)
     kind = models.CharField(max_length=12, choices=[
         ("anonymous", "anonymous"),
