@@ -24,7 +24,7 @@ class Article(models.Model):
 
 class LikeArticle(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
-    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
         super().save(force_insert, force_update, using, update_fields)
@@ -38,7 +38,7 @@ class BookmarkArticle(models.Model):
     class Meta:
         ordering = ("-created_at",)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
-    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
@@ -48,7 +48,7 @@ class BookmarkArticle(models.Model):
     def delete(self, using=None, keep_parents=False):
         super().delete()
         invalidate_obj(self.article)
-        
+
 class StudyArticleStudyField(models.Model):
     id = models.CharField(max_length=64, primary_key=True)
     name = models.CharField(max_length=128, null=False, blank=False)
@@ -73,11 +73,5 @@ class BookmarkStudyArticle(models.Model):
     class Meta:
         ordering = ("-created_at",)
     study_article = models.ForeignKey(StudyArticle, on_delete=models.CASCADE, null=False, blank=False)
-    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
-
-
-class FollowArticleTag(models.Model):
-    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=False, blank=False)
-    tag = models.ForeignKey(ArticleTag, on_delete=models.CASCADE, null=False, blank=False)
-    followed_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
