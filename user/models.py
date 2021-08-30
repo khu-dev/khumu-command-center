@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Permission, PermissionsMixin, Group, _user_get_permissions
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from cacheops import invalidate_obj
 # Create your models here.
 
 class KhumuUser(AbstractUser, PermissionsMixin):
@@ -54,5 +55,9 @@ class KhumuUser(AbstractUser, PermissionsMixin):
     first_name = None
     last_name = None
     is_staff = None
-    # def get_user_permissions(self, obj=None):
-    #     return _user_get_permissions(self, obj, 'khumuuser')
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete(using, keep_parents)
+        # cache invalidate를 해주지 않으면 계속해서 탈퇴한 user의 article이 원래 username으로 남게된다.
+        for article in self.article_set.all():
+            invalidate_obj(article)

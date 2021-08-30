@@ -228,8 +228,9 @@ if config.CONFIG.get('cache').get('enabled', False):
         'board.*': {},  # 앱.모델에 대해서 캐시적용
         'user.*': {},
         'article.*': {},
-        'comment.*': {},
+        'comment.*': {}, # comment는 캐싱하고 싶지 않긴한데,, 속도 차이가 엄청 나네..
     }
+
     CACHEOPS_LRU = True  # maxmemory-policy: volatile-lru 설정
     CACHEOPS_REDIS = config.CONFIG.get('cache').get('endpoint')
     CACHEOPS_DEFAULTS = {
