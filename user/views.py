@@ -78,6 +78,11 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         else:
             return super().partial_update(request, *args, **kwargs)
 
+    def destroy(self, request, *args, **kwargs):
+        self.set_pk_if_me_request(request, *args, **kwargs)
+        logger.info('회원을 탈퇴시킵니다.' + self.kwargs.get('pk'))
+        return super().destroy(request, *args, **kwargs)
+
     def set_pk_if_me_request(self, request, *args, **kwargs):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
         if self.kwargs[lookup_url_kwarg] == 'me':

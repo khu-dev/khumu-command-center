@@ -19,7 +19,7 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Article
         fields = ['id', 'url', 'board_name', 'board_display_name', 'title', 'author', 'is_author', 'kind',
-                  'content', 'tags', 'images', 'comment_count', 'created_at',
+                  'content', 'images', 'comment_count', 'created_at',
                   'liked', 'like_article_count',
                   'bookmarked', 'bookmark_article_count']
         # depth = 3
@@ -46,7 +46,6 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         board_name = body.get("board")
         # json field ref: https://docs.djangoproject.com/en/dev/releases/3.1/#jsonfield-for-all-supported-database-backends
         image_file_names_str = json.dumps(body.get("images"))
-        tag_names = list(map(lambda tag_data: tag_data['name'], body.pop("tags", [])))
 
         article = Article(**validated_data, author_id=request_user.username, board_id=board_name)
         article.save()  # 우선은 저장을 해서 Article을 생성해야 tag 와의 many to many 관계를 생성 가능
@@ -59,7 +58,6 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     def update(self, instance, validated_data):
         body = json.loads(self.context['request'].body)
         board_name = body.get("board")
-        tag_names = list(map(lambda tag_data: tag_data['name'], body.pop("tags", [])))
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -94,9 +92,6 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     def get_board_display_name(self, obj):
         # print(self.context['request'])
         return obj.board.display_name
-
-    def get_tags(self, obj):
-        return map(lambda tag: tag.name, obj.tags.all())
 
     def get_liked(self, obj):
         return len(obj.likearticle_set.filter(user_id=self.context['request'].user.username)) != 0

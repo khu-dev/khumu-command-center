@@ -4,6 +4,9 @@ import traceback
 
 from khumu import settings
 import logging
+
+from khumu.response import DefaultResponse
+from django.middleware.common import MiddlewareMixin
 logger = logging.getLogger(__name__)
 from rest_framework.response import Response
 
