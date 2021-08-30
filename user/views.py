@@ -22,8 +22,10 @@ class KhumuUserPermission(permissions.BasePermission):
         else:
             if request.method == 'POST' or request.method == 'GET': return True
             elif request.method in ['PUT', 'PATCH', 'DELETE']:
-                if request.parser_context['kwargs']['pk'] == 'me': return True
-                elif request.parser_context['kwargs']['pk'] == request.user.username : return True
+                if request.parser_context['kwargs']['pk'] == 'me':
+                    return True
+                elif request.parser_context['kwargs']['pk'] == request.user.username:
+                    return True
                 else: return False
         return False
 
@@ -123,7 +125,6 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         return DefaultResponse({
             'is_admin': is_admin
         }, None, 200)
-
 
 class GroupViewSet(viewsets.ModelViewSet):
     """

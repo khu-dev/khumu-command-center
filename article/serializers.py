@@ -5,7 +5,7 @@ import traceback
 import pytz
 import requests as requests
 
-from article.models import Article, LikeArticle, BookmarkArticle, ArticleTag, FollowArticleTag, BookmarkStudyArticle, \
+from article.models import Article, LikeArticle, BookmarkArticle,  BookmarkStudyArticle, \
     StudyArticle, StudyArticleStudyField
 from rest_framework import serializers
 from khumu import settings, config
@@ -14,19 +14,6 @@ import logging
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
-
-class ArticleTagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ArticleTag
-        fields = ['name', 'followed']
-
-    followed = serializers.SerializerMethodField()
-
-    def get_followed(self, tag_instance:ArticleTag):
-        return FollowArticleTag.objects.filter(
-            tag__name=tag_instance.name,
-            user__username=self.context['request'].user.username
-        ).exists()
 
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -48,7 +35,6 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     created_at = serializers.SerializerMethodField()
     bookmarked = serializers.SerializerMethodField()
     bookmark_article_count = serializers.SerializerMethodField()
-    tags = ArticleTagSerializer(read_only=True, many=True)
 
     # author = KhumuUserSimpleSerializer()
     # article의 경우 웬만해선 comment count가 필요하다.
@@ -65,13 +51,6 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         article = Article(**validated_data, author_id=request_user.username, board_id=board_name)
         article.save()  # 우선은 저장을 해서 Article을 생성해야 tag 와의 many to many 관계를 생성 가능
 
-        # Article과 Tag의 관계
-        for tag_name in tag_names:
-            ArticleTag.objects.get_or_create(name=tag_name)
-        tags = []
-        for tag_instance in ArticleTag.objects.filter(name__in=tag_names):
-            tags.append(tag_instance)
-        article.tags.set(tags)
         # many to many 관계 생성 후 다시 save
         article.save()
 
@@ -85,13 +64,6 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         setattr(instance, 'board_id', board_name)
-
-        for tag_name in tag_names:
-            ArticleTag.objects.get_or_create(name=tag_name)
-        tags = []
-        for tag_instance in ArticleTag.objects.filter(name__in=tag_names):
-            tags.append(tag_instance)
-        instance.tags.set(tags)
 
         instance.save()
         return instance
@@ -289,12 +261,6 @@ class BookmarkStudyArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookmarkStudyArticle
         fields = ['study_article', 'user']
-
-class FollowArticleTagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FollowArticleTag
-        fields = '__all__'
-        extra_kwargs = {'user': {'required': True}, 'tag': {'required': True}}
 
 # datetime.datetime type의 시각을 받아서 쿠뮤에서 원하는 형태의 시각으로 변환한다.
 def get_converted_time_string(t:datetime.datetime):

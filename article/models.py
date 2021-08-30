@@ -6,15 +6,11 @@ from django.core.serializers.json import DjangoJSONEncoder
 from user.models import KhumuUser
 from cacheops import invalidate_obj
 
-class ArticleTag(models.Model):
-    name = models.CharField(primary_key=True, unique=True, max_length=32, null=False, blank=False)
-
 class Article(models.Model):
     class Meta:
         ordering = ("-created_at",)
     board = models.ForeignKey(Board, on_delete=models.SET_DEFAULT, default='temporary', null=False)
     title = models.CharField(max_length=300, null=False, blank=False)
-    tags = models.ManyToManyField(ArticleTag)
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
     is_hot = models.BooleanField(default=False)
     content = models.TextField(null=True, blank=True)

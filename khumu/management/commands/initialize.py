@@ -5,8 +5,7 @@ import time
 
 # from django.test import TestCase
 from unittest import TestCase
-from article.models import Article, LikeArticle, BookmarkArticle, FollowArticleTag, ArticleTag
-from notification.models import Notification
+from article.models import Article, LikeArticle, BookmarkArticle
 from user.models import KhumuUser
 from comment.models import Comment, LikeComment
 from board.models import Board, FollowBoard
@@ -495,15 +494,7 @@ class Initializer:
     def initialize_article_tags(self):
         print("Create article-tags")
         for tag_name in self.article_tag_names:
-            ArticleTag(name=tag_name).save()
             print("Article-Tag name:", tag_name)
-
-    def initialize_follow_article_tags(self):
-        print("Create follow-article-tags")
-        for user in self.users_data:
-            for tag_name in self.article_tag_names[:len(self.article_tag_names) // 2]:
-                FollowArticleTag(user_id=user[0], tag_id=tag_name).save()
-                print(f'{user[0]} follows article tag({tag_name})')
 
     def initialize_articles(self):
         print("Created articles")
@@ -512,8 +503,6 @@ class Initializer:
                                        author_id=random.choice(self.users).username,
                                        content=article['content'], kind="anonymous" if i % 2 == 0 else "named",
                                        images=article.get('images', []))
-            article_instance.save()
-            article_instance.tags.set(ArticleTag.objects.filter(name=random.choice(self.article_tag_names)))
             article_instance.save()
             self.articles.append(article_instance)
             print("Article: ", article_instance)
