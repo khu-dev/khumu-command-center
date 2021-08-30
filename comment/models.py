@@ -7,8 +7,8 @@ from khumu import settings
 class Comment(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, null=True)
     study_article = models.ForeignKey(StudyArticle, on_delete=models.CASCADE, null=True)
-
-    author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)
+    # deleted는 삭제된 유저를 칭하는 dummy user
+    author = models.ForeignKey(KhumuUser, on_delete=models.SET_DEFAULT, default='deleted', null=True)
     content = models.TextField(max_length=500, null=False)
     parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now=True, null=False)
@@ -24,5 +24,5 @@ class Comment(models.Model):
 
 class LikeComment(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=False)
-    user = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(KhumuUser, on_delete=models.SET_DEFAULT, default='deleted', null=True)
 

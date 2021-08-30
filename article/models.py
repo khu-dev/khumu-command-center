@@ -11,7 +11,7 @@ class Article(models.Model):
         ordering = ("-created_at",)
     board = models.ForeignKey(Board, on_delete=models.SET_DEFAULT, default='temporary', null=False)
     title = models.CharField(max_length=300, null=False, blank=False)
-    author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
+    author = models.ForeignKey(KhumuUser, on_delete=models.SET_DEFAULT, default='deleted', null=True, blank=True)
     is_hot = models.BooleanField(default=False)
     content = models.TextField(null=True, blank=True)
     images = models.JSONField(null=False, blank=True, default=list)
