@@ -263,7 +263,7 @@ def get_converted_time_string(t:datetime.datetime):
 
     now = datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE))
     delta = now - t
-    delta_minutes = delta.total_seconds() // 60
+    delta_minutes = int(delta.total_seconds() // 60)
     # print(t.strftime("%y/%m/%d %H:%M")) # => 한국 시간으로 잘 나온다.
     if delta_minutes < 5:
         return "지금"

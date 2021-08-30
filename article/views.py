@@ -42,10 +42,22 @@ class ArticlePagination(pagination.CursorPagination):
             'count': len(self.page),
             'data': data
         })
+class IsArticleCheckPermission(permissions.IsAuthenticated):
+    def has_permission(self, request, view):
+        if view.action == 'is_author':
+            return True
+        else:
+            return super().has_permission(request, view)
 
+    def has_object_permission(self, request, view, obj):
+        if view.action == 'is_author':
+            return True
+
+        else:
+            return super().has_permission(request, view)
 
 class ArticleViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsArticleCheckPermission]
     pagination_class = ArticlePagination
 
     def get_queryset(self):
@@ -112,7 +124,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
     def is_author(self, request, *args, **kwargs):
         logger.info(f'{kwargs.get("pk")}의 author가 인자로 전달된 author가 맞는지 체크합니다.')
         article = Article.objects.get(pk=kwargs.get("pk"))
-        logger.info(f'Article({kwargs.get("pk")}).username = {article.author.username}, 인자로 전달된 author = {request.POST.get("author")}')
+        logger.info(f'Article({kwargs.get("pk")}).username = {article.author.username}, 인자로 전달된 author = {request.data.get("author")}')
         return DefaultResponse({
             "is_author": article.author.username == request.data.get("author")
         })
