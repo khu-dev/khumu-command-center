@@ -2,8 +2,8 @@ import urllib.parse as urlparse
 from urllib.parse import parse_qs
 from rest_framework import viewsets, pagination, permissions, views, status, generics
 from rest_framework import response
-from rest_framework.parsers import JSONParser, MultiPartParser
 
+from rest_framework.decorators import action
 from article.services import LikeArticleService, LikeArticleException
 from comment.models import Comment
 from khumu import settings, config
@@ -107,6 +107,15 @@ class ArticleViewSet(viewsets.ModelViewSet):
         article_serialized = self.get_serializer(article).data
 
         return DefaultResponse(article_serialized)
+
+    @action(methods=['POST'], detail=True, url_path='is-author')
+    def is_author(self, request, *args, **kwargs):
+        logger.info(f'{kwargs.get("pk")}의 author가 인자로 전달된 author가 맞는지 체크합니다.')
+        article = Article.objects.get(pk=kwargs.get("pk"))
+        logger.info(f'Article({kwargs.get("pk")}).username = {article.author.username}, 인자로 전달된 author = {request.POST.get("author")}')
+        return DefaultResponse({
+            "is_author": article.author.username == request.data.get("author")
+        })
 
 class StudyArticleViewSet(viewsets.ModelViewSet):
 
