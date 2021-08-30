@@ -27,7 +27,6 @@ router.register(r'/boards', boardView.BoardViewSet, basename='board')
 router.register(r'/boards/(?P<board_name>[^/.]+)/follows', boardView.FollowBoardViewSet, basename='follow-board')
 router.register(r'/articles', articleView.ArticleViewSet, basename='article')
 router.register(r'/study-articles', articleView.StudyArticleViewSet, basename='study-article')
-router.register(r'/article-tags', articleView.ArticleTagViewSet, basename='article-tag')
 router.register(r'/haksa-schedules', khu_domain_view.HaksaScheduleViewSet, basename='haksa-schedule')
 # router.register(r'/comments', commentView.CommentViewSet)
 
@@ -46,8 +45,6 @@ urlpatterns = [
     path(r'api/articles/<id>/bookmarks', articleView.BookmarkArticleToggleView.as_view(), name='bookmark-article'),
     path(r'api/study-articles/<id>/bookmarks', articleView.BookmarkStudyArticleToggleView.as_view(), name='bookmark-study-article'),
     path(r'api/study-fields', articleView.StudyFieldListView.as_view(), name='study-field'),
-    path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
-    path(r'api/article-tags/<tag_name>/follows', articleView.FollowArticleTagView.as_view(), name='follow-article-tag'),
 
     path(r'api/departments', khu_domain_view.DepartmentListView.as_view(), name='departments'),
     path(r'api/lecture-suites', khu_domain_view.LectureSuiteListView.as_view(), name='lecture-suites'),

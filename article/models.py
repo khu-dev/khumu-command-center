@@ -6,15 +6,11 @@ from django.core.serializers.json import DjangoJSONEncoder
 from user.models import KhumuUser
 from cacheops import invalidate_obj
 
-class ArticleTag(models.Model):
-    name = models.CharField(primary_key=True, unique=True, max_length=32, null=False, blank=False)
-
 class Article(models.Model):
     class Meta:
         ordering = ("-created_at",)
     board = models.ForeignKey(Board, on_delete=models.SET_DEFAULT, default='temporary', null=False)
     title = models.CharField(max_length=300, null=False, blank=False)
-    tags = models.ManyToManyField(ArticleTag)
     author = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
     is_hot = models.BooleanField(default=False)
     content = models.TextField(null=True, blank=True)
@@ -24,7 +20,7 @@ class Article(models.Model):
 
 class LikeArticle(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
-    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
         super().save(force_insert, force_update, using, update_fields)
@@ -38,7 +34,7 @@ class BookmarkArticle(models.Model):
     class Meta:
         ordering = ("-created_at",)
     article = models.ForeignKey(Article, on_delete=models.CASCADE, null=False, blank=False)
-    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
@@ -48,7 +44,7 @@ class BookmarkArticle(models.Model):
     def delete(self, using=None, keep_parents=False):
         super().delete()
         invalidate_obj(self.article)
-        
+
 class StudyArticleStudyField(models.Model):
     id = models.CharField(max_length=64, primary_key=True)
     name = models.CharField(max_length=128, null=False, blank=False)
@@ -73,11 +69,5 @@ class BookmarkStudyArticle(models.Model):
     class Meta:
         ordering = ("-created_at",)
     study_article = models.ForeignKey(StudyArticle, on_delete=models.CASCADE, null=False, blank=False)
-    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
-
-
-class FollowArticleTag(models.Model):
-    user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=False, blank=False)
-    tag = models.ForeignKey(ArticleTag, on_delete=models.CASCADE, null=False, blank=False)
-    followed_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)

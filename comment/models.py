@@ -22,7 +22,6 @@ class Comment(models.Model):
         ("deleted", "deleted")],
         default="exists", null=False)
 
-
 class LikeComment(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=False)
     user = models.ForeignKey(KhumuUser, on_delete=models.SET_NULL, null=True)

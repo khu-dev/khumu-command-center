@@ -238,8 +238,6 @@ if config.CONFIG.get('cache').get('enabled', False):
         'cache_on_save': True  # save()할때 캐시 할건지
     }
 
-
-
 SNS = config.CONFIG.get("sns")
 NOTIFICATION_SERVICE = config.CONFIG.get("notificationService")
 SLACK_BOT_TOKEN = config.CONFIG['slack']['botToken']
