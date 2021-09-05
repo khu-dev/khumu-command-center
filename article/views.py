@@ -69,11 +69,11 @@ class ArticleViewSet(viewsets.ModelViewSet):
         elif board_name == 'my':
             queryset = self.request.user.article_set.filter(~Q(board__category__exact='temporary'))
         elif board_name == 'liked':
-            queryset = Article.objects.filter(likearticle__in=LikeArticle.objects.filter(user=self.request.user))
+            queryset = Article.objects.filter(likearticle__in=LikeArticle.objects.filter(user=self.request.user)).distinct()
         elif board_name == 'bookmarked':
-            queryset = Article.objects.filter(bookmarkarticle__in=BookmarkArticle.objects.filter(user=self.request.user))
+            queryset = Article.objects.filter(bookmarkarticle__in=BookmarkArticle.objects.filter(user=self.request.user)).distinct()
         elif board_name == 'commented':
-            queryset = Article.objects.filter(comment__in=Comment.objects.filter(author=self.request.user))
+            queryset = Article.objects.filter(comment__in=Comment.objects.filter(author=self.request.user)).distinct()
         elif board_name == 'hot':
             queryset = Article.objects.filter(is_hot=True)
         elif board_name:
@@ -82,7 +82,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
         else:
             queryset = Article.objects
         if len(q) != 0:
-            queryset = queryset.filter(Q(title__contains=q) | Q(content__contains=q))
+            queryset = queryset.filter(Q(title__contains=q) | Q(content__contains=q)).distinct()
         # board_name이 정의되지 않은 경우는 임시 카테고리의 게시판 빼고 query
         return queryset
 
