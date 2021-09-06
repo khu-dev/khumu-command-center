@@ -241,4 +241,5 @@ if config.CONFIG.get('cache').get('enabled', False):
 
 SNS = config.CONFIG.get("sns")
 NOTIFICATION_SERVICE = config.CONFIG.get("notificationService")
+COMMENT_SERVICE = config.CONFIG.get("commentService")
 SLACK_BOT_TOKEN = config.CONFIG['slack']['botToken']

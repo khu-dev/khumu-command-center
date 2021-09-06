@@ -101,8 +101,29 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
 
     # obj는 Article instance이다.
     def get_comment_count(self, obj):
-        # print(self.context['request'])
-        return len(obj.comment_set.filter(article__pk=obj.pk))
+        print(f'Comment 서비스에 해당 Article에 대한 댓글 개수를 조회합니다. {settings.COMMENT_SERVICE.get("root")}comments/get-comment-count')
+        try:
+            response = requests.post(
+                f'{settings.COMMENT_SERVICE.get("root")}comments/get-comment-count',
+                data={
+                    'article': obj.id,
+                },
+                timeout=(1, 1)  # Connection timeout, Read timeout seconds
+            )
+            if response.status_code != 200:
+                logger.error(f'Comment 서비스에 대한 요청의 status code가 200이 아닙니다. status_code={response.status_code}')
+                logger.error(response.text)
+            data = json.loads(response.text)
+            '''
+            {
+                "comment_count": 12
+            }
+            '''
+            return int(data['comment_count'])
+        except Exception as e:
+            logger.error('Comment 서비스와 통신 중 알 수 없는 오류 발생')
+            traceback.print_exc()
+        return 0
 
     def get_like_article_count(self, obj):
         return obj.likearticle_set.count()
