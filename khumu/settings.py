@@ -212,17 +212,9 @@ LOGGING = {
     },
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379'
-    }
-}
-
 # CACHEOPS 설정
 # 참고: https://github.com/Suor/django-cacheops
 # 참고: https://jay-ji.tistory.com/76
-
 if config.CONFIG.get('cache').get('enabled', False):
     CACHEOPS = {
         'board.*': {},  # 앱.모델에 대해서 캐시적용
