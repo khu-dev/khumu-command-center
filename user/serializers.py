@@ -63,13 +63,16 @@ class KhumuUserSerializer(serializers.ModelSerializer):
         # TODO: 클라이언트에서 학번, 학과 잘 전달해주는지 확인
         validated_data['state'] = 'active'
         user = super().create(validated_data)
-        # 지금은 password 사용 안함.
-        user.set_password(validated_data['password'])
-        user.save()
+        if user.kind != 'student':
+            # 지금은 student는 password 사용 안함.
+            user.set_password(validated_data['password'])
+            user.save()
+
         for auto_follow_board_name in ["free", "khumu-story", "committee"]:
             logging.info(user.username + '의 초기 게시판으로 자유게시판을 follow 함.')
             follow_board = FollowBoard(user=user, board_id=auto_follow_board_name)
             follow_board.save()
+            
         return user
 
     def get_groups(self, obj):
