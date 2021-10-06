@@ -59,13 +59,20 @@ class KhumuUserSerializer(serializers.ModelSerializer):
         # Serializer를 통하는 경우는 무조건 student kind로 등록
         # student는 password를 저장할 필요도 없고, 그 때 그 때 Info 21 로그인
         validated_data['kind'] = validated_data.get('kind', 'student')
+        # TODO: 원래는 verified 점검해야됨
+        # TODO: 클라이언트에서 학번, 학과 잘 전달해주는지 확인
+        validated_data['state'] = 'active'
         user = super().create(validated_data)
-        # 지금은 password 사용 안함.
-        user.set_password(validated_data['password'])
-        user.save()
-        logging.info(user.username + '의 초기 게시판으로 자유게시판을 follow 함.')
-        follow_board = FollowBoard(user=user, board_id='free')
-        follow_board.save()
+        if user.kind != 'student':
+            # 지금은 student는 password 사용 안함.
+            user.set_password(validated_data['password'])
+            user.save()
+
+        for auto_follow_board_name in ["free", "khumu-story", "committee"]:
+            logging.info(user.username + '의 초기 게시판으로 자유게시판을 follow 함.')
+            follow_board = FollowBoard(user=user, board_id=auto_follow_board_name)
+            follow_board.save()
+            
         return user
 
     def get_groups(self, obj):

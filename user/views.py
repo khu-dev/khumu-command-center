@@ -42,16 +42,8 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         if not serializer.is_valid(raise_exception=False):
             for e in serializer.errors.values():
                 return DefaultResponse(data=None, message=e[-1], status=status.HTTP_400_BAD_REQUEST)
-        else:
-            # 인포21이 필요 없는 일반 계정 생성
-            if request.data.get("kind", "") == 'guest':
-                serializer.save()
-                return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
-
-            # 인포21을 통한 학생 계정 생성
-            else:
-                serializer.save()
-                return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
+        serializer.save()
+        return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
