@@ -38,6 +38,8 @@ class HaksaSchedule(models.Model):
     starts_at = models.DateTimeField(auto_now_add=False, null=False, blank=False)
     ends_at = models.DateTimeField(auto_now_add=False, null=False, blank=False)
     title = models.CharField(max_length=64, null=False, blank=False)
+    # 해당 학사일정에 대한 알림이 보내졌는가
+    is_notified = models.BooleanField(null=False, blank=False, default=False)
 
 class ConfirmHaksaSchedule(models.Model):
     user = models.ForeignKey(KhumuUser, on_delete=models.CASCADE, null=False)
