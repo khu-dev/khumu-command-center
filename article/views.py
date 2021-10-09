@@ -6,11 +6,9 @@ from rest_framework import response
 from rest_framework.decorators import action
 from article.services import LikeArticleService, LikeArticleException
 from comment.models import Comment
-from khumu import settings, config
 import adapter.message.publisher
 from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse, DefaultResponse
-from rest_framework.pagination import PageNumberPagination
 
 from django.db.models import FilteredRelation, Q
 from article.models import *

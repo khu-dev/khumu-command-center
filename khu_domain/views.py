@@ -1,12 +1,17 @@
 import datetime
 import logging
 import time
+
+from django.conf import settings
 import traceback
 from rest_framework.decorators import action
 from rest_framework import viewsets, pagination, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.viewsets import generics
+
+import adapter.message.publisher
+import adapter.slack.slack
 from job.khu_lecture_sync import KhuLectureSyncJob
 from khu_domain.models import LectureSuite, Organization, HaksaSchedule, Department, ConfirmHaksaSchedule
 from khu_domain.serializers import LectureSuiteSerializer, OrganizationSerializer, HaksaScheduleSerializer, \
@@ -104,6 +109,26 @@ class HaksaScheduleViewSet(viewsets.ViewSet, generics.ListAPIView):
 
         return DefaultResponse(None, f'학사일정({pk})을 읽었습니다.', 200)
 
+    @action(methods=['POST'], detail=False, url_path='notify')
+    def notify(self, request):
+        KST = datetime.timezone(datetime.timedelta(hours=9))
+        logger.info(f'알림이 가지 않은 학사일정에 대한 알림을 요청합니다.')
+        # DB는 KST보다 9시간 느리다
+        # DB: 2021-10-08 14:59:00
+        # KST: 2021-10-08 23:59:00
+        starts_at_min = datetime.datetime.now(tz=KST)
+        starts_at_max = starts_at_min + datetime.timedelta(days=2)
+        logger.info(f'현재 시각 {starts_at_min}')
+        schedules = HaksaSchedule.objects.filter(is_notified=False, starts_at__gte=starts_at_min, starts_at__lte=starts_at_max)
+        serializer = self.get_serializer(instance=schedules, many=True)
+
+
+        for instance in serializer.instance:
+            adapter.slack.slack.send_message('새로운 학사일정 임박', instance.title)
+            if settings.SNS['enabled']:
+                adapter.message.publisher.publish("haksa_schedule", "start", instance)
+
+        return DefaultResponse(data=serializer.data, message=None, status=200)
 
 class KhuSyncAPIView(APIView):
 
