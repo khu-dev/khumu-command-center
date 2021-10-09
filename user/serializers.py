@@ -72,7 +72,7 @@ class KhumuUserSerializer(serializers.ModelSerializer):
             logging.info(user.username + '의 초기 게시판으로 자유게시판을 follow 함.')
             follow_board = FollowBoard(user=user, board_id=auto_follow_board_name)
             follow_board.save()
-            
+
         return user
 
     def get_groups(self, obj):

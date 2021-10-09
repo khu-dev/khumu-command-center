@@ -32,7 +32,7 @@ class ExtendedEncoder(DjangoJSONEncoder):
 
 # ref: https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sns.html#SNS.Client.publish
 def publish(resource_kind:str, event_kind:str, obj):
-    logger.info("메시지 발행.", obj)
+    logger.info(f'메시지 발행. + {str(obj)}')
     response = client.publish(
         TopicArn=settings.SNS['topicArn'],
         Message=json.dumps(obj, cls=ExtendedEncoder),
@@ -48,4 +48,6 @@ def publish(resource_kind:str, event_kind:str, obj):
             }
         }
     )
+    logger.info(response)
+    logger.info(settings.SNS['topicArn'],)
 

@@ -10,6 +10,34 @@ logger = logging.getLogger(__name__)
 
 client = WebClient(token=settings.SLACK_BOT_TOKEN)
 
+def send_message(key, value) -> bool:
+    try:
+        response = client.chat_postMessage(channel='#khumu', text="", attachments=[
+            {
+                "color": "#00CF30",
+                "fields": [
+                    {
+                        "title": key,
+                        "value": value,
+                        "short": False
+                    }
+                ],
+                # "image_url": "http://my-website.com/path/to/image.jpg",
+                # "thumb_url": "http://example.com/path/to/thumb.png",
+                # "footer": "Slack API",
+                # "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
+                # "ts": 123456789
+            }
+        ])
+        logging.info(response)
+        return True
+    except SlackApiError as e:
+        traceback.print_exc()
+        # You will get a SlackApiError if "ok" is False
+        if not e.response["ok"]:
+            print(f"Got an error: {e.response['error']}")
+        return False
+
 # 성공한 경우 True, 실패한 경우 False를 return
 def send_feedback(username, content) -> bool:
     try:
