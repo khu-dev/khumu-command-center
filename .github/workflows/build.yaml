@@ -1,7 +1,7 @@
 name: Build
 on:
   push:
-    branches: [master]
+    branches: ["*"]
   workflow_dispatch:
 
 jobs:
@@ -10,6 +10,7 @@ jobs:
     steps:
       - name: 배포 환경 설정
         run: |
+
           # master 혹은 main 브랜치의 경우 prd 환경에 배포합니다.
           # 그 외의 브랜치는 dev로
           environment="dev"
