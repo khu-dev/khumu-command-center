@@ -1,7 +1,6 @@
-import datetime
 import logging
 import time
-
+from django.utils import timezone
 from django.conf import settings
 import traceback
 from rest_framework.decorators import action
@@ -93,13 +92,13 @@ class HaksaScheduleViewSet(viewsets.ViewSet, generics.ListAPIView):
         # 표기상으로는 UTC+9라서 9시간 느리게 표기됨.
         confirmed = self.request.query_params.get('confirmed')
         if confirmed == 'true':
-            return HaksaSchedule.objects.filter(ends_at__gte=datetime.datetime.now(tz=datetime.timezone.utc), confirmhaksaschedule__in=ConfirmHaksaSchedule.objects.filter(user=self.request.user)).order_by(
+            return HaksaSchedule.objects.filter(ends_at__gte=timezone.now(), confirmhaksaschedule__in=ConfirmHaksaSchedule.objects.filter(user=self.request.user)).order_by(
                 'starts_at')[:8]
         elif confirmed == 'false':
-            return HaksaSchedule.objects.filter(ends_at__gte=datetime.datetime.now(tz=datetime.timezone.utc)).exclude(confirmhaksaschedule__in=ConfirmHaksaSchedule.objects.filter(user=self.request.user)).order_by(
+            return HaksaSchedule.objects.filter(ends_at__gte=timezone.now()).exclude(confirmhaksaschedule__in=ConfirmHaksaSchedule.objects.filter(user=self.request.user)).order_by(
                 'starts_at')[:8]
 
-        return HaksaSchedule.objects.filter(ends_at__gte=datetime.datetime.now(tz=datetime.timezone.utc)).order_by('starts_at')[:8]
+        return HaksaSchedule.objects.filter(ends_at__gte=timezone.now()).order_by('starts_at')[:8]
 
     @action(methods=['POST'], detail=True, url_path='confirm')
     def confirm(self, request, pk):
@@ -111,19 +110,14 @@ class HaksaScheduleViewSet(viewsets.ViewSet, generics.ListAPIView):
 
     @action(methods=['POST'], detail=False, url_path='notify')
     def notify(self, request):
-        KST = datetime.timezone(datetime.timedelta(hours=9))
-        logger.info(f'알림이 가지 않은 학사일정에 대한 알림을 요청합니다.')
-        # DB는 KST보다 9시간 느리다
-        # DB: 2021-10-08 14:59:00
-        # KST: 2021-10-08 23:59:00
-        starts_at_min = datetime.datetime.now(tz=KST)
-        starts_at_max = starts_at_min + datetime.timedelta(days=2)
+        starts_at_min = timezone.now()
+        starts_at_max = starts_at_min + timezone.timedelta(days=2)
         logger.info(f'현재 시각 {starts_at_min}')
         schedules = HaksaSchedule.objects.filter(is_notified=False, starts_at__gte=starts_at_min, starts_at__lte=starts_at_max)
         serializer = self.get_serializer(instance=schedules, many=True)
 
         for instance in serializer.instance:
-            instance.is_notified = True
+            # instance.is_notified = True
             instance.save()
             adapter.slack.slack.send_message('새로운 학사일정 임박', instance.title)
             if settings.SNS['enabled']:
