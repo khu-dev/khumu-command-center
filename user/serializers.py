@@ -62,6 +62,8 @@ class KhumuUserSerializer(serializers.ModelSerializer):
         # TODO: 원래는 verified 점검해야됨
         # TODO: 클라이언트에서 학번, 학과 잘 전달해주는지 확인
         validated_data['state'] = 'active'
+        if validated_data['kind'] == 'student':
+            validated_data['password'] = ''
         user = super().create(validated_data)
         if user.kind != 'student':
             # 지금은 student는 password 사용 안함.
