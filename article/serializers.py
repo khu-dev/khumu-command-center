@@ -9,7 +9,7 @@ from article.models import Article, LikeArticle, BookmarkArticle,  BookmarkStudy
     StudyArticle, StudyArticleStudyField
 from rest_framework import serializers
 from khumu import settings, config
-import datetime, time
+from django.utils import timezone
 import logging
 from django.conf import settings
 
@@ -279,10 +279,8 @@ class BookmarkStudyArticleSerializer(serializers.ModelSerializer):
         fields = ['study_article', 'user']
 
 # datetime.datetime type의 시각을 받아서 쿠뮤에서 원하는 형태의 시각으로 변환한다.
-def get_converted_time_string(t:datetime.datetime):
-    t = t.replace(tzinfo=datetime.timezone.utc).astimezone(tz=None)
-
-    now = datetime.datetime.now(tz=pytz.timezone(settings.TIME_ZONE))
+def get_converted_time_string(t:timezone.datetime):
+    now = timezone.now()
     delta = now - t
     delta_minutes = int(delta.total_seconds() // 60)
     # print(t.strftime("%y/%m/%d %H:%M")) # => 한국 시간으로 잘 나온다.
