@@ -68,7 +68,12 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         if self.kwargs['pk'] != request.user.username:
             return DefaultResponse(None, "해당 유저를 수정할 권한이 없습니다.", 403)
         else:
-            return super().partial_update(request, *args, **kwargs)
+            try:
+                super().partial_update(request, *args, **kwargs)
+            except ValidationError as e:
+                traceback.print_exc()
+                return DefaultResponse(None, next(iter(e.detail.values())), 400)
+            return request.user
 
     def destroy(self, request, *args, **kwargs):
         self.set_pk_if_me_request(request, *args, **kwargs)
