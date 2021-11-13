@@ -90,8 +90,6 @@ WSGI_APPLICATION = 'khumu.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-TIME_ZONE = 'Asia/Seoul'
-USE_TZ = False
 DATABASES = config.load_database_config()
 
 
@@ -182,7 +180,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
