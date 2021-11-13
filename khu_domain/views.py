@@ -117,7 +117,7 @@ class HaksaScheduleViewSet(viewsets.ViewSet, generics.ListAPIView):
         serializer = self.get_serializer(instance=schedules, many=True)
 
         for instance in serializer.instance:
-            # instance.is_notified = True
+            instance.is_notified = True
             instance.save()
             adapter.slack.slack.send_message('새로운 학사일정 임박', instance.title)
             if settings.SNS['enabled']:
