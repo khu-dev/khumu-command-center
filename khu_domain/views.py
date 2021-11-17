@@ -1,3 +1,4 @@
+import datetime
 import logging
 import time
 from django.utils import timezone
@@ -110,9 +111,10 @@ class HaksaScheduleViewSet(viewsets.ViewSet, generics.ListAPIView):
 
     @action(methods=['POST'], detail=False, url_path='notify')
     def notify(self, request):
+        # KST
         starts_at_min = timezone.now()
-        starts_at_max = starts_at_min + timezone.timedelta(days=2)
-        logger.info(f'현재 시각 {starts_at_min}')
+        starts_at_max = starts_at_min + datetime.timedelta(days=2)
+        logger.info(f'starts_at_min: {starts_at_min}, starts_at_max: {starts_at_max}')
         schedules = HaksaSchedule.objects.filter(is_notified=False, starts_at__gte=starts_at_min, starts_at__lte=starts_at_max)
         serializer = self.get_serializer(instance=schedules, many=True)
 
