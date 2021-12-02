@@ -50,7 +50,7 @@ campuses:
                 code: A07333
               - name: 소프트웨어융합학과
                 code: A07346
-          - name: 응용과학대학
+          - name: 응용과학대학 # 응용과학대 없어졌나 강의가 하나도 없네
             code: A05346
             departments:
               - name: 응용수학과
@@ -61,7 +61,7 @@ campuses:
                 code: A05360
               - name: 우주과학과
                 code: A05362
-          - name: 생명과학대학
+          - name: 생명과학대학 # 생명과학대학 없어졌나 강의가 하나도 없네
             code: A05165
             departments:
               - name: 유전공학과
@@ -171,7 +171,7 @@ campuses:
                 code: A05382
               - name: 교직전공
                 code: A05380
-              - name: OTC과정
+              - name: ROTC과정(후마니타스)
                 code: A05384
           - name: 자연계열
             code: A05418
@@ -188,7 +188,7 @@ campuses:
             departments:
               - name: 연계전공
                 code: A05529
-              - name: ROTC과정
+              - name: ROTC과정(기타)
                 code: A05523
               - name: 취업스쿨
                 code: A05527

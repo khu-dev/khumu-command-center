@@ -96,7 +96,7 @@ class KhuAuthJob(BaseKhuJob):
                 raise Info21WrongCredential()
 
 
-            info21_redirected_encode_response = self.sess.get("https://portal.khu.ac.kr/ksign/index.jsp")
+            info21_redirected_encode_response = self.sess.get("https://portal.khu.ac.kr/ksign/index.jsp", verify=False)
             logger.info(self.get_logger_prefix() + "인포21 로그인 리다이렉트 응답 코드" + str(info21_redirected_encode_response.status_code))
 
             # 옛날엔 여기 redirect 되는 곳에서 올바르지 않은 credential인지 확인할 수 있었는데
@@ -117,13 +117,15 @@ class KhuAuthJob(BaseKhuJob):
                 'userId': encoded_user_id,
                 'rtnUrl': '',
                 'lang': 'kor'
-                }, timeout = self.each_step_timeout)
+                }, timeout=self.each_step_timeout, verify=False)
             logger.info(self.get_logger_prefix() + "인포21 로그인 후 응답 코드" + str(info21_after_login_response.status_code))
 
             if info21_after_login_response.status_code != 200:
                 logger.info(info21_after_login_response.text)
 
-            user_info_response = self.sess.get('https://portal.khu.ac.kr/haksa/main/dialog/comInfo.do', timeout=self.each_step_timeout)
+            user_info_response = self.sess.get('https://portal.khu.ac.kr/haksa/main/dialog/comInfo.do',
+                                               timeout=self.each_step_timeout,
+                                               verify=False)
             logger.info(self.get_logger_prefix() + "인포21 user info 응답 코드" + str(user_info_response.status_code))
 
             if info21_after_login_response.status_code != 200:
