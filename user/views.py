@@ -4,7 +4,6 @@ import traceback
 from django.contrib.auth.models import Group
 from rest_framework import viewsets, status
 from rest_framework import permissions
-from rest_framework import response
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import *
 from job.base_khu_job import BaseKhuException
@@ -12,6 +11,9 @@ from job.khu_auth_job import KhuAuthJob, Info21AuthenticationUnknownException
 from khumu.response import *
 from user.serializers import KhumuUserSerializer, GroupSerializer
 from user.models import KhumuUser
+from adapter.slack import slack
+from adapter.message import publisher
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +80,17 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         self.set_pk_if_me_request(request, *args, **kwargs)
         logger.info('회원을 탈퇴시킵니다.' + self.kwargs.get('pk'))
+        instance = self.get_object()
+        self.perform_destroy(instance)
+
+        slack.send_message('유저가 탈퇴했습니다.', 'ID: ' + instance.username)
+        if settings.SNS['enabled']:
+            publisher.publish("user", "delete", instance)
         return super().destroy(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        instance.status = 'deleted'
+        instance.save()
 
     def set_pk_if_me_request(self, request, *args, **kwargs):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
@@ -87,7 +99,15 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='verify-new-student')
     def verify_new_student(self, request, *args, **kwargs):
-        if KhumuUser.objects.filter(username=request.data.get('username')).exists():
+        users = KhumuUser.objects.filter(username=request.data.get('username'))
+        if users.exists():
+            u = users.first()
+            if u.status == 'deleted':
+                return DefaultResponse(
+                    data=None,
+                    message='탈퇴한 유저입니다.\n탈퇴한 유저의 재가입은 쿠뮤에 문의해주세요.',
+                    status=400
+                )
             return DefaultResponse(
                 data=None,
                 message='이미 존재하는 ID입니다.',

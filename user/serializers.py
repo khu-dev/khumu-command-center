@@ -34,7 +34,7 @@ class KhumuUserSerializer(serializers.ModelSerializer):
             }
         }
         # 커스텀하게 업데이트 가능한 필드를 정의하기 위함
-        updatable_fields = ['nickname', 'department', 'profile_image'] # state나 kind는 업데이트 불가능하게 하려고.
+        updatable_fields = ['nickname', 'department', 'profile_image'] # status나 kind는 업데이트 불가능하게 하려고.
     groups = serializers.SerializerMethodField()
 
     # user는 수정 가능한 필드만 수정하도록 커스텀한 KhumuUserSerializer.Meta.updatable_fields을 이용함.
@@ -61,7 +61,7 @@ class KhumuUserSerializer(serializers.ModelSerializer):
         validated_data['kind'] = validated_data.get('kind', 'student')
         # TODO: 원래는 verified 점검해야됨
         # TODO: 클라이언트에서 학번, 학과 잘 전달해주는지 확인
-        validated_data['state'] = 'active'
+        validated_data['status'] = 'exists'
         if validated_data['kind'] == 'student':
             validated_data['password'] = ''
         user = super().create(validated_data)
@@ -87,7 +87,7 @@ class KhumuUserSerializer(serializers.ModelSerializer):
 class KhumuUserSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = KhumuUser
-        fields = ['url', 'state', 'username']
+        fields = ['url', 'status', 'username']
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
