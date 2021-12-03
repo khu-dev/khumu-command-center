@@ -45,6 +45,9 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
             for e in serializer.errors.values():
                 return DefaultResponse(data=None, message=e[-1], status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
+        instance = KhumuUser.objects.get(username=serializer.data['username'])
+        if settings.SNS['enabled']:
+            publisher.publish("user", "create", instance)
         return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
@@ -71,26 +74,28 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
             return DefaultResponse(None, "해당 유저를 수정할 권한이 없습니다.", 403)
         else:
             try:
-                super().partial_update(request, *args, **kwargs)
+                return DefaultResponse(data=super().partial_update(request, *args, **kwargs).data, status=200)
             except ValidationError as e:
                 traceback.print_exc()
                 return DefaultResponse(None, next(iter(e.detail.values())), 400)
-            return request.user
+
+    def perform_update(self, serializer):
+        serializer.save()
+        instance = self.get_object()
+        if settings.SNS['enabled']:
+            publisher.publish("user", "update", instance)
 
     def destroy(self, request, *args, **kwargs):
         self.set_pk_if_me_request(request, *args, **kwargs)
         logger.info('회원을 탈퇴시킵니다.' + self.kwargs.get('pk'))
-        instance = self.get_object()
-        self.perform_destroy(instance)
-
-        slack.send_message('유저가 탈퇴했습니다.', 'ID: ' + instance.username)
-        if settings.SNS['enabled']:
-            publisher.publish("user", "delete", instance)
         return super().destroy(request, *args, **kwargs)
 
     def perform_destroy(self, instance):
         instance.status = 'deleted'
         instance.save()
+        slack.send_message('유저가 탈퇴했습니다.', 'ID: ' + instance.username)
+        if settings.SNS['enabled']:
+            publisher.publish("user", "delete", instance)
 
     def set_pk_if_me_request(self, request, *args, **kwargs):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
