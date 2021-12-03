@@ -1,4 +1,3 @@
-from comment.models import Comment
 from rest_framework import serializers
 
 from khu_domain.models import Department, LectureSuite, Lecture, Organization, HaksaSchedule
