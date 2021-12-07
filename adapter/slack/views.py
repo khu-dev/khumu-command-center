@@ -1,19 +1,9 @@
-import urllib.parse as urlparse
-from urllib.parse import parse_qs
 from rest_framework import viewsets, pagination, permissions, views, status, generics
-from rest_framework import response
-from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.views import APIView
-from article.services import LikeArticleService, LikeArticleException
-from comment.models import Comment
-from khumu import settings, config
-import adapter.message.publisher
-from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse, DefaultResponse
 from adapter.slack.slack import send_feedback
 
 from article.serializers import *
-from user.serializers import KhumuUserSimpleSerializer
 
 logger = logging.getLogger(__name__)
 

@@ -68,11 +68,20 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_author(self, obj):
         request_user = self.context['request'].user
+
+        if obj.author.status == 'deleted':
+            return {
+                "username": "탈퇴한 유저",
+                "nickname": "탈퇴한 유저",
+                "status": 'deleted',
+            }
+
         author_data = {
             "username": obj.author.username,
             "nickname": obj.author.nickname,
-            "state": obj.author.state
+            "status": obj.author.status,
         }
+
         if obj.kind == "anonymous":
             author_data['username'] = '익명'
             author_data['nickname'] = '익명'
@@ -239,7 +248,7 @@ class StudyArticleSerializer(serializers.ModelSerializer):
         author_data = {
             "username": obj.author.username,
             "nickname": obj.author.nickname,
-            "state": obj.author.state
+            "status": obj.author.status
         }
         if obj.kind == "anonymous":
             author_data['username'] = '익명'

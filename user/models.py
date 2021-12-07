@@ -25,7 +25,7 @@ class KhumuUser(AbstractUser, PermissionsMixin):
     student_number = models.CharField(max_length=10, default="2000123123", unique=False, null=True, blank=True)
     department = models.CharField(max_length=16, default="학과 미설정", null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now, null=False)
-    state = models.CharField(max_length=16, default="unverified", null=False)
+    status = models.CharField(max_length=16, default="exists", null=False) # (exists, deleted)
     is_superuser = models.BooleanField(default=False, null=False)
     profile_image = models.CharField(max_length=128, null=True)
 

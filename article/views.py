@@ -5,7 +5,6 @@ from rest_framework import response
 
 from rest_framework.decorators import action
 from article.services import LikeArticleService, LikeArticleException
-from comment.models import Comment
 import adapter.message.publisher
 from khumu.permissions import is_author_or_admin
 from khumu.response import UnAuthorizedResponse, BadRequestResponse, DefaultResponse
@@ -72,8 +71,9 @@ class ArticleViewSet(viewsets.ModelViewSet):
             queryset = Article.objects.filter(likearticle__in=LikeArticle.objects.filter(user=self.request.user)).distinct()
         elif board_name == 'bookmarked':
             queryset = Article.objects.filter(bookmarkarticle__in=BookmarkArticle.objects.filter(user=self.request.user)).distinct()
-        elif board_name == 'commented':
-            queryset = Article.objects.filter(comment__in=Comment.objects.filter(author=self.request.user)).distinct()
+        # 내가 댓글 단 게시글을 어떻게 조회하지
+        # elif board_name == 'commented':
+        #     queryset = Article.objects.filter(comment__in=Comment.objects.filter(author=self.request.user)).distinct()
         elif board_name == 'hot':
             queryset = Article.objects.filter(is_hot=True)
         elif board_name:

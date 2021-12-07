@@ -31,6 +31,9 @@ class KhumuJWTSerializer(TokenObtainPairSerializer):
             raise AuthenticationFailed(detail="ID 혹은 Password가 잘못되었습니다.")
         self.user = user_queryset.first()
 
+        if self.user.status == 'deleted':
+            raise AuthenticationFailed(detail="탈퇴한 유저입니다.")
+
         # student kind가 아니면 password 그대로 인증
         if self.user.kind != 'student':
             if not self.user.check_password(attrs['password']):

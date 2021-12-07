@@ -4,7 +4,6 @@ import traceback
 from django.contrib.auth.models import Group
 from rest_framework import viewsets, status
 from rest_framework import permissions
-from rest_framework import response
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import *
 from job.base_khu_job import BaseKhuException
@@ -12,6 +11,9 @@ from job.khu_auth_job import KhuAuthJob, Info21AuthenticationUnknownException
 from khumu.response import *
 from user.serializers import KhumuUserSerializer, GroupSerializer
 from user.models import KhumuUser
+from adapter.slack import slack
+from adapter.message import publisher
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,9 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
             for e in serializer.errors.values():
                 return DefaultResponse(data=None, message=e[-1], status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
+        instance = KhumuUser.objects.get(username=serializer.data['username'])
+        if settings.SNS['enabled']:
+            publisher.publish("user", "create", instance)
         return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
@@ -69,16 +74,28 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
             return DefaultResponse(None, "해당 유저를 수정할 권한이 없습니다.", 403)
         else:
             try:
-                super().partial_update(request, *args, **kwargs)
+                return DefaultResponse(data=super().partial_update(request, *args, **kwargs).data, status=200)
             except ValidationError as e:
                 traceback.print_exc()
                 return DefaultResponse(None, next(iter(e.detail.values())), 400)
-            return request.user
+
+    def perform_update(self, serializer):
+        serializer.save()
+        instance = self.get_object()
+        if settings.SNS['enabled']:
+            publisher.publish("user", "update", instance)
 
     def destroy(self, request, *args, **kwargs):
         self.set_pk_if_me_request(request, *args, **kwargs)
         logger.info('회원을 탈퇴시킵니다.' + self.kwargs.get('pk'))
         return super().destroy(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        instance.status = 'deleted'
+        instance.save()
+        slack.send_message('유저가 탈퇴했습니다.', 'ID: ' + instance.username)
+        if settings.SNS['enabled']:
+            publisher.publish("user", "delete", instance)
 
     def set_pk_if_me_request(self, request, *args, **kwargs):
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
@@ -87,7 +104,15 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='verify-new-student')
     def verify_new_student(self, request, *args, **kwargs):
-        if KhumuUser.objects.filter(username=request.data.get('username')).exists():
+        users = KhumuUser.objects.filter(username=request.data.get('username'))
+        if users.exists():
+            u = users.first()
+            if u.status == 'deleted':
+                return DefaultResponse(
+                    data=None,
+                    message='탈퇴한 유저입니다.\n탈퇴한 유저의 재가입은 쿠뮤에 문의해주세요.',
+                    status=400
+                )
             return DefaultResponse(
                 data=None,
                 message='이미 존재하는 ID입니다.',

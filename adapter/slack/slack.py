@@ -10,15 +10,15 @@ logger = logging.getLogger(__name__)
 
 client = WebClient(token=settings.SLACK_BOT_TOKEN)
 
-def send_message(key, value) -> bool:
+def send_message(title, content) -> bool:
     try:
         response = client.chat_postMessage(channel='#khumu', text="", attachments=[
             {
                 "color": "#00CF30",
                 "fields": [
                     {
-                        "title": key,
-                        "value": value,
+                        "title": title,
+                        "value": content,
                         "short": False
                     }
                 ],

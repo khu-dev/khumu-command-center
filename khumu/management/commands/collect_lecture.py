@@ -16,7 +16,7 @@ class Command(BaseCommand):
     #     parser.add_argument('poll_ids', nargs='+', type=int)
 
     def add_arguments(self, parser):
-        parser.add_argument('-o', '--organizations', nargs='+', help='<Optional> 전체 단과대가 아닌 특정 단과대만 이용. 단과대 이름을 통해 설정한다. (e.g. 공과대학)', required=False)
+        parser.add_argument('-o', '--organizations', nargs='+', help='<Optional> 전체 단과대가 아닌 특정 단과대만 이용. 단과대 이름을 통해 설정한다. 지정하지 않으면 전체 단과대에 대해 수집.(e.g. 공과대학)', required=False)
 
     def handle(self, *args, **options):
         collector = KhuLectureCollectorJob({

@@ -13,7 +13,6 @@ import khu_domain
 from job import student_qr_code_job
 from user import views as userView
 from article import views as articleView
-from comment import views as commentView
 from khu_domain import views as khu_domain_view
 from board import views as boardView
 from adapter.slack.views import SlackFeedbackAPIView

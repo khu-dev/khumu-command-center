@@ -46,11 +46,13 @@ class KhuLectureCollectorJob(KhuAuthJob):
                                 self.current_page = 1
                                 while self.current_page <= self.max_page_for_current_query:
                                     # 국제캠, 2021학년도, 1학기, 단과대, 학과
-                                    self.logger.info(f'쿼리 시작 2, 2021, 10, {organization["name"] + organization["code"]}, { dept["name"] + dept["code"]}')
-                                    self.query(2, 2021, 10, organization['code'], dept['code'])
+                                    # 1학기 - 10
+                                    # 여름학기 - 15
+                                    # 2학기 - 20
+                                    # 겨울학기 - 25
+                                    self.logger.info(f'쿼리 시작 2(국제캠), 2022(22학년도), 10(1학기), {organization["name"] + organization["code"]}, { dept["name"] + dept["code"]}')
+                                    self.query(2, 2021, 20, organization['code'], dept['code'])
                                     self.current_page += 1
-
-
 
     def query(self, campus_id:int, year:int, semester_code:int, org_code:str, dept_code:str):
         try:
@@ -60,7 +62,7 @@ class KhuLectureCollectorJob(KhuAuthJob):
                 'Origin': 'https://portal.khu.ac.kr',
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'
                },
-               timeout=3, data={
+               timeout=6, data={
                 "currentPageNo": self.current_page,
                 "corseCode": None, # 컴퓨터공학과, 컴퓨터공학과(소프트웨어) 와 같이 불필요한 정보이므로 생략
                 "searchSyy": year,
@@ -78,7 +80,7 @@ class KhuLectureCollectorJob(KhuAuthJob):
                 # "searchEndHm": "2330",
                 # "searchAtnlcHy": "",
                 # "searchPersNm": "",
-            })
+            }, verify=False)
         except requests.exceptions.ReadTimeout:
             logger.error(f'Read timeout 발생. current page를 {self.current_page}에서 1 감소시켜 재실행.')
             self.current_page -= 1
