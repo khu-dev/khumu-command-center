@@ -10,10 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import os,datetime
+import os, datetime
 from khumu.csrf import CsrfExemptSessionAuthentication
 from khumu import config
-
+from django.core.exceptions import ImproperlyConfigured
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -22,7 +22,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7yrw2(*^f^od8pb8qdfthxg+!p*d-^lu_+wmb4rni6ntrg8@qm'
+SECRET_KEY = os.getenv('KHUMU_SECRET')
+if SECRET_KEY == None:
+    raise ImproperlyConfigured("JWT를 위한 KHUMU_SECRET을 설정해주세요. secret은 Base64 인코딩 되어있어야합니다.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -125,8 +127,9 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'USER_ID_FIELD': 'username',
     'SIGNING_KEY': SECRET_KEY,
+    'USER_ID_FIELD': 'username',
+    'USER_ID_CLAIM': 'user_id',
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=90),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=1),
     # 'ROTATE_REFRESH_TOKENS': False,
@@ -139,7 +142,6 @@ SIMPLE_JWT = {
     #
     # 'AUTH_HEADER_TYPES': ('Bearer',),
     # 'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
 }
 
 # 개발용 CORS
