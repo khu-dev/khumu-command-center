@@ -111,7 +111,9 @@ class ArticleViewSet(viewsets.ModelViewSet):
                     "message": ""
                 }
                 '''
-                queryset = Article.objects.filter(id__in=data.get('data', []))
+                article_id_list = data.get('data', [])
+                queryset = Article.objects.filter(id__in=article_id_list)
+                queryset = sorted(queryset, key=lambda a: article_id_list.index(a.id))
             except Exception as e:
                 logger.error('Comment 서비스와 통신 중 알 수 없는 오류 발생')
                 traceback.print_exc()
