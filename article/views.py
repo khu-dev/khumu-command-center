@@ -17,30 +17,47 @@ from django.utils import timezone
 import time
 from article.serializers import *
 from user.serializers import KhumuUserSimpleSerializer
+from base64 import b64decode, b64encode
+from urllib import parse
+from rest_framework.pagination import replace_query_param
 
 logger = logging.getLogger(__name__)
-class ArticlePagination(pagination.CursorPagination):
-    page_size_query_param = "size"
-    page_size = 20  # 임의로 설정하느라 우선 크게 잡았음.
-    ordering = '-created_at'
-    def get_paginated_response(self, data):
-        next_cursor = None
-        # next_link = self.get_next_link()
-        # 캐시 테스트 하느라 임시로 None
-        next_link = self.get_next_link()
-        if next_link != None:
-            parsed = urlparse.urlparse(next_link)
-            next_cursor = parse_qs(parsed.query).get('cursor', None)
 
+class ArticlePagination(pagination.PageNumberPagination):
+    page_size = 20
+    page_query_param = 'page'
+    page_size_query_param = 'size'
+
+    def get_paginated_response(self, request, data):
         return response.Response({
             'links': {
-                'next': self.get_next_link(),
-                'next_cursor': next_cursor,
-                'previous': self.get_previous_link()
+                'next': self.get_next_link(request, data),
+                'previous': self.get_previous_link(request, data)
             },
-            'count': len(self.page),
             'data': data
         })
+    def get_next_link(self, request, data):
+        if request.query_params.get('board') != 'commented':
+            return super().get_next_link()
+
+        if len(data) == 0:
+            return None
+        else:
+            url = request.build_absolute_uri()
+            page_number = int(request.query_params.get(self.page_query_param, 1))
+            return replace_query_param(url, self.page_query_param, page_number + 1)
+
+    def get_previous_link(self, request, data):
+        if request.query_params.get('board') != 'commented':
+            return super().get_previous_link()
+
+        url = request.build_absolute_uri()
+        page_number = int(request.query_params.get(self.page_query_param, 1))
+        if page_number == 1:
+            return None
+        else:
+            return replace_query_param(url, self.page_query_param, page_number - 1)
+
 class IsArticleCheckPermission(permissions.IsAuthenticated):
     def has_permission(self, request, view):
         if view.action == 'is_author':
@@ -71,9 +88,36 @@ class ArticleViewSet(viewsets.ModelViewSet):
             queryset = Article.objects.filter(likearticle__in=LikeArticle.objects.filter(user=self.request.user)).distinct()
         elif board_name == 'bookmarked':
             queryset = Article.objects.filter(bookmarkarticle__in=BookmarkArticle.objects.filter(user=self.request.user)).distinct()
-        # 내가 댓글 단 게시글을 어떻게 조회하지
-        # elif board_name == 'commented':
-        #     queryset = Article.objects.filter(comment__in=Comment.objects.filter(author=self.request.user)).distinct()
+        elif board_name == 'commented':
+            print(
+                f'Comment 서비스에 최근에 댓글 단 게시글 ID를 조회합니다. {settings.COMMENT_SERVICE.get("root")}comments/get-comment-count')
+            try:
+                response = requests.post(
+                    f'{settings.COMMENT_SERVICE.get("root")}comments/get-commented-articles',
+                    headers={'Authorization': self.request.META['HTTP_AUTHORIZATION']},
+                    data={
+                        'size': self.request.query_params.get('size', 10),
+                        'page': self.request.query_params.get('page', None),
+                    },
+                    timeout=(1, 1)  # Connection timeout, Read timeout seconds
+                )
+                if response.status_code != 200:
+                    logger.error(f'Comment 서비스에 대한 요청의 status code가 200이 아닙니다. status_code={response.status_code}')
+                    logger.error(response.text)
+                data = json.loads(response.text)
+                '''
+                {
+                    "data": [1, 2, 4, 7, 6, ...],
+                    "message": ""
+                }
+                '''
+                article_id_list = data.get('data', [])
+                queryset = Article.objects.filter(id__in=article_id_list)
+                queryset = sorted(queryset, key=lambda a: article_id_list.index(a.id))
+            except Exception as e:
+                logger.error('Comment 서비스와 통신 중 알 수 없는 오류 발생')
+                traceback.print_exc()
+                raise e
         elif board_name == 'hot':
             queryset = Article.objects.filter(is_hot=True)
         elif board_name:
@@ -96,23 +140,35 @@ class ArticleViewSet(viewsets.ModelViewSet):
         super().perform_create(serializer)
         if settings.SNS['enabled']:
             adapter.message.publisher.publish("article", "create", serializer.instance)
-
+            
+    def get_paginated_response(self, data):
+        return self.paginator.get_paginated_response(self.request, data)
     def list(self, request, *args, **kwargs):
         start = time.time()
         queryset = self.filter_queryset(self.get_queryset())
-        # serializer = self.get_serializer(queryset, many=True)
-        # articles = serializer.data
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
+        
+        if self.request.query_params.get('board', '') != 'commented':
+            page = self.paginate_queryset(queryset)
+            # pagination을 사용하도록 설정된 경우
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                data = serializer.data
+                logger.info(f'{self.__class__.__name__}.list() 소요시간 {time.time() - start}')
+                return self.get_paginated_response(data)
+            else:
+            # pagination을 사용하지 않도록 설정된 경우
+                serializer = self.get_serializer(queryset, many=True)
+                data = serializer.data
+                logger.info(f'{self.__class__.__name__}.list() 소요시간 {time.time() - start}')
+                return self.get_paginated_response(data)
+        else:
+            # commented. 즉 내가 댓글 단 게시글을 조회할 때에는 페이지네이션을 command-center가 하는 게 아니라
+            # comment가 수행한다.
+            serializer = self.get_serializer(queryset, many=True)
             data = serializer.data
             logger.info(f'{self.__class__.__name__}.list() 소요시간 {time.time() - start}')
-            return self.get_paginated_response(data)
 
-        serializer = self.get_serializer(queryset, many=True)
-        data = serializer.data
-        logger.info(f'{self.__class__.__name__}.list() 소요시간 {time.time() - start}')
-        return DefaultResponse(data)
+            return self.get_paginated_response(data)
 
     def retrieve(self, request, *args, **kwargs):
         article = self.get_object()
@@ -186,8 +242,6 @@ class LikeArticleToggleView(views.APIView):
         username = request.user.username
         likes = LikeArticle.objects.filter(user_id=username, article_id=id)
 
-        if Article.objects.filter(id=id, author_id=username).exists():
-            return DefaultResponse(False, message="자신의 게시물은 좋아요할 수 없습니다.", status=400)
         if len(likes) == 0:
             try:
                 self.like_article_service.like(id, username)
@@ -217,8 +271,6 @@ class BookmarkArticleToggleView(views.APIView):
         username = request.user.username
         bookmarks = BookmarkArticle.objects.filter(user_id=username, article_id=id)
 
-        if Article.objects.filter(id=id, author_id=username).exists():
-            return DefaultResponse(False, message="자신의 게시물은 북마크할 수 없습니다.", status=400)
         if len(bookmarks) == 0:
             s = BookmarkArticleSerializer(data={"article": id, "user": username})
             is_valid = s.is_valid()
@@ -246,8 +298,6 @@ class BookmarkStudyArticleToggleView(views.APIView):
         username = request.user.username
         bookmarks = BookmarkStudyArticle.objects.filter(user_id=username, study_article_id=id)
 
-        if StudyArticle.objects.filter(id=id, author_id=username).exists():
-            return DefaultResponse(False, message="자신의 게시물은 북마크할 수 없습니다.", status=400)
         if len(bookmarks) == 0:
             s = BookmarkStudyArticleSerializer(data={"study_article": id, "user": username})
             is_valid = s.is_valid()
