@@ -242,8 +242,6 @@ class LikeArticleToggleView(views.APIView):
         username = request.user.username
         likes = LikeArticle.objects.filter(user_id=username, article_id=id)
 
-        if Article.objects.filter(id=id, author_id=username).exists():
-            return DefaultResponse(False, message="자신의 게시물은 좋아요할 수 없습니다.", status=400)
         if len(likes) == 0:
             try:
                 self.like_article_service.like(id, username)
@@ -273,8 +271,6 @@ class BookmarkArticleToggleView(views.APIView):
         username = request.user.username
         bookmarks = BookmarkArticle.objects.filter(user_id=username, article_id=id)
 
-        if Article.objects.filter(id=id, author_id=username).exists():
-            return DefaultResponse(False, message="자신의 게시물은 북마크할 수 없습니다.", status=400)
         if len(bookmarks) == 0:
             s = BookmarkArticleSerializer(data={"article": id, "user": username})
             is_valid = s.is_valid()
@@ -302,8 +298,6 @@ class BookmarkStudyArticleToggleView(views.APIView):
         username = request.user.username
         bookmarks = BookmarkStudyArticle.objects.filter(user_id=username, study_article_id=id)
 
-        if StudyArticle.objects.filter(id=id, author_id=username).exists():
-            return DefaultResponse(False, message="자신의 게시물은 북마크할 수 없습니다.", status=400)
         if len(bookmarks) == 0:
             s = BookmarkStudyArticleSerializer(data={"study_article": id, "user": username})
             is_valid = s.is_valid()
