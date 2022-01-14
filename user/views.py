@@ -48,6 +48,7 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         instance = KhumuUser.objects.get(username=serializer.data['username'])
         if settings.SNS['enabled']:
             publisher.publish("user", "create", instance)
+        slack.send_message("🌟 신규 유저 가입!", f'{instance.nickname}(id={instance.username})님이 새로 가입하셨어요.')
         return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
