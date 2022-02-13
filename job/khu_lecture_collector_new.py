@@ -1,5 +1,7 @@
 # 데이터베이스의 NewDepartment row들을 참고해
 # Subject와 NewLecture을 만들고, 그에 대한 Board(게시판)도 만든다.
+import json
+
 from job.khu_auth_job import *
 from khu_domain.models import NewDepartment, Subject, NewLecture
 from board.models import Board
