@@ -1,3 +1,6 @@
+# haksa-XXXX.csv 파일을 DB에 반영합니다.
+# 멱등성이 보장됩니다.
+
 import csv
 
 from job.base_khu_job import BaseKhuJob

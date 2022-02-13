@@ -1,6 +1,6 @@
+# info21 인증을 위한 Job
 import logging
 import traceback
-import json
 import requests
 from bs4 import BeautifulSoup
 

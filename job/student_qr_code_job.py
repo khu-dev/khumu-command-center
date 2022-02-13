@@ -1,3 +1,5 @@
+# 학생의 QR 코드를 발급해주는 Job입니다.
+
 import abc
 import logging
 

@@ -1,14 +1,7 @@
-import abc
-import logging
-import os
-from django.test import TestCase
-import yaml
-import requests
-from bs4 import BeautifulSoup
+# Deprecated
+# 뭐하던 코드인지는 기억 안나지만 어쨌든 강의 크롤링 로직이 변경되면서 필요 없어진 코드인듯
 
 from board.models import Board, FollowBoard
-from board.serializers import FollowBoardSerializer
-from job.base_khu_job import BaseKhuJob, BaseKhuException
 from job.khu_auth_job import *
 from khu_domain.models import Lecture, LectureSuite, Campus, Organization, Department
 from user.models import KhumuUser
