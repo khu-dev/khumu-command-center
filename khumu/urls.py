@@ -38,8 +38,6 @@ urlpatterns = [
 
     # 나의 QR코드 가져오기
     path(r'api/users/me/qr-code', student_qr_code_job.GetQrCodeInfoView.as_view(), name='get-qr-code'),
-    # 내가 수강 중인 강의 목록과 이것 저것을 Sync 맞추기
-    path(r'api/users/me/sync', khu_domain_view.KhuSyncAPIView.as_view(), name='khu-sync'),
     path(r'api/articles/<id>/likes', articleView.LikeArticleToggleView.as_view(), name='like-article'),
     path(r'api/articles/<id>/bookmarks', articleView.BookmarkArticleToggleView.as_view(), name='bookmark-article'),
     path(r'api/study-articles/<id>/bookmarks', articleView.BookmarkStudyArticleToggleView.as_view(), name='bookmark-study-article'),

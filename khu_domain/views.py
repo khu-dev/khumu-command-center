@@ -12,7 +12,6 @@ from rest_framework.viewsets import generics
 
 import adapter.message.publisher
 import adapter.slack.slack
-from job.khu_lecture_sync import KhuLectureSyncJob
 from khu_domain.models import LectureSuite, Organization, HaksaSchedule, Department, ConfirmHaksaSchedule
 from khu_domain.serializers import LectureSuiteSerializer, OrganizationSerializer, HaksaScheduleSerializer, \
     DepartmentSerializer
@@ -126,22 +125,24 @@ class HaksaScheduleViewSet(viewsets.ViewSet, generics.ListAPIView):
                 adapter.message.publisher.publish("haksa_schedule", "start", instance)
 
         return DefaultResponse(data=serializer.data, message=None, status=200)
-
-class KhuSyncAPIView(APIView):
-
-    def post(self, request):
-        info21_id = request.data['id']
-        info21_password = request.data['password']
-        # 강의 동기화 작업
-        job = KhuLectureSyncJob({
-            "id": info21_id,
-            "password": info21_password,
-        })
-        try:
-            job.process()
-        except Exception as e:
-            traceback.print_exc()
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={'message': str(e)})
-        return Response(status=status.HTTP_200_OK, data={
-            'message': '수강 중인 강의들의 게시판을 팔로우했습니다.'
-        })
+# Deprecated
+# 수강 중인 강의의 게시판을 팔로우하는 기능
+# 이제는 투머치한 기능 같아서 유지/보수가 안돼서 제거함.
+# class KhuSyncAPIView(APIView):
+#
+#     def post(self, request):
+#         info21_id = request.data['id']
+#         info21_password = request.data['password']
+#         # 강의 동기화 작업
+#         job = KhuLectureSyncJob({
+#             "id": info21_id,
+#             "password": info21_password,
+#         })
+#         try:
+#             job.process()
+#         except Exception as e:
+#             traceback.print_exc()
+#             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={'message': str(e)})
+#         return Response(status=status.HTTP_200_OK, data={
+#             'message': '수강 중인 강의들의 게시판을 팔로우했습니다.'
+#         })
