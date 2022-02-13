@@ -1,5 +1,5 @@
 from django.db import models
-from khu_domain.models import Department, LectureSuite
+from khu_domain.models import Department, LectureSuite, Subject
 from user.models import KhumuUser
 from cacheops import invalidate_obj
 
@@ -21,6 +21,7 @@ class Board(models.Model):
     category = models.CharField(max_length=32, null=False, blank=False, default="free")  # e.g. (department | lecture_suite | free | temporary, announcement)
     related_department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=True, blank=True)
     related_lecture_suite = models.ForeignKey(LectureSuite, on_delete=models.SET_NULL, null=True, blank=True)
+    related_subject = models.ForeignKey(Subject, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=False, blank=False)
 
 class FollowBoard(models.Model):

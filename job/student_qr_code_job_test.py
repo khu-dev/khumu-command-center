@@ -1,3 +1,5 @@
+# StudentQrCodeJob이 잘 동작하는지 확인하기 위한 Test code입니다.
+
 import logging
 from unittest import TestCase
 

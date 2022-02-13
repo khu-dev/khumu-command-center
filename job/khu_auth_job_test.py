@@ -1,13 +1,8 @@
-import abc
-import logging
+# info21 인증이 잘 되는지 확인하기 위한 테스트 코드
+
 import os
 import traceback
 import unittest
-
-import requests
-from bs4 import BeautifulSoup
-
-from job.base_khu_job import BaseKhuJob, BaseKhuException
 from job.khu_auth_job import KhuAuthJob, Info21WrongCredential
 
 

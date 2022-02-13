@@ -1,12 +1,9 @@
-import abc
-import logging
-import os
-from unittest import TestCase
-import yaml
-import requests
-from bs4 import BeautifulSoup
+# Deprecated.
+# 2022-02-13부터는 info21의 종합 시간표가 아닌
+# http://sugang.khu.ac.kr/ 수강 신청 사이트의 data_XXX.js 를 이용해
+# 강의 정보를 크롤링해오기 때문에 이 .py 파일은 deprecated 됐다.
 
-from job.base_khu_job import BaseKhuJob, BaseKhuException
+import yaml
 from job.khu_auth_job import *
 from khu_domain.models import Lecture, LectureSuite, Campus, Organization, Department
 

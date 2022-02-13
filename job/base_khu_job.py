@@ -1,5 +1,6 @@
-import abc
+# KHU 관련 Job의 Base 형태.
 
+import abc
 
 class BaseKhuJob:
 
