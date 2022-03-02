@@ -61,3 +61,7 @@ class KhumuUser(AbstractUser, PermissionsMixin):
         # cache invalidate를 해주지 않으면 계속해서 탈퇴한 user의 article이 원래 username으로 남게된다.
         for article in self.article_set.all():
             invalidate_obj(article)
+
+class AccessLog(models.Model):
+    username = models.CharField(max_length=20, null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now, null=False)
