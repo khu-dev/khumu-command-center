@@ -10,7 +10,7 @@ from job.base_khu_job import BaseKhuException
 from job.khu_auth_job import KhuAuthJob, Info21AuthenticationUnknownException
 from khumu.response import *
 from user.serializers import KhumuUserSerializer, GroupSerializer
-from user.models import KhumuUser
+from user.models import KhumuUser, AccessLog
 from adapter.slack import slack
 from adapter.message import publisher
 from django.conf import settings
@@ -48,7 +48,7 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         instance = KhumuUser.objects.get(username=serializer.data['username'])
         if settings.SNS['enabled']:
             publisher.publish("user", "create", instance)
-        slack.send_message("🌟 신규 유저 가입!", f'{instance.nickname}(id={instance.username})님이 새로 가입하셨어요.')
+        slack.send_message("🌟 신규 유저 가입!", f'{instance.nickname}(id={instance.username}, student_number={instance.student_number}, department={instance.department})님이 새로 가입하셨어요.')
         return DefaultResponse(data=serializer.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
@@ -153,6 +153,16 @@ class KhumuUserViewSet(viewsets.ModelViewSet):
         return DefaultResponse({
             'is_admin': is_admin
         }, None, 200)
+
+    @action(detail=False, methods=['post'], url_path='access')
+    def access(self, request):
+        access_log = AccessLog()
+        if request.user.is_authenticated:
+            access_log.username = request.user.username
+
+        access_log.save()
+
+        return DefaultResponse(data=None)
 
 class GroupViewSet(viewsets.ModelViewSet):
     """
