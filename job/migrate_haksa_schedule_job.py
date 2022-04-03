@@ -20,8 +20,8 @@ class MigrateHaksaScheduleJob(BaseKhuJob):
         f = open(self.data_file_path, "r", encoding='utf8')
         data = csv.DictReader(f, delimiter=',')
         for i, row in enumerate(data):
-            starts_at = f'{row["start"][:4]}-{row["start"][4:6]}-{row["start"][6:8]}T00:00:00.000+09:00'
-            ends_at = f'{row["end"][:4]}-{row["end"][4:6]}-{row["end"][6:8]}T23:59:59.999+09:00'
+            starts_at = f'{row["start"][:4]}-{row["start"][4:6]}-{row["start"][6:8]}T00:00:00.000'
+            ends_at = f'{row["end"][:4]}-{row["end"][4:6]}-{row["end"][6:8]}T23:59:59.999'
             haksa_schedule = HaksaSchedule(
                 title=row['title'],
                 starts_at=starts_at,
